@@ -94,7 +94,7 @@ class CheckpointManagerPlugin(
     storedBtCheckpoint init(initialBtCheckpoint)
     
     def printRAT(rat: RatCheckpoint) = {
-      report(L"[CheckpointManager] RAT mapping: ")
+      report(L"[CheckpointManager] RAT mapping (last cycle): ")
       for (i <- 0 until ratConfig.archRegCount) {
         report(L"archReg a${i.toHexString.view.reverse.padTo(2, '0').mkString.reverse} -> physReg p${rat.mapping(i)}")
       }

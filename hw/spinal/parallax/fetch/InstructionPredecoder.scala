@@ -68,7 +68,7 @@ class InstructionPredecoder(pCfg: PipelineConfig) extends Component {
   // isJump (Direct) 指令的 Opcode 列表
   val isB       = (opcode === B"010100") // 包含 B 和 BL
   // 假设 010101 也是直接跳转，可以像这样添加
-  // val isBL = (opcode === B"010101")
+  val isBL = (opcode === B"010101")
 
   // --- 2. 汇总标志位，生成最终输出 (纯组合逻辑，无优先级) ---
 
@@ -76,17 +76,17 @@ class InstructionPredecoder(pCfg: PipelineConfig) extends Component {
   io.predecodeInfo.isBranch := isBceqzBcnez | isJirl | isBeq | isBne | isBlt | isBge | isBltu | isBgeu
 
   // 如果是直接跳转 (B/BL)，则 isJump 和 isDirectJump 都为 True
-  val isAnyDirectJump = isB // | isBL
+  val isAnyDirectJump = isB | isBL
   io.predecodeInfo.isJump       := isAnyDirectJump
   io.predecodeInfo.isDirectJump := isAnyDirectJump
   io.predecodeInfo.isIdle       := False // 初赛不管了
-  if(false) report(L"predecodeInfo: input=${io.instruction}. output ${io.predecodeInfo.format}")
+  if(true) report(L"predecodeInfo: input=${io.instruction}. output ${io.predecodeInfo.format}")
 
   // --- 3. 计算 jumpOffset (只在需要时有效) ---
 
-  // 提取偏移量字段，这部分是无条件的组合逻辑
-  val offs26 = io.instruction(25 downto 16) ## io.instruction(15 downto 0)
-  
+  // 25:10 作为低位，9:0 作为高位
+  val offs26 = io.instruction(9 downto 0) ## io.instruction(25 downto 10)
+
   // 符号扩展和移位，这也是无条件的组合逻辑
   val offset = (offs26.asSInt << 2).resize(pCfg.xlen) // 修正：直接移位2，然后符号扩展
 

@@ -483,31 +483,36 @@ class LoadQueuePlugin(
                 robLoadWritebackPort.robPtr := completingHead.robPtr
                 robLoadWritebackPort.exceptionOccurred := completionInfoReg.hasFault
                 robLoadWritebackPort.exceptionCodeIn := completionInfoReg.exceptionCode
-                    // --- 数据扩展逻辑 ---
-                    val rawData = completionInfoReg.data
-                    val extendedData = Bits(pipelineConfig.dataWidth)
-                    
-                    // 根据大小和符号位进行选择性扩展
-                    switch(completingHead.size) {
-                        is(MemAccessSize.B) {
-                            when(completingHead.isSignedLoad) {
-                                extendedData := S(rawData(7 downto 0)).resize(pipelineConfig.dataWidth).asBits
-                            } otherwise {
-                                extendedData := U(rawData(7 downto 0)).resize(pipelineConfig.dataWidth).asBits
-                            }
-                        }
-                        is(MemAccessSize.H) { // 假设未来支持半字
-                            when(completingHead.isSignedLoad) {
-                                extendedData := S(rawData(15 downto 0)).resize(pipelineConfig.dataWidth).asBits
-                            } otherwise {
-                                extendedData := U(rawData(15 downto 0)).resize(pipelineConfig.dataWidth).asBits
-                            }
-                        }
-                        default { // 对于 MemAccessSize.W (字) 或更大，不需要扩展
-                            extendedData := rawData
+                val rawData = completionInfoReg.data        // e.g., 0xdeadbeef
+                val addrLow = completingHead.address(1 downto 0) // e.g., 0x...a -> 0b10
+
+                // 1. 根据地址低位对返回的数据进行右移，将目标字节对齐到最低位
+                val shiftedData = (rawData >> (addrLow << 3)).asBits
+
+                // 2. 根据移位后的数据进行扩展
+                val extendedData = Bits(pipelineConfig.dataWidth)
+                switch(completingHead.size) {
+                    is(MemAccessSize.B) {
+                        when(completingHead.isSignedLoad) {
+                            extendedData := S(shiftedData(7 downto 0)).resize(pipelineConfig.dataWidth).asBits
+                        } otherwise {
+                            extendedData := U(shiftedData(7 downto 0)).resize(pipelineConfig.dataWidth).asBits
                         }
                     }
-                robLoadWritebackPort.result := extendedData
+                    is(MemAccessSize.H) {
+                        when(completingHead.isSignedLoad) {
+                            // 现在 shiftedData 的最低16位就是我们想要的半字
+                            extendedData := S(shiftedData(15 downto 0)).resize(pipelineConfig.dataWidth).asBits
+                        } otherwise {
+                            extendedData := U(shiftedData(15 downto 0)).resize(pipelineConfig.dataWidth).asBits
+                        }
+                    }
+                    default { // Word
+                        extendedData := shiftedData // 对于字加载，移位后就是结果
+                    }
+                }
+                robLoadWritebackPort.result := extendedData // 将正确扩展后的数据发送给ROB
+
                 
                 // 只有在没有故障/异常时才写回PRF并唤醒
                 when(!completionInfoReg.hasFault) {

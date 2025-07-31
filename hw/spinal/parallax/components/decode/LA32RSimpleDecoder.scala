@@ -197,7 +197,8 @@ class LA32RSimpleDecoder(val config: PipelineConfig = PipelineConfig()) extends 
   val is_store        = is_st_b | is_st_h | is_st_w
   val is_mem_op       = is_load | is_store
   val is_branch       = is_beq | is_bne | is_blt | is_bltu | is_bge | is_bgeu
-  val is_jump         = is_b | is_bl | is_jirl
+  val is_direct_jump  = is_b | is_bl
+  val is_jump         = is_direct_jump | is_jirl
   val is_branch_or_jump = is_branch | is_jump
   
   // --- 2. 扁平化并行解码逻辑 ---
@@ -305,17 +306,18 @@ class LA32RSimpleDecoder(val config: PipelineConfig = PipelineConfig()) extends 
 
   // 默认设为无符号加载，仅在需要时设为有符号
   io.decodedUop.memCtrl.isSignedLoad := False 
-  when(is_ld_b | is_ld_w) { 
+  when(is_ld_b | is_ld_h | is_ld_w) { 
     io.decodedUop.memCtrl.isSignedLoad := True 
   }
 
   // 设置访存大小
   when(is_ld_b | is_st_b | is_ld_bu) { io.decodedUop.memCtrl.size := MemAccessSize.B }
-  when(is_ld_w | is_st_w) { io.decodedUop.memCtrl.size := MemAccessSize.W }
-
+  when(is_ld_h | is_st_h | is_ld_hu) { io.decodedUop.memCtrl.size := MemAccessSize.H }
+  when(is_ld_w | is_st_w)            { io.decodedUop.memCtrl.size := MemAccessSize.W }
   // BRANCH Control
   when(is_jump) { io.decodedUop.branchCtrl.isJump := True }
   when(is_jirl) { io.decodedUop.branchCtrl.isIndirect := True }
+  when(is_direct_jump) { io.decodedUop.branchCtrl.isIndirect := False }
   when(is_bl | is_jirl) { io.decodedUop.branchCtrl.isLink := True }
   when(is_bl)   { io.decodedUop.branchCtrl.linkReg.idx := r1_idx }
   when(is_jirl) { io.decodedUop.branchCtrl.linkReg.idx := fields.rd }

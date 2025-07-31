@@ -6,7 +6,9 @@
              |              |
            freePtr        allocPtr
           (回收点)         (分配点)
-   ---------><===占用区域===><----------空闲区域-----
+   ---------><===已分配出去的区域===><----可分配区域-----
+
+  注意：所有被使能的端口必须是连续的
  */
 package parallax.components.rename
 
@@ -17,13 +19,12 @@ import parallax.utilities.ParallaxSim.fatal
 import parallax.utilities.ParallaxSim.log
 
 // --- 配置和端口定义 ---
-// 无需修改，保持原样
 case class SimpleFreeListConfig(
     numPhysRegs: Int,
     numInitialArchMappings: Int = 1,
     numAllocatePorts: Int = 1,
     numFreePorts: Int = 1,
-    debugging: Boolean = false // 保留 debugging 开关
+    debugging: Boolean = false 
 ) {
   require(numPhysRegs > 0)
   require(numInitialArchMappings >= 0 && numInitialArchMappings <= numPhysRegs)
@@ -94,16 +95,12 @@ class SimpleFreeList(val config: SimpleFreeListConfig) extends Component {
     RegInit(U(config.numInitialArchMappings + i, config.physRegIdxWidth))
   }
 
-  // 分配指针 (指向下一个可分配的槽位)
+  // 分配指针 (指向下一个可分配的槽位，即读指针)
   val allocPtrReg = Reg(UInt(addressWidth bits)) init (0)
-  // 回收指针 (指向下一个可写入回收寄存器的槽位)
+  // 回收指针 (指向下一个可写入回收寄存器的槽位，即写指针)
   val freePtrReg = Reg(UInt(addressWidth bits)) init (0)
   // 状态标志位，用于区分 allocPtr == freePtr 时的“满”和“空”状态
-  val isRisingOccupancyReg = RegInit(True) // 初始为 True，表示队列是满的。True 表示非回绕模式。
-
-  val dataVec_checkpoint = Vec.tabulate(queueDepth) { i =>
-    RegInit(U(config.numInitialArchMappings + i, config.physRegIdxWidth))
-  }
+  val wrapModeReg = RegInit(True) // 初始是回绕模式，表示满
 
   // 仿真用的周期计数器
   val cycleCounter = if (enableLog) Reg(UInt(32 bits)) init (0) else null
@@ -114,25 +111,29 @@ class SimpleFreeList(val config: SimpleFreeListConfig) extends Component {
   // =========================================================================
   val combinationalArea = new Area {
     // --- 状态计算 ---
-    val isFull = allocPtrReg === freePtrReg && isRisingOccupancyReg
-    val isEmpty = allocPtrReg === freePtrReg && !isRisingOccupancyReg
+    // allocatable 代表 FreeList 中实际可供分配的物理寄存器数量
+    val allocatable = UInt(log2Up(queueDepth + 1) bits)
+    val isFull = allocPtrReg === freePtrReg && wrapModeReg
+    val isEmpty = allocPtrReg === freePtrReg && !wrapModeReg
 
-    val occupancy = UInt(log2Up(queueDepth + 1) bits)
-    when(isFull) {
-      occupancy := U(queueDepth)
-    }.elsewhen(isEmpty) {
-      occupancy := U(0)
-    }.elsewhen(allocPtrReg > freePtrReg) {
-      occupancy := (allocPtrReg - freePtrReg).resized
-    } otherwise { // allocPtr < freePtr
-      occupancy := U(queueDepth) - (freePtrReg - allocPtrReg).resized
+    when(isEmpty) {
+      allocatable := U(0)
+    }.elsewhen(isFull) {
+      allocatable := U(queueDepth)
+    } elsewhen (wrapModeReg) { // No-wrap mode, allocPtr >= freePtr
+      // 可分配数 = queueDepth - (allocPtr - freePtr)
+      // 这是总容量减去“空洞”的大小
+      allocatable := (U(queueDepth) - (allocPtrReg - freePtrReg)).resized
+    } otherwise { // Wrap mode, allocPtr < freePtr
+      // 可分配数 = freePtr - allocPtr
+      allocatable := (freePtrReg - allocPtrReg).resized
     }
-    io.numFreeRegs := occupancy
+    io.numFreeRegs := allocatable
 
     if (enableLog) {
-      when(occupancy =/= RegNext(occupancy, init = U(0))) {
+      when(allocatable =/= RegNext(allocatable, init = U(0))) {
         log(
-          L"[RegRes|FreeList] [Cycle ${cycleCounter}] OCCUPANCY: Current: occupancy=${occupancy}, isEmpty=${isEmpty}, isFull=${isFull}"
+          L"[RegRes|FreeList] [Cycle ${cycleCounter}] Current: allocatable=${allocatable}, isEmpty=${isEmpty}, isFull=${isFull}"
         )
       }
     }
@@ -141,29 +142,22 @@ class SimpleFreeList(val config: SimpleFreeListConfig) extends Component {
     val countWidth = log2Up(Math.max(config.numFreePorts, config.numAllocatePorts) + 1)
 
     // Free 端口仲裁 (计算本周期要回收多少个寄存器)
-    val rawFreeRequests =
-      PriorityMux(io.free.map(!_.enable).asBits.asBools :+ True, (0 to config.numFreePorts).map(U(_, countWidth bits)))
-    val canAcceptFree = U(queueDepth) - occupancy
-    val freeCount = Mux(rawFreeRequests > canAcceptFree, canAcceptFree.resized, rawFreeRequests)
+    val rawFreeRequests = PriorityMux(io.free.map(!_.enable).asBits.asBools :+ True, (0 to config.numFreePorts).map(U(_, countWidth bits)))
+    // 可接受回收的数量 (队列中剩余的空闲槽位 = queueDepth - allocatable)
+    val canAcceptFree = U(queueDepth) - allocatable 
+    val freeCount = Mux(io.recover, U(0), Mux(rawFreeRequests > canAcceptFree, canAcceptFree.resized, rawFreeRequests))
 
     // Allocate 端口仲裁 (计算本周期要分配多少个寄存器)
-    val rawAllocRequests = PriorityMux(
-      io.allocate.map(!_.enable).asBits.asBools :+ True,
-      (0 to config.numAllocatePorts).map(U(_, countWidth bits))
-    )
-    val canAllocate = occupancy // 注意：可分配数不应包含本周期回收的，防止时序问题
-    val allocCount = Mux(rawAllocRequests > canAllocate, canAllocate.resized, rawAllocRequests)
+    val rawAllocRequests = PriorityMux(io.allocate.map(!_.enable).asBits.asBools :+ True, (0 to config.numAllocatePorts).map(U(_, countWidth bits)))
+    val canAllocate = allocatable // 可分配数即为当前队列中的空闲寄存器数量
+    val allocCount = Mux(io.recover, U(0), Mux(rawAllocRequests > canAllocate, canAllocate.resized, rawAllocRequests))
 
     // --- 驱动 IO 端口 ---
     for (i <- 0 until config.numAllocatePorts) {
       io.allocate(i).canAllocate := canAllocate
-      if (enableLog) {
-        log(
-          L"[RegRes|FreeList] [Cycle ${cycleCounter}] ALLOCATE: AllocPort[${i}] enable=${io.allocate(i).enable}, canAllocate=${canAllocate}"
-        )
-      }
     }
   } // End of combinationalArea
+
   // =========================================================================
   // === 3. 时序逻辑 (Sequential Logic)
   // =========================================================================
@@ -174,26 +168,27 @@ class SimpleFreeList(val config: SimpleFreeListConfig) extends Component {
     // --- a. 分配端口输出逻辑 (Allocation Port Output Logic) ---
     // 这个逻辑在时钟沿将分配结果输出给 Rename 阶段
     for (i <- 0 until config.numAllocatePorts) {
-      val willBeGranted = i < allocCount
+      val success = (i < allocCount) && !io.recover
       // 分配成功与否的信号延迟一拍输出，与物理寄存器索引同步
-      io.allocate(i).success := RegNext(willBeGranted, init = False)
+      io.allocate(i).success := success
 
       // 旁路逻辑: 检查本周期回收的寄存器是否立刻被重新分配
       // 这可以减少一拍的延迟，让刚释放的寄存器能立即被使用
       val defaultSourceData = dataVec(allocPtrReg + i)
       val bypassSources = io.free.zipWithIndex.map { case (freePort, freeIdx) =>
-        val willBypass = (freeIdx < freeCount) && ((freePtrReg + freeIdx) === (allocPtrReg + i))
+        // val willBypass = (freeIdx < freeCount) && ((freePtrReg + freeIdx) === (allocPtrReg + i))
+        val willBypass = False
         (willBypass, freePort.physReg)
       }
       val bypassedData = PriorityMux(bypassSources :+ (True -> defaultSourceData))
 
       // 分配的物理寄存器索引也延迟一拍输出
-      io.allocate(i).physReg := RegNext(bypassedData)
+      io.allocate(i).physReg := bypassedData
 
-      if (enableLog && verbose) {
-        when(willBeGranted) {
+      if (enableLog) {
+        when(success) {
           log(
-            L"[RegRes|FreeList] [Cycle ${cycleCounter}] ALLOCATE: AllocPort[${i}] granted p${RegNext(bypassedData)} " +:
+            L"[RegRes|FreeList] [Cycle ${cycleCounter}] ALLOCATE: AllocPort[${i}] allocated p${bypassedData} " +:
             L"(from defaultSource=${defaultSourceData}, bypassed=${bypassedData}, allocPtr=${allocPtrReg}, allocCount=${allocCount})"
           )
         }
@@ -233,28 +228,26 @@ class SimpleFreeList(val config: SimpleFreeListConfig) extends Component {
     val nextAllocPtr = allocPtrReg + allocCount
     val nextFreePtr = freePtrReg + freeCount
 
-    // 释放指针永远不可能越过分配指针
-    when(isRisingOccupancyReg) {
-      assert(
-        nextFreePtr <= nextAllocPtr,
-        L"FATAL ERROR: Free pointer is ahead of allocation pointer! nextFreePtr=${nextFreePtr}, " :+
-        L"nextAllocPtr=${nextAllocPtr}, freeCount=${freeCount}, allocCount=${allocCount} isRisingOccupancyReg=${isRisingOccupancyReg}"
-      )
-    } otherwise {
-      assert(
-        nextFreePtr >= nextAllocPtr,
-        L"FATAL ERROR: Free pointer is ahead of allocation pointer! nextFreePtr=${nextFreePtr}, " :+
-        L"nextAllocPtr=${nextAllocPtr}, freeCount=${freeCount}, allocCount=${allocCount} isRisingOccupancyReg=${isRisingOccupancyReg}"
-      )
-    }
+    // 状态标志位 wrapModeReg 的更新逻辑
+    // 检查指针是否跨越了0点（注意：回滚时，freePtrReg 会非线性变化，所以需要进行跨越检测）
+    // 仅当有实际的分配或回收操作时，才更新指针和状态
+    when(allocCount =/= 0 || freeCount =/= 0) {
+        allocPtrReg := nextAllocPtr
+        freePtrReg := nextFreePtr
 
-    // 默认情况下，执行常规的指针和状态更新
-    allocPtrReg := nextAllocPtr
-    freePtrReg := nextFreePtr
+        val allocWrapped = nextAllocPtr < allocPtrReg
+        val freeWrapped = nextFreePtr < freePtrReg
 
-    when(nextAllocPtr === nextFreePtr) {
-      // 如果释放的多余分配的，说明可用的空闲寄存器在变多
-      isRisingOccupancyReg := freeCount > allocCount
+        when(nextAllocPtr === nextFreePtr) {
+            // 仅在重合时，根据谁追上谁来决定是满是空
+            wrapModeReg := (freeCount > allocCount)
+        } elsewhen(allocWrapped =/= freeWrapped) {
+            // 当且仅当只有一个指针跨越0点时，模式才会翻转
+            wrapModeReg := !wrapModeReg
+        } otherwise {
+            // 如果指针移动了，但既不重合也不跨越，wrapModeReg 保持不变
+            // （由于上面的默认赋值，这里无需任何操作）
+        }
     }
 
     // --- 回滚逻辑拥有最高优先级，直接覆盖上面的常规赋值 ---
@@ -264,9 +257,10 @@ class SimpleFreeList(val config: SimpleFreeListConfig) extends Component {
       // 回收指针被拉回到分配指针的位置，进行垃圾回收
       freePtrReg := allocPtrReg
       // 回滚后，将状态设置为“满”(所有推测分配的寄存器都被回收，那么所有寄存器都应当是可用的)
-      isRisingOccupancyReg := True
-      
+      wrapModeReg := True
+
           // 调试打印
+      if (enableLog) {
           log(L"[RegRes|FreeList] --- dataVec Content at time of RECOVER (Reg) ---")
           for (i <- 0 until queueDepth) {
             val regs_per_line = 32
@@ -279,7 +273,10 @@ class SimpleFreeList(val config: SimpleFreeListConfig) extends Component {
             }
           }
           log(L"[RegRes|FreeList] ---allocPtr=${allocPtrReg} freePtr=${freePtrReg}---")
+      }
     } otherwise {
+          // 调试打印
+      if (enableLog) {
           log(L"[RegRes|FreeList] --- dataVec Content at time of normal (Reg) ---")
           for (i <- 0 until queueDepth) {
             val regs_per_line = 32
@@ -287,10 +284,11 @@ class SimpleFreeList(val config: SimpleFreeListConfig) extends Component {
               val indices = (i until Math.min(i + regs_per_line, queueDepth)).map(idx => L"${idx.toHexString.padTo(3, " ")} ")
               log(L"  Slot Index:  ${indices}")
               val values = (i until Math.min(i + regs_per_line, queueDepth)).map(idx => dataVec(idx)).toList
-              log(Seq(L"  PhysReg Val: ", Seq(values.map(v => L"p${v}"))))
+              log(Seq(L"  PhysReg Val: ", Seq(values.map(v => L"p${v} "))))
             }
           }
           log(L"[RegRes|FreeList] ---allocPtr=${allocPtrReg} freePtr=${freePtrReg}---")
+      }
     }
 
     if (enableLog) {
@@ -298,18 +296,18 @@ class SimpleFreeList(val config: SimpleFreeListConfig) extends Component {
       when(allocCount > 0 || freeCount > 0 || io.recover) {
         val prevAllocPtr = allocPtrReg
         val prevFreePtr = freePtrReg
-        val prevIsRisingOccupancy = isRisingOccupancyReg
+        val prevNoWrapMode = wrapModeReg
 
         when(io.recover) {
           log(
             L"[RegRes|FreeList] [Cycle ${cycleCounter}] RECOVER (ROLLBACK): FreeList recovered.\n" :+
-              L"[RegRes|FreeList]   Previous State: allocPtr=${prevAllocPtr}, freePtr=${prevFreePtr}, isRisingOccupancyReg=${prevIsRisingOccupancy}, FreeRegs=${occupancy}\n" :+
-              L"[RegRes|FreeList]   New State: allocPtr=${allocPtrReg}, freePtr=${allocPtrReg}, isRisingOccupancyReg=True, FreeRegs=${config.requiredDepth}"
+              L"[RegRes|FreeList]   Previous State: allocPtr=${prevAllocPtr}, freePtr=${prevFreePtr}, wrapModeReg=${prevNoWrapMode}, FreeRegs=${allocatable}\n" :+
+              L"[RegRes|FreeList]   New State: allocPtr=${allocPtrReg}, freePtr=${allocPtrReg}, wrapModeReg=True, FreeRegs=${config.requiredDepth}"
           )
         } otherwise {
 
           log(
-            L"[RegRes|FreeList] [Cycle ${cycleCounter}] POINTER_UPDATE: Current: allocPtr=${allocPtrReg}, freePtr=${freePtrReg}, isRising=${isRisingOccupancyReg}, FreeRegs=${occupancy}\n" :+
+            L"[RegRes|FreeList] [Cycle ${cycleCounter}] POINTER_UPDATE: Current: allocPtr=${allocPtrReg}, freePtr=${freePtrReg}, isRising=${wrapModeReg}, FreeRegs=${allocatable}\n" :+
               L"[RegRes|FreeList] [Cycle ${cycleCounter}]   Updates: allocCount=${allocCount}, freeCount=${freeCount}\n" :+
               L"[RegRes|FreeList] [Cycle ${cycleCounter}]   Next (Applied): nextAllocPtr=${nextAllocPtr}, nextFreePtr=${nextFreePtr}, nextIsRising=?"
           )
@@ -317,6 +315,7 @@ class SimpleFreeList(val config: SimpleFreeListConfig) extends Component {
       }
     }
   } // End of sequentialArea
+
   // =========================================================================
   // === 4. 断言和一致性检查 (Assertions and Consistency Checks)
   // =========================================================================
@@ -324,16 +323,38 @@ class SimpleFreeList(val config: SimpleFreeListConfig) extends Component {
     import combinationalArea._
 
     // --- a. 关键假设断言 ---
-    // 这个断言验证了我们的核心假设：在回滚周期，不应该有任何常规的分配或释放请求。
-    // 如果这个断言失败，说明上游的冲刷逻辑存在时序问题。
+    // 这个断言验证了我们的核心假设：在回滚周期，禁止释放，但是可以分配（虽然不会成功）
     assert(
       !(io.recover && io.free.map(_.enable).orR),
       "FATAL ASSUMPTION VIOLATED: A free request occurred during a recovery cycle!"
     )
-    assert(
-      !(io.recover && io.allocate.map(_.enable).orR),
-      "FATAL ASSUMPTION VIOLATED: An allocate request occurred during a recovery cycle!"
-    )
+
+    // 这个断言检查更新后的指针是否保持合法关系
+    // 这个断言在 sequentialArea 内部检查指针更新前后的状态
+    // 我们将其移动到这里，作为对 sequentialArea 内部指针更新结果的检查
+    // 确保 nextFreePtr 没有错误地超前 nextAllocPtr (或反之)
+    // 尽管 freeCount/allocCount 的计算已经防止了越界，这个断言提供了额外的安全网
+    val nextAllocPtr = allocPtrReg + allocCount
+    val nextFreePtr = freePtrReg + freeCount
+
+    when(wrapModeReg) { // 当前是 allocPtr 领先 freePtr 或两者相等且队列为满
+        val allocPtrWillWrap = (allocPtrReg + allocCount) < allocPtrReg
+        // 如果 allocPtr 不回绕，那么 nextFreePtr 必须小于等于 nextAllocPtr
+        // 如果 allocPtr 回绕了，这个数值比较会失效，但逻辑上是合法的，因为 freeCount 的限制已经确保了有效性
+        assert(allocPtrWillWrap || (nextFreePtr <= nextAllocPtr),
+            L"FATAL ERROR: Free pointer (${nextFreePtr}) illegally overtook allocation pointer (${nextAllocPtr}) in no-wrap mode. " :+
+            L"(current allocPtr=${allocPtrReg}, freePtr=${freePtrReg}, allocCount=${allocCount}, freeCount=${freeCount})"
+        )
+    } otherwise { // 当前是 freePtr 领先 allocPtr 或两者相等且队列为空
+        val freePtrWillWrap = (freePtrReg + freeCount) < freePtrReg
+        // 如果 freePtr 不回绕，那么 nextAllocPtr 必须小于等于 nextFreePtr
+        // 如果 freePtr 回绕了，这个数值比较会失效，但逻辑上是合法的
+        assert(freePtrWillWrap || (nextAllocPtr <= nextFreePtr),
+            L"FATAL ERROR: Allocation pointer (${nextAllocPtr}) illegally overtook free pointer (${nextFreePtr}) in wrap mode. " :+
+            L"(current allocPtr=${allocPtrReg}, freePtr=${freePtrReg}, allocCount=${allocCount}, freeCount=${freeCount})"
+        )
+    }
+
 
     // --- b. 在线一致性检查器 (Online Consistency Checker) ---
     // 这个检查器只在配置了 debugging 标志时生成，避免在最终综合时产生不必要的硬件。
@@ -344,10 +365,11 @@ class SimpleFreeList(val config: SimpleFreeListConfig) extends Component {
       freeMask.clearAll()
 
       // 遍历所有可能的空闲槽位 (这个循环在硬件中是并行的)
+      // allocatable 代表 FreeList 队列中元素的数量
       for (i <- 0 until queueDepth) {
         // 只有当这个槽位在当前的空闲队列中有效时才进行操作
-        when(U(i) < occupancy) {
-          val free_phys_reg_idx = dataVec(allocPtrReg + i)
+        when(U(i) < allocatable) { // 检查 i 是否小于当前队列的实际元素数量
+          val free_phys_reg_idx = dataVec(allocPtrReg + i) // 从 allocPtr (读指针) 处读取元素
           // 排除 p0, 尽管 p0 理论上不应该出现在 FreeList 中
           when(free_phys_reg_idx =/= 0) {
             freeMask(free_phys_reg_idx) := True
@@ -385,10 +407,10 @@ class SimpleFreeList(val config: SimpleFreeListConfig) extends Component {
               allocPtrReg,
               ", freePtr = ",
               freePtrReg,
-              ", occupancy = ",
-              occupancy,
-              ", isRising = ",
-              isRisingOccupancyReg,
+              ", allocatable = ",
+              allocatable,
+              ", wrapModeReg = ",
+              wrapModeReg,
               "\n",
               L"======================================================================="
             )
@@ -396,7 +418,5 @@ class SimpleFreeList(val config: SimpleFreeListConfig) extends Component {
         }
       }
     } // End of consistencyCheck Area
-
-    
   } // End of assertionArea
 } // End of SimpleFreeList Component

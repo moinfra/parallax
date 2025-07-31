@@ -63,9 +63,9 @@ class DecodePlugin(val issueConfig: PipelineConfig) extends Plugin with LockedIm
       val isNop = isAluNop || isDecodedNop
 
       // If it's a NOP, invalidate it so subsequent stages ignore it.
-      when(isNop) {
-        currentDecodedUop.isValid := False
-        report(L"DecodePlugin (s0_decode): Invalidate NOP uop at PC=${currentDecodedUop.pc}")
+      when(isDecodedNop) {
+        // currentDecodedUop.isValid := False
+        report(L"DecodePlugin (s0_decode): Found NOP uop at PC=${currentDecodedUop.pc}")
       }
       
       // -- MODIFICATION END --

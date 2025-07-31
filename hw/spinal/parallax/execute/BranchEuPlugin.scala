@@ -191,8 +191,10 @@ class BranchEuPlugin(
       report(L"[BranchEU-S2-Select] PREDICTION: wasPredicted(valid)=${wasPredicted}: predictedTaken=${predictedTaken}, actuallyTaken=${actuallyTaken}, finalTarget=0x${finalTarget}, mispredicted=${!predictionCorrect}")
     }
 
+    val isDirectJump = uopAtS2.branchCtrl.isJump && !uopAtS2.branchCtrl.isIndirect
+
     // 将最终信息存入Stageable，供S3使用
-    pipeline.s2_select(MISPREDICT_INFO).mispredicted := !predictionCorrect
+    pipeline.s2_select(MISPREDICT_INFO).mispredicted := !predictionCorrect && !isDirectJump // 豁免直接无条件跳转指令，因为前端会follow
     pipeline.s2_select(MISPREDICT_INFO).finalTarget := finalTarget
     pipeline.s2_select(MISPREDICT_INFO).robPtrToFlush := uopAtS2.robPtr + 1
     pipeline.s2_select(MISPREDICT_INFO).linkValue := linkValue

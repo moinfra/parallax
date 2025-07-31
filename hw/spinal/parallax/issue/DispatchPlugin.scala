@@ -75,14 +75,14 @@ class DispatchPlugin(pCfg: PipelineConfig) extends Plugin with LockedImpl {
 
     // 停顿条件：当本阶段有效，且指令有效，但目标IQ已满时，停顿流水线。
     // 【修正】: 移除了 isRealOperation 的判断，因为无效指令在Decode阶段已被过滤。
-    s3_dispatch.haltWhen(s3_dispatch.isValid && uopIn.decoded.isValid && !destinationIqReady)
+    s3_dispatch.haltWhen(s3_dispatch.isValid && !destinationIqReady)
     
     // --- 输出驱动 ---
     for (((_, port), i) <- iqRegs.zipWithIndex) {
       val isTarget = dispatchOH(i)
       
       // 【修正】: 移除了 isRealOperation 的判断
-      port.valid := s3_dispatch.isFiring && uopIn.decoded.isValid && isTarget
+      port.valid := s3_dispatch.isFiring && isTarget
 
       when(port.valid) { // 仅在驱动时赋值，避免latch
           port.payload.uop             := uopIn
@@ -99,9 +99,13 @@ class DispatchPlugin(pCfg: PipelineConfig) extends Plugin with LockedImpl {
     // --- 日志和收尾 ---
     when(s3_dispatch.isFiring && uopIn.decoded.isValid) {
       ParallaxSim.log(
-        L"DispatchPlugin: Firing robPtr=${uopIn.robPtr} (UopCode=${uopIn.decoded.uopCode}), " :+
+        L"DispatchPlugin: Firing uop@${uopIn.decoded.pc} robPtr=${uopIn.robPtr} (UopCode=${uopIn.decoded.uopCode}), " :+
         L"s1_ready(initial)=${src1InitialReady}, s2_ready(initial)=${src2InitialReady}"
       )
+    }
+
+    when(s3_dispatch.isValid) {
+      assert(uopIn.decoded.isValid, L"Got invalid uop in dispatch stage. ${uopIn.decoded.format()}")
     }
 
     val flush = new Area {

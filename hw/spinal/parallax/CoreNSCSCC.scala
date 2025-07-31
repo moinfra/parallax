@@ -402,7 +402,7 @@ class CoreNSCSCC(simDebug: Boolean = false, injectAxi: Boolean = false) extends 
     numPhysRegs = pCfg.physGprCount,
     numInitialArchMappings = pCfg.archGprCount,
     numAllocatePorts = pCfg.renameWidth,
-    numFreePorts = pCfg.commitWidth + pCfg.renameWidth,
+    numFreePorts = pCfg.commitWidth,
     debugging = simDebug
   )
 

@@ -123,7 +123,7 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
   test("SuperScalarFreeList - Initialization") {
     val testConfig = SimpleFreeListConfig(
       numPhysRegs = numTotalPhysRegs,
-      
+      numInitialArchMappings = 1,
       numAllocatePorts = 2,
       numFreePorts = 1
     )
@@ -183,7 +183,7 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
     val numAllocPorts = 2
     val testConfig = SimpleFreeListConfig(
       numPhysRegs = numTotalPhysRegs,
-      
+      numInitialArchMappings = 1,
       numAllocatePorts = numAllocPorts,
       numFreePorts = 1
     )
@@ -266,7 +266,7 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
     val numFreePorts = 2
     val testConfig = SimpleFreeListConfig(
       numPhysRegs = numTotalPhysRegs,
-      
+      numInitialArchMappings = 1,
       numAllocatePorts = 1,
       numFreePorts = numFreePorts
     )
@@ -326,7 +326,7 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
   test("SuperScalarFreeList - Concurrent 2-Alloc, 1-Free (different regs)") {
     val testConfig = SimpleFreeListConfig(
       numPhysRegs = numTotalPhysRegs,
-      
+      numInitialArchMappings = 1,
       numAllocatePorts = 2,
       numFreePorts = 1
     )
@@ -382,7 +382,7 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
   test("SuperScalarFreeList - Checkpoint Save and Restore (2-wide alloc)") {
     val testConfig = SimpleFreeListConfig(
       numPhysRegs = numTotalPhysRegs,
-      
+      numInitialArchMappings = 1,
       numAllocatePorts = 2,
       numFreePorts = 1
     )
@@ -445,7 +445,7 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
     val numFreePorts = 2
     val testConfig = SimpleFreeListConfig(
       numPhysRegs = numTotalPhysRegs,
-      
+      numInitialArchMappings = 1,
       numAllocatePorts = 1,
       numFreePorts = numFreePorts
     )
@@ -478,7 +478,7 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
   test("SuperScalarFreeList - Concurrent Allocate and Free Targeting the Same Register") {
     val testConfig = SimpleFreeListConfig(
       numPhysRegs = numTotalPhysRegs,
-      
+      numInitialArchMappings = 1,
       numAllocatePorts = 1,
       numFreePorts = 1
     )
@@ -518,7 +518,7 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
     val numPorts = 2
     val testConfig = SimpleFreeListConfig(
       numPhysRegs = numTotalPhysRegs,
-      
+      numInitialArchMappings = 1,
       numAllocatePorts = numPorts,
       numFreePorts = numPorts
     )
@@ -585,7 +585,7 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
   test("SuperScalarFreeList - Restore to Partially Full then Allocate/Free") {
     val testConfig = SimpleFreeListConfig(
       numPhysRegs = numTotalPhysRegs,
-      
+      numInitialArchMappings = 1,
       numAllocatePorts = 2,
       numFreePorts = 2
     )
@@ -642,7 +642,7 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
     val numArchRegsMapped = 4 // P0, P1, P2, P3 are initially "mapped" (not in free list)
     val testConfig = SimpleFreeListConfig(
       numPhysRegs = numTotalPhysRegs, // e.g., 16
-       // Other regs (P4 onwards) are free
+       // Other regs (P4 onwards) are freenumInitialArchMappings = 1,
       numInitialArchMappings = numArchRegsMapped,
       numAllocatePorts = 1,
       numFreePorts = 1

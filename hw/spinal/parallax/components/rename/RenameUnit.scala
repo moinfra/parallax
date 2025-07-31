@@ -74,7 +74,7 @@ class RenameUnit(
   renameInfo.physSrc2IsFpr := decodedUop.archSrc2.isFPR
 
   // 目的寄存器相关信息
-  when(uopNeedsNewPhysDest) {
+  when(uopNeedsNewPhysDest && !io.flush) {
     renameInfo.writesToPhysReg    := True
     // oldPhysDest 永远从RAT读取，它代表写入前的状态，所以不需要旁路
     renameInfo.oldPhysDest.idx    := oldDestReadPort.physReg

@@ -6,6 +6,7 @@ import spinal.lib.pipeline._
 import parallax.common._
 import parallax.components.rob.ROBService
 import parallax.utilities.{Plugin, LockedImpl, ParallaxLogger}
+import parallax.utilities.ParallaxSim.notice
 
 class RobAllocPlugin(val pCfg: PipelineConfig) extends Plugin with LockedImpl {
 
@@ -28,7 +29,9 @@ class RobAllocPlugin(val pCfg: PipelineConfig) extends Plugin with LockedImpl {
 
     // 1. 停顿决策：只关心 ROB 是否已满
     s2_rob_alloc.haltWhen(!robAllocPorts(0).ready)
-    
+    when(s2_rob_alloc.isValid && !robAllocPorts(0).ready) {
+      notice(L"S2 STALLED BY ROB")
+    }
     // 2. 驱动 ROB 分配端口
     // 【关键】: 数据源是 RENAMED_UOPS
     val finalRenamedUops = s2_rob_alloc(signals.RENAMED_UOPS)

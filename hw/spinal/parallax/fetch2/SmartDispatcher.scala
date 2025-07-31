@@ -20,7 +20,7 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
     val flush = in Bool ()
   }
 
-  val enableLog = false
+  val enableLog = true
   val cycleReg = Reg(UInt(32 bits)) init (0)
   cycleReg := cycleReg + 1
   if (enableLog) {
@@ -228,7 +228,7 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
         // isBusyReg 保持为 True，由 DRAINING_BPU 状态清理
         goto(DRAINING_BPU)
       }.elsewhen(isBusyReg) { // 确保只有当处于 Busy 状态时才尝试分发
-        val isSimpleRedirect = currentPredecodeReg.isDirectJump // JAL, J
+        val isSimpleRedirect = currentPredecodeReg.isDirectJump // B, BL
         val isComplexBranch = currentPredecodeReg.isBranch && !currentPredecodeReg.isDirectJump // BEQ, BNE, etc.
 
         when(fetchGroupReg.fault) {

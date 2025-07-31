@@ -51,7 +51,7 @@ case class CommitSlotLog(pCfg: PipelineConfig) extends Bundle with Formattable {
   def format: Seq[Any] = {
     Seq(
       L"(valid=${valid}, canCommit=${canCommit}, doCommit=${doCommit}, robPtr=${robPtr}, pc=0x${pc}",
-      L", oldPhysDest=${oldPhysDest}, allocPhysDest(bool)=${allocatesPhysDest})"
+      L", oldPhysDest=p${oldPhysDest}, doAllocPhysDest(bool)=${allocatesPhysDest})"
     )
   }
 }

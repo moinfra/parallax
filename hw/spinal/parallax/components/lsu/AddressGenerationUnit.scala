@@ -264,6 +264,7 @@ class AguPlugin(
           val mustAlign = s1.payload.accessSize =/= MemAccessSize.B
           val misaligned = (addressCalc.effectiveAddress & alignMask.resized) =/= 0
           val alignException = misaligned && mustAlign
+          assert(!s1.valid || !alignException, L"Alignment exception due to misaligned address 0x${addressCalc.effectiveAddress} (accessSize=${s1.payload.accessSize}, effAddr=${addressCalc.effectiveAddress}, mustAlign=${mustAlign}, misaligned=${misaligned})")
 
           // 原始的 AGU Debug 日志，现在更名为 AGU-S1-Output-Debug
           when(s1.valid) {

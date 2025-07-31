@@ -145,10 +145,9 @@ class FetchSequencer(pCfg: PipelineConfig, iCfg: ICacheConfig) extends Component
 
     payload.potentialJumpTargets := Vec.tabulate(iCfg.lineWords) { i =>
       val instruction = olderSlot.rspData(i)
-      val offs26 = instruction(25 downto 0)
-      val operandA = olderSlot.pc.asSInt
-      val operandB = S(i << 2, pCfg.pcWidth)
-      val operandC = (offs26.asSInt << 2).resize(pCfg.pcWidth)
+      val operandA = olderSlot.pc.asSInt // pc
+      val operandB = S(i << 2, pCfg.pcWidth) // 指令偏移
+      val operandC = predecodedInfos(i).jumpOffset // 跳转偏移
       val result = (operandA + operandB + operandC).asUInt.resized
       if(enableLog) report(L"jump target for instruction ${i} is ${result} because a=${operandA}, b=${operandB}, c=${operandC}")
       result

@@ -151,6 +151,26 @@ class RenameMapTable(val config: RenameMapTableConfig) extends Component {
   }
   rratMapReg.mapping := nextRratMapRegMapping // RRAT 寄存器更新
 
+  report(L"[RegRes|RAT] --- RRAT Content (Reg) ---")
+
+  // 这个循环会在仿真时展开，为每个 dataVec 元素生成一个打印语句
+  for (i <- 0 until config.archRegCount) {
+    // 为了让输出更易读，我们可以分几行打印
+    // 例如，每8个元素一行
+    val regs_per_line = 32
+    if (i % regs_per_line == 0) {
+      // 在每行的开头打印索引
+      val indices = (i until Math.min(i + regs_per_line, config.archRegCount)).map(idx => L"${idx.toHexString.padTo(3, " ")} ")
+      report(L"  Arch Index:  ${indices}")
+      
+      val values = (i until Math.min(i + regs_per_line, config.archRegCount)).map(idx => rratMapReg.mapping(idx)).toList
+      report(Seq(
+        L"  PhysReg Val: ", Seq(values.map(v => L"p${v} "))
+      )) // 使用 L() 来处理 Vec<UInt>
+    }
+  }
+  report(L"[RegRes|FreeList] -----------------------------------------")
+
   // --- ARAT Write Logic (来自 CommitPlugin) ---
   val nextAratMapRegMapping = CombInit(aratMapReg.mapping) // 下一个 ARAT 状态的组合逻辑
 
@@ -175,7 +195,7 @@ class RenameMapTable(val config: RenameMapTableConfig) extends Component {
     
     // 我们应该从 ARAT 的 *下一个* 状态来生成掩码，以反映本周期提交后的最新状态
     for(i <- 0 until config.archRegCount) {
-      val physReg = nextAratMapRegMapping(i)
+      val physReg = aratMapReg.mapping(i)
       // 物理寄存器 0 是特殊情况，它不应被认为是“占用”的
       when(physReg =/= 0) {
         aratUsedMask(physReg) := True
@@ -183,4 +203,24 @@ class RenameMapTable(val config: RenameMapTableConfig) extends Component {
     }
     io.aratUsedMask := aratUsedMask
   }
+
+  report(L"[RegRes|RAT] --- ARAT Content (Reg) ---")
+
+  // 这个循环会在仿真时展开，为每个 dataVec 元素生成一个打印语句
+  for (i <- 0 until config.archRegCount) {
+    // 为了让输出更易读，我们可以分几行打印
+    // 例如，每8个元素一行
+    val regs_per_line = 32
+    if (i % regs_per_line == 0) {
+      // 在每行的开头打印索引
+      val indices = (i until Math.min(i + regs_per_line, config.archRegCount)).map(idx => L"${idx.toHexString.padTo(3, " ")} ")
+      report(L"  Arch Index:  ${indices}")
+      
+      val values = (i until Math.min(i + regs_per_line, config.archRegCount)).map(idx => aratMapReg.mapping(idx)).toList
+      report(Seq(
+        L"  PhysReg Val: ", Seq(values.map(v => L"p${v} "))
+      )) // 使用 L() 来处理 Vec<UInt>
+    }
+  }
+  report(L"[RegRes|FreeList] -----------------------------------------")
 }

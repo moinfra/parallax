@@ -17,10 +17,16 @@ case class ControlFlowEdge(edgeType: EdgeType)
 
 /** The type of control flow transition. */
 sealed trait EdgeType
-case class UnconditionalJump(targetBlockId: Int, useJirl: Boolean) extends EdgeType
-case class ConditionalBranch(trueBlockId: Int, falseBlockId: Int) extends EdgeType
+case class UnconditionalJump(targetBlockId: Int, useJirl: Boolean, useBl: Boolean = false) extends EdgeType
+case class ConditionalBranch(branchType: BranchType, trueBlockId: Int, falseBlockId: Int) extends EdgeType
 case object Fallthrough extends EdgeType
 case object Halt extends EdgeType
+
+/** Enum for different conditional branch types */
+sealed trait BranchType
+case object BEQ  extends BranchType
+case object BNE  extends BranchType
+case object BLTU extends BranchType
 
 /** The Control Flow Graph, representing the entire program structure. */
 class ControlFlowGraph {
@@ -39,9 +45,11 @@ class ControlFlowGraph {
 sealed trait PlaceholderInstruction
 
 // For standard branches
-case class BeqPlaceholder(rj: Int, rk: Int, targetBlockId: Int) extends PlaceholderInstruction
-case class BnePlaceholder(rj: Int, rk: Int, targetBlockId: Int) extends PlaceholderInstruction
+case class BeqPlaceholder(rj: Int, rd: Int, targetBlockId: Int) extends PlaceholderInstruction
+case class BnePlaceholder(rj: Int, rd: Int, targetBlockId: Int) extends PlaceholderInstruction
+case class BltuPlaceholder(rj: Int, rd: Int, targetBlockId: Int) extends PlaceholderInstruction
 case class BPlaceholder(targetBlockId: Int) extends PlaceholderInstruction
+case class BlPlaceholder(targetBlockId: Int) extends PlaceholderInstruction
 
 // Special placeholders for the 3-instruction JIRL sequence
 // lu12i.w rd, imm20 <- Placeholder for this
@@ -61,8 +69,9 @@ case class JirlFinalPlaceholder(rj: Int, rd: Int) extends PlaceholderInstruction
 /** Placeholder for a program halt instruction. */
 case object HaltPlaceholder extends PlaceholderInstruction
 
+
 // =================================================================================
-// 2. The ProgramGenerator Object
+// 2. The ProgramGenerator Object (Expanded)
 // =================================================================================
 
 object ProgramGenerator {
@@ -70,14 +79,7 @@ object ProgramGenerator {
   private var cfg: FuzzCfg = _
   private var rand: Random = _
 
-  // --- Helper Methods & Instruction Templates (from previous discussions) ---
-
-  private def load32bImm(rd: Int, value: BigInt): Seq[BigInt] = {
-    val destReg = if (rd == 0) rand.nextInt(31) + 1 else rd
-    val high20 = ((value >> 12) & 0xfffff).toInt
-    val low12 = (value & 0xfff).toInt
-    Seq(lu12i_w(destReg, high20), ori(destReg, destReg, low12))
-  }
+  // --- Helper Methods ---
 
   private def getRandReg(exclude: Set[Int] = Set(0)): Int = {
     var reg = 0
@@ -87,48 +89,68 @@ object ProgramGenerator {
     reg
   }
 
+  // --- Instruction Generation Functions (Expanded) ---
+
+  private def load32bImm(rd: Int, value: BigInt): Seq[BigInt] = {
+    val destReg = if (rd == 0) getRandReg() else rd
+    val high20 = ((value >> 12) & 0xfffff).toInt
+    val low12 = (value & 0xfff).toInt
+    Seq(lu12i_w(destReg, high20), ori(destReg, destReg, low12))
+  }
+
+  // Group 1: Standard ALU (R-Type)
   private def genAluR(): Seq[BigInt] = {
     val rd = getRandReg(); val rj = getRandReg(Set()); val rk = getRandReg(Set())
-    Seq(rand.nextInt(5) match {
-      case 0 => add_w(rd, rj, rk); case 1 => sub_w(rd, rj, rk)
-      case 2 => and(rd, rj, rk); case 3   => or(rd, rj, rk); case 4 => xor(rd, rj, rk)
+    Seq(rand.nextInt(7) match {
+      case 0 => add_w(rd, rj, rk)
+      case 1 => sub_w(rd, rj, rk)
+      case 2 => and(rd, rj, rk)
+      case 3 => or(rd, rj, rk)
+      case 4 => xor(rd, rj, rk)
+      case 5 => mul_w(rd, rj, rk)
+      case 6 => srl_w(rd, rj, rk) // Note: sll_w is R-type too, but shift-by-register is less common to fuzz
     })
   }
 
+  // Group 2: Standard ALU (I-Type)
   private def genAluI(): Seq[BigInt] = {
-    val rd = getRandReg(); val rj = getRandReg(Set()); val imm12 = rand.nextInt(4096) - 2048
-    Seq(addi_w(rd, rj, imm12))
+    val rd = getRandReg(); val rj = getRandReg(Set());
+    rand.nextInt(5) match {
+      case 0 => Seq(addi_w(rd, rj, rand.nextInt(4096) - 2048))
+      case 1 => Seq(andi(rd, rj, rand.nextInt(4096)))
+      case 2 => Seq(ori(rd, rj, rand.nextInt(4096)))
+      case 3 => Seq(xori(rd, rj, rand.nextInt(4096)))
+      case 4 => Seq(slti(rd, rj, rand.nextInt(4096)))
+    }
   }
 
-  /** Helper: Calculate a guaranteed safe and aligned memory address.
-    * @param accessSize Size of access in bytes (e.g., 4 for word).
-    * @param offset The immediate offset from the instruction.
-    * @return A base address that, when added to offset, results in a final address
-    *         that is BOTH within D-SRAM bounds AND aligned to accessSize.
-    */
+  // Group 3: Shift Immediate (I-Type)
+  private def genShiftI(): Seq[BigInt] = {
+    val rd = getRandReg(); val rj = getRandReg(Set()); val imm5 = rand.nextInt(32)
+    Seq(rand.nextInt(2) match {
+        case 0 => slli_w(rd, rj, imm5)
+        case 1 => srli_w(rd, rj, imm5)
+    })
+  }
+
+  // Group 4: Memory Access
+  /** Helper: Calculate a guaranteed safe and aligned memory address. */
   private def getSafeDataAddress(accessSize: Int, offset: Int): BigInt = {
     val dSramByteSize = cfg.dSramSize
     val alignmentMask = ~(accessSize - 1)
 
-    // Calculate the valid range for the *final* address (base + offset)
     val minFinalAddr = cfg.dSramBase
     val maxFinalAddr = cfg.dSramBase + dSramByteSize - accessSize
 
-    // How many aligned "slots" are there in the valid range?
     val firstAlignedSlot = (minFinalAddr + (accessSize - 1)) & alignmentMask
     val lastAlignedSlot = maxFinalAddr & alignmentMask
 
-    if (firstAlignedSlot > lastAlignedSlot) {
-      // Should not happen with reasonable SRAM sizes
-      return cfg.dSramBase
-    }
+    if (firstAlignedSlot > lastAlignedSlot) return cfg.dSramBase // Should not happen
 
     val numSlots = ((lastAlignedSlot - firstAlignedSlot) / accessSize) + 1
-    val randomSlotIndex = rand.nextInt(numSlots.toInt)
+    val randomSlotIndex = if (numSlots > 1) rand.nextInt(numSlots.toInt) else 0
 
     val finalAddress = firstAlignedSlot + randomSlotIndex * accessSize
-
-    // Now, calculate the base address that will produce this final address
     val baseAddress = finalAddress - offset
     baseAddress
   }
@@ -136,31 +158,44 @@ object ProgramGenerator {
   private def genSafeMemAccess(): Seq[BigInt] = {
     val r_base = getRandReg()
     val r_data = getRandReg()
-    // For ld.w/st.w, the offset itself doesn't strictly need to be aligned,
-    // but the final address (base + offset) MUST be.
-    val offset = rand.nextInt(2048) - 1024 // Use full 12-bit range
+    val offset = rand.nextInt(2048) - 1024 // Full 12-bit signed range
 
-    // Let's generate a word access
-    val accessSize = 4
+    // Choose access type: Byte, Half-word, or Word
+    val (accessSize, accessInstPair) = rand.nextInt(6) match {
+        case 0 => (4, (ld_w(r_data, r_base, offset), st_w(r_data, r_base, offset)))
+        case 1 => (1, (ld_b(r_data, r_base, offset), st_b(r_data, r_base, offset)))
+        case 2 => (2, (ld_h(r_data, r_base, offset), st_h(r_data, r_base, offset)))
+        case 3 => (1, (ld_bu(r_data, r_base, offset), st_b(r_data, r_base, offset))) // st_bu doesn't exist
+        case 4 => (2, (ld_hu(r_data, r_base, offset), st_h(r_data, r_base, offset))) // st_hu doesn't exist
+        case 5 => (4, (ld_w(r_data, r_base, offset), st_w(r_data, r_base, offset))) // Increase weight of word access
+    }
+
     val safeBase = getSafeDataAddress(accessSize, offset)
-
-    // Verify for ourselves
     val finalAddr = safeBase + offset
-    assert(
-      (finalAddr % accessSize) == 0,
-      s"Generated misaligned address! Base=0x${safeBase.toString(16)}, Offset=0x${Integer
-          .toHexString(offset)}, Final=0x${finalAddr.toString(16)}"
-    )
+    assert((finalAddr % accessSize) == 0, s"Misaligned address! Size=$accessSize, Final=0x${finalAddr.toString(16)}")
 
-    load32bImm(r_base, safeBase) :+ (if (rand.nextBoolean()) st_w(r_data, r_base, offset)
-                                     else ld_w(r_data, r_base, offset))
+    val instToGen = if (rand.nextBoolean()) accessInstPair._2 else accessInstPair._1
+    load32bImm(r_base, safeBase) :+ instToGen
   }
+  
+  // Group 5: Misc instructions
+  private def genMisc(): Seq[BigInt] = {
+    val rd = getRandReg()
+    Seq(rand.nextInt(2) match {
+      // pcaddu12i rd, imm. rd <- pc + (imm << 12).
+      // A fun way to get a pointer to nearby code.
+      case 0 => pcaddu12i(rd, rand.nextInt(1 << 20))
+      // idle. Might expose timing issues or pipeline stalls.
+      // case 1 => idle(rand.nextInt(1 << 15)) // NOT Supported in 个人赛 yet
+      case 1 => pcaddu12i(rd, rand.nextInt(1 << 20))
+
+    })
+  }
+
 
   // --- The 3-Pass Generation Logic ---
 
-  /** Pass 1: Build the abstract Control Flow Graph.
-    * Creates blocks and defines the control flow edges between them without any instructions.
-    */
+  /** Pass 1: Build the abstract Control Flow Graph. */
   private def buildAbstractCFG(numBlocks: Int): ControlFlowGraph = {
     val cfgBuilder = new ControlFlowGraph()
     val blocks = (0 until numBlocks).map(_ => cfgBuilder.createBlock()).toList
@@ -168,43 +203,50 @@ object ProgramGenerator {
 
     for ((block, i) <- blocks.zipWithIndex) {
       val nextBlock = if (i + 1 < blocks.length) blocks(i + 1) else haltBlock
+      val targetBlock = blocks(rand.nextInt(blocks.length))
 
-      rand.nextInt(10) match {
-        case 0 | 1 => // Conditional branch to a random block, else fallthrough to the next
-          val targetBlock = blocks(rand.nextInt(blocks.length))
-          block.exitEdge = Some(ControlFlowEdge(ConditionalBranch(targetBlock.id, nextBlock.id)))
-        case 2 => // Unconditional B jump to a random block
-          val targetBlock = blocks(rand.nextInt(blocks.length))
-          block.exitEdge = Some(ControlFlowEdge(UnconditionalJump(targetBlock.id, useJirl = false)))
-        case 3 => // Unconditional JIRL jump to a random block
-          val targetBlock = blocks(rand.nextInt(blocks.length))
-          block.exitEdge = Some(ControlFlowEdge(UnconditionalJump(targetBlock.id, useJirl = true)))
-        case _ => // Fallthrough to the next physically laid out block
+      rand.nextInt(12) match {
+        case 0 | 1 | 2 => // Conditional branch
+          val branchType = rand.nextInt(3) match {
+              case 0 => BEQ
+              case 1 => BNE
+              case 2 => BLTU
+          }
+          block.exitEdge = Some(ControlFlowEdge(ConditionalBranch(branchType, targetBlock.id, nextBlock.id)))
+        case 3 => // Unconditional B jump
+          block.exitEdge = Some(ControlFlowEdge(UnconditionalJump(targetBlock.id, useJirl = false, useBl = false)))
+        case 4 => // Unconditional BL jump
+          block.exitEdge = Some(ControlFlowEdge(UnconditionalJump(targetBlock.id, useJirl = false, useBl = true)))
+        case 5 => // Unconditional JIRL jump
+          block.exitEdge = Some(ControlFlowEdge(UnconditionalJump(targetBlock.id, useJirl = true, useBl = false)))
+        case _ => // Fallthrough (higher probability)
           block.exitEdge = Some(ControlFlowEdge(Fallthrough))
       }
     }
+    // Ensure program can terminate
     blocks.last.exitEdge = Some(ControlFlowEdge(UnconditionalJump(haltBlock.id, useJirl = false)))
     haltBlock.exitEdge = Some(ControlFlowEdge(Halt))
     cfgBuilder
   }
 
-  /** Pass 2: Instruction Generation and Layout (Corrected Logic).
-    * Fills blocks with concrete instructions and placeholders for jumps.
-    * Calculates the final start address of every block.
-    * @return A tuple containing the instruction stream (with placeholders) and the block address map.
-    */
+  /** Pass 2: Instruction Generation and Layout. */
   private def generateAndLayout(
       cfgBuilder: ControlFlowGraph
   ): (Seq[Either[BigInt, PlaceholderInstruction]], Map[Int, BigInt]) = {
     val instructionStream = new ArrayBuffer[Either[BigInt, PlaceholderInstruction]]()
     val blockAddrMap = scala.collection.mutable.Map[Int, BigInt]()
-    val bodyInstructionGens = Seq(() => genAluR(), () => genAluI(), () => genSafeMemAccess())
+    // The main pool of instruction generators
+    val bodyInstructionGens = Seq(
+      () => genAluR(),
+      () => genAluI(),
+      () => genShiftI(),
+      () => genSafeMemAccess(),
+      () => genMisc()
+    )
 
     for (block <- cfgBuilder.blocks) {
-      // Record the starting address of this block
       blockAddrMap(block.id) = cfg.iSramBase + instructionStream.length * 4
 
-      // 1. Populate block body with general-purpose instructions
       if (block.exitEdge.get.edgeType != Halt) {
         val numInstructionSeqs = 3 + rand.nextInt(5)
         for (_ <- 0 until numInstructionSeqs) {
@@ -213,38 +255,34 @@ object ProgramGenerator {
         }
       }
 
-      // 2. Add exit instructions as an ATOMIC sequence at the end of the block.
       block.exitEdge.foreach { edge =>
         edge.edgeType match {
           case Fallthrough =>
-            // To make fallthrough more interesting, add a NOP or a random ALU op
-            instructionStream += Left(addi_w(0, 0, 0))
-
+            instructionStream += Left(nop())
           case Halt =>
             instructionStream += Right(HaltPlaceholder)
-
-          case UnconditionalJump(targetId, useJirl) =>
+          case UnconditionalJump(targetId, useJirl, useBl) =>
             if (useJirl) {
-              // The JIRL sequence is now generated ATOMICALLY here.
-              // We choose a random base register that won't be easily guessed or clobbered.
               val r_link = getRandReg()
               val r_base = getRandReg(Set(0, r_link))
-
-              // We insert the concrete load instructions now, with a dummy address.
-              // The placeholder will tell Pass 3 how to patch them.
-              instructionStream += Right(JirlLu12iPlaceholder(r_base, targetId)) // Placeholder for lu12i
-              instructionStream += Left(ori(r_base, r_base, 0)) // Placeholder for ori, will be patched based on lu12i
-              instructionStream += Right(JirlFinalPlaceholder(r_base, r_link)) // Placeholder for the final jirl
+              instructionStream += Right(JirlLu12iPlaceholder(r_base, targetId))
+              instructionStream += Left(ori(r_base, r_base, 0)) // Patched later
+              instructionStream += Right(JirlFinalPlaceholder(r_base, r_link))
+            } else if (useBl) {
+              instructionStream += Right(BlPlaceholder(targetId))
             } else {
               instructionStream += Right(BPlaceholder(targetId))
             }
-
-          case ConditionalBranch(trueId, falseId) =>
-            // This sequence is also atomic.
+          case ConditionalBranch(branchType, trueId, falseId) =>
             val rj = getRandReg(Set())
-            val rk = getRandReg(Set())
-            val placeholder = if (rand.nextBoolean()) BeqPlaceholder(rj, rk, trueId) else BnePlaceholder(rj, rk, trueId)
+            val rd = getRandReg(Set()) // In LoongArch, conditional branch uses rd and rj
+            val placeholder = branchType match {
+                case BEQ => BeqPlaceholder(rj, rd, trueId)
+                case BNE => BnePlaceholder(rj, rd, trueId)
+                case BLTU => BltuPlaceholder(rj, rd, trueId)
+            }
             instructionStream += Right(placeholder)
+            // The unconditional jump to the 'false' block
             instructionStream += Right(BPlaceholder(falseId))
         }
       }
@@ -252,10 +290,7 @@ object ProgramGenerator {
     (instructionStream.toSeq, blockAddrMap.toMap)
   }
 
-  /** Pass 3: Offset Patching (Backpatching) (Corrected Logic).
-    * Replaces all placeholders in the instruction stream with concrete instructions
-    * containing the correctly calculated offsets.
-    */
+  /** Pass 3: Offset Patching (Backpatching). */
   private def patchOffsets(
       stream: Seq[Either[BigInt, PlaceholderInstruction]],
       blockAddrMap: Map[Int, BigInt]
@@ -268,16 +303,10 @@ object ProgramGenerator {
 
       instOrPlaceholder match {
         case Left(concreteInst) =>
-          // This is a concrete instruction. We only need to patch it if it's the `ori` of a JIRL sequence.
-          // To identify it, we check if the PREVIOUS instruction was a JirlLu12iPlaceholder.
-
           var patched = false
-          if (i > 0) { // <-- CRITICAL FIX: Check for index boundary
+          if (i > 0) {
             stream(i - 1) match {
               case Right(JirlLu12iPlaceholder(jirl_base, targetId)) =>
-                // The previous instruction was a JIRL lu12i placeholder.
-                // This means the current `concreteInst` is the `ori` that needs patching.
-                // We must also verify that the register matches.
                 val ori_rd = (concreteInst >> 5) & 0x1f
                 val ori_rj = (concreteInst >> 10) & 0x1f
                 if (ori_rd == jirl_base && ori_rj == jirl_base) {
@@ -286,37 +315,42 @@ object ProgramGenerator {
                   finalInstructions += ori(jirl_base, jirl_base, low12)
                   patched = true
                 }
-              case _ => // Previous instruction was not a JIRL placeholder.
+              case _ =>
             }
           }
-
           if (!patched) {
-            // If it wasn't patched, add the instruction as is.
             finalInstructions += concreteInst
           }
 
         case Right(placeholder) =>
           placeholder match {
-            case HaltPlaceholder => finalInstructions += beq(0, 0, 0)
+            case HaltPlaceholder => finalInstructions += beq(0, 0, 0) // beq r0, r0, 0 (loop forever)
+            
+            // Unconditional Jumps
             case BPlaceholder(targetId) =>
-              val targetAddr = blockAddrMap(targetId)
-              val offset = targetAddr - currentPc
+              val offset = blockAddrMap(targetId) - currentPc
               finalInstructions += b(offset.toInt)
-            case BeqPlaceholder(rj, rk, targetId) =>
-              val targetAddr = blockAddrMap(targetId)
-              val offset = targetAddr - (currentPc + 4)
-              finalInstructions += beq(rj, rk, offset.toInt)
-            case BnePlaceholder(rj, rk, targetId) =>
-              val targetAddr = blockAddrMap(targetId)
-              val offset = targetAddr - (currentPc + 4)
-              finalInstructions += bne(rj, rk, offset.toInt)
+            case BlPlaceholder(targetId) =>
+              val offset = blockAddrMap(targetId) - currentPc
+              finalInstructions += bl(offset.toInt)
+            
+            // Conditional Branches (note: offset is from the next instruction)
+            case BeqPlaceholder(rj, rd, targetId) =>
+              val offset = blockAddrMap(targetId) - (currentPc + 4)
+              finalInstructions += beq(rj, rd, offset.toInt)
+            case BnePlaceholder(rj, rd, targetId) =>
+              val offset = blockAddrMap(targetId) - (currentPc + 4)
+              finalInstructions += bne(rj, rd, offset.toInt)
+            case BltuPlaceholder(rj, rd, targetId) =>
+              val offset = blockAddrMap(targetId) - (currentPc + 4)
+              finalInstructions += bltu(rj, rd, offset.toInt)
+
+            // JIRL sequence
             case JirlLu12iPlaceholder(rd, targetId) =>
-              // This is the first instruction of the JIRL sequence.
               val targetAddr = blockAddrMap(targetId)
               val high20 = ((targetAddr >> 12) & 0xfffff).toInt
               finalInstructions += lu12i_w(rd, high20)
             case JirlFinalPlaceholder(rj, rd) =>
-              // This is the final instruction of the JIRL sequence.
               finalInstructions += jirl(rd, rj, 0)
           }
       }
@@ -330,7 +364,7 @@ object ProgramGenerator {
     this.rand = p_rand
 
     // Pass 1: Build the abstract graph of blocks and edges
-    val cfgGraph = buildAbstractCFG(numBlocks = 50) // Generate 50 blocks
+    val cfgGraph = buildAbstractCFG(numBlocks = 50)
 
     // Pass 2: Fill blocks with instructions and layout placeholders, get addresses
     val (instructionStreamWithPlaceholders, blockAddressMap) = generateAndLayout(cfgGraph)
@@ -343,6 +377,7 @@ object ProgramGenerator {
       println(
         s"Warning: Generated program (${finalInstructions.length}) is longer than instCount (${cfg.instCount}). Truncating."
       )
+      // Ensure termination instruction is at the end
       finalInstructions = finalInstructions.take(cfg.instCount - 1) :+ beq(0, 0, 0)
     }
 
