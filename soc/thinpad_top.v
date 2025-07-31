@@ -218,7 +218,7 @@ CoreNSCSCC core(
 );
 
 uart_wrapper#(
-    .clk_freq(162000000),
+    .clk_freq(100000000),
     .uart_baud(9600)
 ) uart(
     .clk(clk_cpu),
