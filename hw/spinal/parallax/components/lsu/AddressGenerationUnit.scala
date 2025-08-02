@@ -7,6 +7,8 @@ import parallax.common._
 import parallax.utilities._
 import parallax.execute.BypassService
 import scala.collection.mutable.ArrayBuffer
+import parallax.utilities.ParallaxSim.notice
+import parallax.utilities.Verification.assertFlushSilence
 
 // AGU旁路数据类型
 // case class AguBypassData() extends Bundle {
@@ -50,6 +52,7 @@ case class AguInput(lsuConfig: LsuConfig) extends Bundle with Formattable {
   val isStore = Bool()
   val isFlush = Bool()
   val isIO = Bool()
+  val isCoherent = Bool()
   val physDst = UInt(lsuConfig.physGprIdxWidth)
 
   def format: Seq[Any] = {
@@ -68,6 +71,7 @@ case class AguInput(lsuConfig: LsuConfig) extends Bundle with Formattable {
       L"isStore=${isStore},",
       L"isFlush=${isFlush},",
       L"isIO=${isIO},",
+      L"isCoherent=${isCoherent},",
       L"physDst=${physDst})"
     )
   }
@@ -93,6 +97,7 @@ case class AguOutput(lsuConfig: LsuConfig) extends Bundle with Formattable {
   val storeData = Bits(lsuConfig.dataWidth)
   val isFlush = Bool()
   val isIO = Bool()
+  val isCoherent = Bool()
 
   def format: Seq[Any] = {
     Seq(
@@ -111,6 +116,7 @@ case class AguOutput(lsuConfig: LsuConfig) extends Bundle with Formattable {
       L"isLoad=${isLoad},",
       L"isStore=${isStore},",
       L"isIO=${isIO},",
+      L"isCoherent=${isCoherent},",
       L"physDst=${physDst},",
       L"storeData=${storeData})"
     )
@@ -248,9 +254,9 @@ class AguPlugin(
           val isInMmioRange = Bool()
           val mmioHits = mmioRanges.map(_.contains(addressCalc.effectiveAddress))
           isInMmioRange := mmioHits.fold(False)(_ || _)
-          
-          // MMIO检测：如果输入的isIO为true，或者地址在MMIO范围内，则标记为IO操作
-          val finalIsIO = s1.payload.isIO || isInMmioRange
+          when(isInMmioRange) {
+            notice(L"MMIO range hit! address=0x${addressCalc.effectiveAddress}")
+          }
         }
 
         val alignmentCheck = new Area {
@@ -311,10 +317,12 @@ class AguPlugin(
         s1_stream.payload.isStore       := s1.payload.isStore
         s1_stream.payload.physDst       := s1.payload.physDst
         s1_stream.payload.isFlush       := s1.payload.isFlush
-        s1_stream.payload.isIO       := mmioDetection.finalIsIO
-        
-        externalPort.output << s1_stream.queueOfReg(size = 2)
+        s1_stream.payload.isIO          := mmioDetection.isInMmioRange || s1.payload.isIO
+        s1_stream.payload.isCoherent    := !mmioDetection.isInMmioRange && s1.payload.isCoherent
+
+        externalPort.output << s1_stream.queueOfReg(size = 2).throwWhen(externalPort.flush)
         s0.ready := s1_stream.ready && !externalPort.flush
+        assertFlushSilence(externalPort.output, externalPort.flush, silenceCycles = 3)
       }
 
       ParallaxLogger.log(s"[AguPlugin] AGU实例 $i 逻辑已连接")

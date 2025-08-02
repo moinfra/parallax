@@ -31,7 +31,7 @@ class CheckpointManagerPlugin(
     val flConfig: SimpleFreeListConfig
 ) extends Plugin with CheckpointManagerService {
   
-  val enableLog = true
+  val enableLog = false
   
   // Service interface signals
   val saveCheckpointTrigger = False

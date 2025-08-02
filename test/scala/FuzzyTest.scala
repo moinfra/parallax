@@ -1,6 +1,7 @@
-// run: testOnly test.scala.FuzzyTest
 package test.scala
 
+import java.io.{File, FileInputStream}
+import java.nio.{ByteBuffer, ByteOrder}
 import _root_.test.scala.LA32RInstrBuilder._
 import org.scalatest.funsuite.AnyFunSuite
 import spinal.core.sim._
@@ -8,6 +9,8 @@ import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
 import java.io.File
 import scala.sys.process.ProcessLogger
+import scala.concurrent.{Promise, Await} // 引入 Promise 和 Await
+import scala.concurrent.duration._ // 引入 Duration
 
 /**
  * Configuration for a fuzzing test session.
@@ -43,6 +46,9 @@ class CoSimState(dut: LabTestBench, cfg: FuzzCfg) {
     val Unknown, MaxCommitLimitReached, PcOutOfBounds, GprMismatch, DutStalled, GoldenModelHaltedNatural, GoldenModelHaltedLoop, GoldenModelError, LoopMismatch = Value
   }
   var terminationReason: TerminationReason.Value = TerminationReason.Unknown // 使用枚举
+
+  // 新增：用于传递终止消息的 Promise
+  val terminationPromise: Promise[String] = Promise[String]()
 
   // --- Edge Coverage Tracking ---
   private val edgeCoverage = scala.collection.mutable.Set[(BigInt, BigInt)]()
@@ -97,10 +103,10 @@ class CoSimState(dut: LabTestBench, cfg: FuzzCfg) {
 
       // 5. 与Golden Model协同仿真
       if (!hitTerminationCondition) {
-        assert(currentCommitPc < cfg.pcSafeLimit, {
+        if (currentCommitPc >= cfg.pcSafeLimit) {
           terminate(TerminationReason.PcOutOfBounds, s"PC Out of Bounds! PC: 0x${currentCommitPc.toString(16)}")
-          terminationReason.toString() // 返回字符串作为 assert 消息
-        })
+          return // 立即返回，不再执行后续逻辑
+        }
 
         if (goldenModelFinalStatus.isEmpty) {
           val vmStatus = GoldenModel.stepUntil(currentCommitPc)
@@ -126,7 +132,7 @@ class CoSimState(dut: LabTestBench, cfg: FuzzCfg) {
             case CVmStatus.Error =>
               terminate(TerminationReason.GoldenModelError, s"Golden Model errored unexpectedly at PC 0x${currentCommitPc.toString(16)}.")
               goldenModelFinalStatus = Some(CVmStatus.Error)
-              assert(false, s"Golden Model errored unexpectedly at PC 0x${currentCommitPc.toString(16)}.") // 快速失败
+              // 这里不直接 assert false，而是让主线程处理
             
             case _ => // Running or Idle
           }
@@ -155,16 +161,18 @@ class CoSimState(dut: LabTestBench, cfg: FuzzCfg) {
         }
       }
       terminate(TerminationReason.GprMismatch, "GPR state mismatch.")
-      assert(false, terminationReason.toString())
+      // 这里不直接 assert false，而是让主线程处理
     }
   }
 
-  /** Centralized function to set the termination flag and reason. */
+  /** Centralized function to set the termination flag and reason, and complete the promise. */
   def terminate(reason: TerminationReason.Value, message: String): Unit = {
     if (!hitTerminationCondition) {
       hitTerminationCondition = true
       terminationReason = reason
       println(s"INFO: Test terminated. Reason: ${message}") // 打印详细信息
+      // 完成 Promise，传递终止消息
+      terminationPromise.trySuccess(message)
     }
   }
 }
@@ -223,7 +231,6 @@ object Fuzz {
           
           if (cyclesWithoutCommit > state.stallThresholdCycles) {
             state.terminate(state.TerminationReason.DutStalled, s"DUT has not committed any instruction for ${state.stallThresholdCycles} cycles. DUT stalled.")
-            assert(false, state.terminationReason.toString())
           }
         }
       }
@@ -231,60 +238,64 @@ object Fuzz {
 
     // Main commit processing loop
     cd.onSamplings {
-      val comm = dut.commitLog(0)
-      if (comm.doCommit.toBoolean && !state.hitTerminationCondition) {
-        val currentCommitPc = comm.pc.toBigInt
-        
-        // <--- 关键修改：处理循环检查逻辑
-        if (state.isCheckingForLoop) {
-          // 如果我们正处于循环检查模式
-          if (currentCommitPc == state.lastCommitPc) {
-            // DUT 确认在循环中。现在检查 Golden Model
-            // 让 Golden Model 执行一步，并检查其 PC
-            val vmStatus = GoldenModel.step() // Golden Model 步进
-            val vmPc = GoldenModel.getPc()
+      // 只有在没有终止信号发出时才处理提交
+      if (!state.hitTerminationCondition) {
+        val comm = dut.commitLog(0)
+        if (comm.doCommit.toBoolean) {
+          val currentCommitPc = comm.pc.toBigInt
+          // <--- 关键修改：处理循环检查逻辑
+          if (state.isCheckingForLoop) {
+            // 如果我们正处于循环检查模式
+            if (currentCommitPc == state.lastCommitPc) {
+              // DUT 确认在循环中。现在检查 Golden Model
+              // 让 Golden Model 执行一步，并检查其 PC
+              val vmStatus = GoldenModel.step() // Golden Model 步进
+              val vmPc = GoldenModel.getPc()
 
-            // 验证 Golden Model 是否也在同一个循环点
-            if (vmPc == state.lastCommitPc) {
-              state.terminate(state.TerminationReason.GoldenModelHaltedLoop, s"DUT and Golden Model both confirmed to be in an infinite loop at PC 0x${currentCommitPc.toString(16)}. Test PASSED.")
-              println(">>> Loop detected and verified. Ending test successfully. <<<")
+              // 验证 Golden Model 是否也在同一个循环点
+              if (vmPc == state.lastCommitPc) {
+                state.terminate(state.TerminationReason.GoldenModelHaltedLoop, s"DUT and Golden Model both confirmed to be in an infinite loop at PC 0x${currentCommitPc.toString(16)}. Test PASSED.")
+                println(">>> Loop detected and verified. Ending test successfully. <<<")
+              } else {
+                // 严重错误：DUT 在循环，但 Golden Model 已经前进到其他地方了
+                state.terminate(state.TerminationReason.LoopMismatch, s"Loop Mismatch! DUT is looping at PC 0x${currentCommitPc.toString(16)}, but Golden Model is at PC 0x${vmPc.toString(16)}.")
+              }
             } else {
-              // 严重错误：DUT 在循环，但 Golden Model 已经前进到其他地方了
-              state.terminate(state.TerminationReason.LoopMismatch, s"Loop Mismatch! DUT is looping at PC 0x${currentCommitPc.toString(16)}, but Golden Model is at PC 0x${vmPc.toString(16)}.")
-              assert(false, state.terminationReason.toString())
+              // 误报：DUT 并没有继续循环，而是前进到了新的 PC
+              println(s"INFO: Loop check failed. DUT moved from 0x${state.lastCommitPc.toString(16)} to 0x${currentCommitPc.toString(16)}. Resuming normal operation.")
+              state.isCheckingForLoop = false // 退出循环检查模式
+              state.staleCommitCounter = 0 // 重置计数器，因为现在又有了新的边
+              // 正常处理这次提交
+              state.processCommit(currentCommitPc)
             }
           } else {
-            // 误报：DUT 并没有继续循环，而是前进到了新的 PC
-            println(s"INFO: Loop check failed. DUT moved from 0x${state.lastCommitPc.toString(16)} to 0x${currentCommitPc.toString(16)}. Resuming normal operation.")
-            state.isCheckingForLoop = false // 退出循环检查模式
-            state.staleCommitCounter = 0 // 重置计数器，因为现在又有了新的边
-            // 正常处理这次提交
+            // 正常模式：只有当 PC 发生变化时才处理提交，避免重复处理同一条指令
+            // 注意：state.processCommit 内部已经处理了 lastCommitPc 的更新，
+            // 并且如果 currentCommitPc == lastCommitPc 且没有新边，staleCommitCounter 会增加。
+            // 所以这里不需要额外的 currentCommitPc != state.lastCommitPc 检查。
             state.processCommit(currentCommitPc)
           }
-        } else {
-          // 正常模式：只有当 PC 发生变化时才处理提交，避免重复处理同一条指令
-          // 注意：state.processCommit 内部已经处理了 lastCommitPc 的更新，
-          // 并且如果 currentCommitPc == lastCommitPc 且没有新边，staleCommitCounter 会增加。
-          // 所以这里不需要额外的 currentCommitPc != state.lastCommitPc 检查。
-          state.processCommit(currentCommitPc)
         }
-      }
-      
-      // 处理 Golden Model 已经停机但 DUT 仍在运行的情况
-      if (state.goldenModelFinalStatus.contains(CVmStatus.Halted) && comm.doCommit.toBoolean) {
-        // 如果 Golden Model 已经停机，并且 DUT 还在提交指令，这通常是错误
-        // 但如果 Golden Model 是因为循环而停机（GoldenModelHaltedLoop），则 DUT 继续提交是预期的
-        if (state.terminationReason != state.TerminationReason.GoldenModelHaltedLoop) {
-          state.terminate(state.TerminationReason.GoldenModelHaltedNatural, s"DUT is still committing (PC: 0x${comm.pc.toBigInt.toString(16)}) after Golden Model has halted!")
-          assert(false, state.terminationReason.toString())
+        
+        // 处理 Golden Model 已经停机但 DUT 仍在运行的情况
+        if (state.goldenModelFinalStatus.contains(CVmStatus.Halted) && comm.doCommit.toBoolean) {
+          // 如果 Golden Model 已经停机，并且 DUT 还在提交指令，这通常是错误
+          // 但如果 Golden Model 是因为循环而停机（GoldenModelHaltedLoop），则 DUT 继续提交是预期的
+          if (state.terminationReason != state.TerminationReason.GoldenModelHaltedLoop) {
+            state.terminate(state.TerminationReason.GoldenModelHaltedNatural, s"DUT is still committing (PC: 0x${comm.pc.toBigInt.toString(16)}) after Golden Model has halted!")
+          }
         }
       }
     }
 
+    // 等待终止条件被触发
     cd.waitSamplingWhere(state.hitTerminationCondition)
+    
+    // 额外等待一些周期，以确保波形捕获完整
+    cd.waitSampling(1) // 增加等待时间
+
     println(s"INFO: Test terminated. Final reason: ${state.terminationReason}") // 打印最终原因
     stallDetector.join() // 确保停滞检测器线程正常结束
-    cd.waitSampling(500) // 额外等待一些周期，确保所有信号稳定
 
     val finalStatus = GoldenModel.getStatus()
     // 如果终止原因是“自然停止”或“无限循环”，则 Golden Model 必须是 Halted 状态
@@ -296,7 +307,8 @@ object Fuzz {
         // 此时 Golden Model 的状态可以是 Running/Idle/Error，都是可接受的
         println(s"Final Golden Model status after forceful termination: $finalStatus. This is acceptable given the termination reason.")
     }
-    println("GPR co-simulation phase passed successfully.")
+    // 移除这里误导性的成功消息
+    // println("GPR co-simulation phase passed successfully.") 
 
     state // <--- 关键修改：返回 state 实例
   }
@@ -341,7 +353,7 @@ class FuzzyTest extends CustomSpinalSimFunSuite {
   val objdumpPath = "../la32r-vm/tools/loongson-gnu-toolchain-8.3-x86_64-loongarch32r-linux-gnusf-v2.0/bin/loongarch32r-linux-gnusf-objdump"
   
   val mainFuzzCfg = FuzzCfg(
-    seed = 3,
+    seed = 6,
     instCount = 8000,
     maxCommits = 8000,
     maxStaleCommits = 500, // 连续 500 次提交没有新边覆盖，则进入循环检查模式
@@ -358,7 +370,7 @@ class FuzzyTest extends CustomSpinalSimFunSuite {
     val rand = new Random(mainFuzzCfg.seed)
     println(s"--- Test Setup Phase (seed=${mainFuzzCfg.seed}) ---")
 
-    val instructions = ProgramGenerator.generate(mainFuzzCfg, rand)
+    val instructions: Seq[BigInt] = ProgramGenerator.generate(mainFuzzCfg, rand)
     // iSramContent 填充指令，dSramContent 填充随机数据
     val iSramContent = Fuzz.prepMemData(instructions, mainFuzzCfg.iSramSize / 4, 0)
     val dSramContent = Fuzz.prepMemData(Seq.empty, mainFuzzCfg.dSramSize / 4, mainFuzzCfg.memFillValue)
@@ -392,6 +404,16 @@ class FuzzyTest extends CustomSpinalSimFunSuite {
       // <--- 关键修改：接收 runCoSim 的返回值
       val finalCoSimState = Fuzz.runCoSim(dut, mainFuzzCfg)
       
+      // 检查是否有终止信号，如果有，则在等待后抛出 assert
+      if (finalCoSimState.hitTerminationCondition) {
+        // 尝试获取终止消息，设置一个超时时间防止死锁
+        val terminationMessage = Await.result(finalCoSimState.terminationPromise.future, 1.second)
+        // 只有当终止原因不是“循环已验证”时才抛出 assert
+        if (finalCoSimState.terminationReason != finalCoSimState.TerminationReason.GoldenModelHaltedLoop) {
+          assert(false, terminationMessage)
+        }
+      }
+
       // 只有当测试不是因为循环而成功终止时，才进行内存检查
       finalCoSimState.terminationReason match {
         case finalCoSimState.TerminationReason.GoldenModelHaltedLoop =>
@@ -400,11 +422,123 @@ class FuzzyTest extends CustomSpinalSimFunSuite {
           Fuzz.checkMemDump(dut, mainFuzzCfg)
       }
 
-      println(s"\n>>> Advanced Fuzz Test PASSED! (seed=${mainFuzzCfg.seed}) <<<")
+      // 只有当没有 assert 抛出时，才打印测试通过
+      if (!finalCoSimState.hitTerminationCondition || finalCoSimState.terminationReason == finalCoSimState.TerminationReason.GoldenModelHaltedLoop) {
+        println(s"\n>>> Advanced Fuzz Test PASSED! (seed=${mainFuzzCfg.seed}) <<<")
+      }
     }
 
     GoldenModel.destroy()
     println("--- Test Finished ---")
+  }
+
+  /**
+   * Loads a binary file and converts its content into a sequence of BigInts (words).
+   * @param path Path to the binary file.
+   * @return A sequence of BigInts representing the file content, or null if file not found.
+   */
+  def loadBinaryFile(path: String): Seq[BigInt] = {
+    val file = new File(path)
+    if (!file.exists()) {
+      println(s"ERROR: Binary file not found at '$path'")
+      return null
+    }
+
+    val fis = new FileInputStream(file)
+    val bytes = fis.readAllBytes()
+    fis.close()
+
+    // Ensure byte count is a multiple of 4
+    val paddedBytes = if (bytes.length % 4 != 0) {
+      bytes ++ Array.fill[Byte](4 - bytes.length % 4)(0)
+    } else {
+      bytes
+    }
+
+    val buffer = ByteBuffer.wrap(paddedBytes)
+    buffer.order(ByteOrder.LITTLE_ENDIAN) // LoongArch is Little-Endian
+
+    val words = new ArrayBuffer[BigInt]()
+    while (buffer.hasRemaining) {
+      // Read an Int, convert to unsigned long to avoid sign extension issues, then to BigInt
+      words += BigInt(buffer.getInt() & 0xFFFFFFFFL)
+    }
+    words.toSeq
+  }
+
+    val kernelCfg = FuzzCfg(
+    seed = 0, // Seed is not used for instruction generation here
+    instCount = 0, // Not applicable, we load from file
+    maxCommits = 500000, // Set a high limit for the kernel to run
+    maxStaleCommits = 2000, // Allow more stale commits for potentially complex loops in kernel
+    iSramBase = BigInt("80000000", 16),
+    iSramSize = 4 * 1024 * 1024,
+    dSramBase = BigInt("80400000", 16),
+    dSramSize = 4 * 1024 * 1024,
+    pcSafeLimit = BigInt("81000000", 16),
+    memCheckSize = 8 * 1024,
+    memFillValue = 0 // Use 0 for data memory padding
+  )
+
+  test("xKernel Co-Simulation Test (from bin/kernel.bin)") {
+    println("--- Test Setup Phase (Kernel) ---")
+
+    val kernelPath = "bin/kernel.bin"
+    val instructions = loadBinaryFile(kernelPath)
+    assert(instructions != null, s"Failed to load kernel file from '$kernelPath'. Test cannot proceed.")
+    println(s"Successfully loaded ${instructions.length} words from $kernelPath.")
+
+    // Prepare memory content
+    val iSramContent = Fuzz.prepMemData(instructions, kernelCfg.iSramSize / 4, 0)
+    val dSramContent = Fuzz.prepMemData(Seq.empty, kernelCfg.dSramSize / 4, kernelCfg.memFillValue)
+
+    val memoryMap = Seq((kernelCfg.iSramBase, kernelCfg.iSramSize), (kernelCfg.dSramBase, kernelCfg.dSramSize))
+    GoldenModel.initialize(kernelCfg.iSramBase.toInt, memoryMap)
+
+    def toBytes(words: Seq[BigInt]): Array[Byte] = words.flatMap { w =>
+      // LoongArch 是小端序
+      Array((w & 0xff).toByte, ((w >> 8) & 0xff).toByte, ((w >> 16) & 0xff).toByte, ((w >> 24) & 0xff).toByte)
+    }.toArray
+
+    GoldenModel.initMemory(kernelCfg.iSramBase.toInt, toBytes(iSramContent))
+    GoldenModel.initMemory(kernelCfg.dSramBase.toInt, toBytes(dSramContent))
+    println("Golden Model initialized for kernel test.")
+
+    val compiled = SimConfig.withFstWave.compile(
+      new LabTestBench(iDataWords = iSramContent, dDataWords = dSramContent)
+    )
+
+    compiled.doSim("KernelTest") { dut =>
+      dut.clockDomain.forkStimulus(10) // 10ns clock period
+      SimTimeout(10000000) // Use a generous timeout for the kernel
+
+      println("--- Kernel Simulation Started ---")
+
+      val finalCoSimState = Fuzz.runCoSim(dut, kernelCfg)
+      
+      // 检查是否有终止信号，如果有，则在等待后抛出 assert
+      if (finalCoSimState.hitTerminationCondition) {
+        val terminationMessage = Await.result(finalCoSimState.terminationPromise.future, 1.second)
+        if (finalCoSimState.terminationReason != finalCoSimState.TerminationReason.GoldenModelHaltedLoop) {
+          assert(false, terminationMessage)
+        }
+      }
+      
+      finalCoSimState.terminationReason match {
+        case finalCoSimState.TerminationReason.GoldenModelHaltedLoop =>
+          println("INFO: Skipping final memory check due to verified infinite loop in kernel.")
+        case _ =>
+          Fuzz.checkMemDump(dut, kernelCfg)
+      }
+
+      // 只有当没有 assert 抛出时，才打印测试通过
+      if (!finalCoSimState.hitTerminationCondition || finalCoSimState.terminationReason == finalCoSimState.TerminationReason.GoldenModelHaltedLoop) {
+        println(s"\n>>> Kernel Co-Simulation Test PASSED! <<<")
+      }
+    }
+
+    GoldenModel.destroy()
+    println("--- Kernel Test Finished ---")
   }
 
   thatsAll

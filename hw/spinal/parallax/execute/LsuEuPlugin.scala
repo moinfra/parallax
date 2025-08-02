@@ -17,7 +17,8 @@ class LsuEuPlugin(
     override val pipelineConfig: PipelineConfig,
     val lsuConfig: LsuConfig,
     val dCacheParams: DataCacheParameters,
-    val defaultIsIO: Boolean = false
+    val defaultIsIO: Boolean = false,
+    val defaultIsCoherent: Boolean = true,
 ) extends EuBasePlugin(euName, pipelineConfig) {
 
   // =========================================================================
@@ -71,7 +72,9 @@ class LsuEuPlugin(
     val euIn = getEuInputPort
     val uop = euIn.payload
     val isStore = uop.memCtrl.isStore
-
+    when(euIn.fire) {
+      report(L"[LsuEu_INPUT] Firing into EU: robPtr=${euIn.payload.robPtr}, isStore=${euIn.payload.memCtrl.isStore}")
+    }
     // --- 2. 将EU输入流转换为AGU输入流 ---
     val aguInStream = euIn.translateWith {
       val aguCmd = AguInput(lsuConfig)
@@ -88,6 +91,7 @@ class LsuEuPlugin(
       aguCmd.isStore     := isStore
       aguCmd.isFlush     := False // 这里是 Cache 刷新信号，不是ROB 的
       aguCmd.isIO        := Bool(defaultIsIO) // 使用配置参数
+      aguCmd.isCoherent  := Bool(defaultIsCoherent) // 使用配置参数
       aguCmd.physDst     := uop.physDest.idx
       aguCmd
     }
@@ -105,10 +109,12 @@ class LsuEuPlugin(
     // 连接到Load Queue
     hw.lqPushPort << lqDispatchStream.translateWith {
         val cmd = LoadQueuePushCmd(pipelineConfig, lsuConfig)
+        cmd.pc                 := aguOutPayload.pc
         cmd.robPtr             := aguOutPayload.robPtr
         cmd.pdest              := aguOutPayload.physDst
         cmd.address            := aguOutPayload.address
         cmd.isIO               := aguOutPayload.isIO
+        cmd.isCoherent         := aguOutPayload.isCoherent
         cmd.size               := aguOutPayload.accessSize
         cmd.isSignedLoad       := aguOutPayload.isSignedLoad
         cmd.hasEarlyException  := aguOutPayload.alignException
@@ -119,6 +125,8 @@ class LsuEuPlugin(
     // 连接到Store Buffer
     hw.sbPushPort << sbDispatchStream.translateWith {
         val cmd = StoreBufferPushCmd(pipelineConfig, lsuConfig)
+        assert(!aguOutStream.valid || aguOutPayload.isIO, "debug: only isIO store is supported")
+        cmd.pc                 := aguOutPayload.pc
         cmd.addr               := aguOutPayload.address
         cmd.data               := aguOutPayload.storeData // 正确：使用AGU提供的storeData
         cmd.be                 := aguOutPayload.storeMask
@@ -126,6 +134,7 @@ class LsuEuPlugin(
         cmd.accessSize         := aguOutPayload.accessSize
         cmd.isFlush            := aguOutPayload.isFlush
         cmd.isIO               := aguOutPayload.isIO
+        cmd.isCoherent         := aguOutPayload.isCoherent
         cmd.hasEarlyException  := aguOutPayload.alignException
         cmd.earlyExceptionCode := ExceptionCode.STORE_ADDRESS_MISALIGNED
         cmd
@@ -162,6 +171,8 @@ class LsuEuPlugin(
           euResult.hasException  := aguOutPayload.alignException
           euResult.exceptionCode := ExceptionCode.STORE_ADDRESS_MISALIGNED
           euResult.destIsFpr     := False
+
+          report(L"[LsuEu] Completed STORE: robPtr=${aguOutPayload.robPtr} pc=${aguOutPayload.pc} addr=${aguOutPayload.address} data=${aguOutPayload.storeData}")
       }
     }
 

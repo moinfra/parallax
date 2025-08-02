@@ -10,12 +10,11 @@ import parallax.components.memory._
 import scala.util.Random
 import scala.collection.mutable
 
-/**
- * Test suite specifically for the SRAMController's Word Addressing mode.
- * In this mode, the controller converts AXI byte addresses to SRAM word addresses.
- * For a 32-bit data bus (4 bytes/word), this means AXI address is divided by 4.
- * This mode requires word-aligned AXI accesses.
- */
+/** Test suite specifically for the SRAMController's Word Addressing mode.
+  * In this mode, the controller converts AXI byte addresses to SRAM word addresses.
+  * For a 32-bit data bus (4 bytes/word), this means AXI address is divided by 4.
+  * This mode requires word-aligned AXI accesses.
+  */
 class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
 
   // AXI configuration remains the same
@@ -30,11 +29,15 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
     useSize = true
   )
 
-  /**
-   * Helper to create a SRAMConfig for word-addressing mode.
-   * Example: 4MB SRAM, 32-bit data => 1M words => 20 address lines.
-   */
-  def createWordAddrRamConfig(readWaitCycles: Int = 0,writeWaitCycles:Int = 0,  sramSize: BigInt = 4 * 1024 * 1024, enableLog: Boolean = false): SRAMConfig = {
+  /** Helper to create a SRAMConfig for word-addressing mode.
+    * Example: 4MB SRAM, 32-bit data => 1M words => 20 address lines.
+    */
+  def createWordAddrRamConfig(
+      readWaitCycles: Int = 0,
+      writeWaitCycles: Int = 0,
+      sramSize: BigInt = 4 * 1024 * 1024,
+      enableLog: Boolean = false
+  ): SRAMConfig = {
     val bytesPerWord = axiConfig.dataWidth / 8
     val wordCount = sramSize / bytesPerWord
     val addressWidth = log2Up(wordCount)
@@ -44,6 +47,7 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
       dataWidth = axiConfig.dataWidth,
       virtualBaseAddress = 0x80000000L,
       sizeBytes = sramSize,
+      sramByteEnableIsActiveLow = true,
       readWaitCycles = readWaitCycles,
       writeWaitCycles = writeWaitCycles,
       enableValidation = true,
@@ -54,11 +58,16 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
 
   // The withTestBench helper is identical to the one in the other spec file
   def withTestBench[T](ramConfig: SRAMConfig)(testCode: (ExtSRAMTestBench, AxiMasterHelper, ClockDomain) => T) = {
-    val compiled = SimConfig.withConfig(SpinalConfig(
+    val compiled = SimConfig
+      .withConfig(
+        SpinalConfig(
           defaultConfigForClockDomains = ClockDomainConfig(resetKind = SYNC),
-    defaultClockDomainFrequency = FixedFrequency(162 MHz),
-    ))
-.withIVerilog  .withWave.compile(new ExtSRAMTestBench(axiConfig, ramConfig, useBlackbox = true))
+          defaultClockDomainFrequency = FixedFrequency(300 MHz)
+        )
+      )
+      .withIVerilog
+      .withWave
+      .compile(new ExtSRAMTestBench(axiConfig, ramConfig, useBlackbox = true))
     compiled.doSim { dut =>
       val clockDomain = dut.clockDomain
       clockDomain.forkStimulus(period = 10 * 1000)
@@ -115,7 +124,7 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
   test("WordAddr - Word alignment error") {
     withTestBench(createWordAddrRamConfig()) { (dut, axiMaster, _) =>
       // Address is not a multiple of 4, should be rejected by the controller
-      val unalignedAddr = 0x80000001L 
+      val unalignedAddr = 0x80000001L
       val testData = 0xbadaddL
 
       val writeTx = axiMaster.writeWord(unalignedAddr, testData)
@@ -133,7 +142,7 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
     val sramSize = 4 * 1024 * 1024
     withTestBench(createWordAddrRamConfig(sramSize = sramSize)) { (dut, axiMaster, _) =>
       // This is the first byte address outside the 4MB range
-      val invalidAddr = 0x80000000L + sramSize 
+      val invalidAddr = 0x80000000L + sramSize
       val testData = 0x12345678L
 
       val writeTx = axiMaster.writeWord(invalidAddr, testData)
@@ -144,7 +153,7 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
       assert(readResp == 2, "Read from out-of-bounds address should be SLVERR")
     }
   }
-  
+
   test("WordAddr - Stress test with random word-aligned operations") {
     withTestBench(createWordAddrRamConfig()) { (dut, axiMaster, _) =>
       val random = new Random(42)
@@ -156,7 +165,7 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
 
       for (i <- 0 until operations) {
         // Ensure generated address is always word-aligned
-        val addr = baseAddr + (random.nextInt(maxWords) * 4) 
+        val addr = baseAddr + (random.nextInt(maxWords) * 4)
 
         if (random.nextBoolean() || writtenData.isEmpty) {
           // Write
@@ -171,7 +180,7 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
 
           val readTx = axiMaster.readWord(readAddr)
           val (readData, readResp) = axiMaster.waitReadResponse(readTx)
-          
+
           assert(readResp == 0, f"Random read from 0x$readAddr%x should succeed (op $i)")
           assert(
             readData.head == expectedData,
@@ -212,7 +221,7 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
     withTestBench(createWordAddrRamConfig(enableLog = false)) { (dut, axiMaster, clockDomain) =>
       // 这个测试会暴露valid信号在握手期间不稳定的问题
       val testAddr = 0x80000000L
-      
+
       // 手动驱动AW通道
       dut.io.axi.aw.valid #= true
       dut.io.axi.aw.addr #= testAddr
@@ -220,55 +229,55 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
       dut.io.axi.aw.len #= 0
       dut.io.axi.aw.size #= 2
       dut.io.axi.aw.burst #= 1
-      
+
       // 强制让ready信号延迟响应，检查valid信号的稳定性
       var validHistory = scala.collection.mutable.ArrayBuffer[Boolean]()
       var readyHistory = scala.collection.mutable.ArrayBuffer[Boolean]()
       var addrHistory = scala.collection.mutable.ArrayBuffer[BigInt]()
-      
+
       // 监控更多周期，检查valid信号的稳定性
       for (i <- 0 until 20) {
         clockDomain.waitSampling(1)
-        
+
         val currentValid = dut.io.axi.aw.valid.toBoolean
         val currentReady = dut.io.axi.aw.ready.toBoolean
         val currentAddr = dut.io.axi.aw.addr.toBigInt
-        
+
         validHistory += currentValid
         readyHistory += currentReady
         addrHistory += currentAddr
-        
+
         println(s"Cycle $i: AW.valid=$currentValid, AW.ready=$currentReady, addr=0x${currentAddr.toString(16)}")
-        
+
         // 检查一旦ready为true，valid是否意外变化
         if (currentReady && currentValid) {
           println(s"Handshake occurred at cycle $i")
         }
       }
-      
+
       // 严格验证：检查valid信号在ready为false时是否保持稳定
       var validViolations = 0
       var addrViolations = 0
-      
+
       for (i <- 1 until validHistory.length) {
-        if (!readyHistory(i-1) && validHistory(i-1)) {
+        if (!readyHistory(i - 1) && validHistory(i - 1)) {
           // valid在上一个周期为true且ready为false时，这个周期valid应该保持true
           if (!validHistory(i)) {
             validViolations += 1
             println(s"ERROR: Valid signal dropped at cycle $i while ready was false")
           }
           // 地址也应该保持稳定
-          if (addrHistory(i) != addrHistory(i-1)) {
+          if (addrHistory(i) != addrHistory(i - 1)) {
             addrViolations += 1
             println(s"ERROR: Address changed at cycle $i while handshake not complete")
           }
         }
       }
-      
+
       // 这里应该FAIL来暴露问题
       assert(validViolations == 0, s"Valid signal violated AXI protocol $validViolations times")
       assert(addrViolations == 0, s"Address signal violated AXI protocol $addrViolations times")
-      
+
       // 清理
       dut.io.axi.aw.valid #= false
     }
@@ -283,55 +292,55 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
 
       // 发起写事务但不立即接收响应
       val writeTx = axiMaster.writeWord(testAddr, testData)
-      
+
       // 强制B通道ready为false，检查valid是否意外撤销
       dut.io.axi.b.ready #= false
-      
+
       var bValidHistory = scala.collection.mutable.ArrayBuffer[Boolean]()
       var bRespHistory = scala.collection.mutable.ArrayBuffer[Int]()
       var bIdHistory = scala.collection.mutable.ArrayBuffer[Int]()
-      
+
       // 监控更长时间的B通道行为
       for (i <- 0 until 50) {
         clockDomain.waitSampling(1)
-        
+
         val currentBValid = dut.io.axi.b.valid.toBoolean
         val currentResp = dut.io.axi.b.resp.toInt
         val currentId = dut.io.axi.b.id.toInt
-        
+
         bValidHistory += currentBValid
         bRespHistory += currentResp
         bIdHistory += currentId
-        
+
         if (currentBValid) {
           println(s"Cycle $i: B.valid=true, resp=$currentResp, id=$currentId")
         }
       }
-      
+
       // 严格检查AXI协议违规
       var bValidViolations = 0
       var bRespViolations = 0
       var bIdViolations = 0
-      
+
       var firstValidIndex = -1
       for (i <- bValidHistory.indices) {
         if (bValidHistory(i) && firstValidIndex == -1) {
           firstValidIndex = i
         }
       }
-      
+
       if (firstValidIndex >= 0) {
         val expectedResp = bRespHistory(firstValidIndex)
         val expectedId = bIdHistory(firstValidIndex)
-        
+
         for (i <- firstValidIndex until bValidHistory.length) {
           if (bValidHistory(i)) {
             // 一旦valid为true，在ready为false的情况下应该保持稳定
-            if (i > firstValidIndex && !bValidHistory(i-1)) {
+            if (i > firstValidIndex && !bValidHistory(i - 1)) {
               bValidViolations += 1
               println(s"ERROR: B.valid dropped and reasserted at cycle $i")
             }
-            
+
             // 响应和ID必须保持稳定
             if (bRespHistory(i) != expectedResp) {
               bRespViolations += 1
@@ -344,28 +353,28 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
           }
         }
       }
-      
+
       // 检查默认值问题 - 这里应该FAIL
       if (firstValidIndex >= 0) {
         val initialResp = bRespHistory(firstValidIndex)
         val initialId = bIdHistory(firstValidIndex)
-        
+
         // 检查是否使用了默认值而不是实际的事务值
         if (initialResp == 0 && initialId == 0) {
           println(s"WARNING: B response might be using default values instead of actual transaction values")
         }
       }
-      
+
       // 严格断言 - 这些应该FAIL来暴露问题
       assert(bValidViolations == 0, s"B.valid violated AXI protocol $bValidViolations times")
       assert(bRespViolations == 0, s"B.resp violated AXI protocol $bRespViolations times")
       assert(bIdViolations == 0, s"B.id violated AXI protocol $bIdViolations times")
       assert(firstValidIndex >= 0, "B.valid should be asserted within reasonable time")
-      
+
       // 完成握手
       dut.io.axi.b.ready #= true
       clockDomain.waitSampling(2)
-      
+
       val finalResp = axiMaster.waitWriteResponse(writeTx)
       assert(finalResp == 0, "Final write response should be OKAY")
     }
@@ -378,10 +387,10 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
 
       // 使用axiMaster发起读事务
       val readTx = axiMaster.readWord(testAddr)
-      
+
       // 不立即接收R响应，而是监控R通道的行为
       dut.io.axi.r.ready #= false
-      
+
       var rValidFirstSeen = -1
       var rValidCount = 0
       var rRespStable = true
@@ -390,16 +399,16 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
       var initialResp = -1
       var initialId = -1
       var initialLast = false
-      
+
       // 监控R通道响应的时序违规
       for (i <- 0 until 25) {
         clockDomain.waitSampling(1)
-        
+
         val currentRValid = dut.io.axi.r.valid.toBoolean
         val currentResp = dut.io.axi.r.resp.toInt
         val currentId = dut.io.axi.r.id.toInt
         val currentLast = dut.io.axi.r.last.toBoolean
-        
+
         if (currentRValid) {
           if (rValidFirstSeen == -1) {
             rValidFirstSeen = i
@@ -409,7 +418,7 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
             println(s"R.valid first asserted at cycle $i: resp=$currentResp, id=$currentId, last=$currentLast")
           }
           rValidCount += 1
-          
+
           // 检查响应字段是否稳定
           if (currentResp != initialResp) {
             rRespStable = false
@@ -425,18 +434,18 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
           }
         }
       }
-      
+
       // 验证问题
       assert(rValidFirstSeen >= 0, "R.valid should be asserted within reasonable time")
       assert(rRespStable, "R.resp must remain stable once R.valid is asserted")
       assert(rIdStable, "R.id must remain stable once R.valid is asserted")
       assert(rLastStable, "R.last must remain stable once R.valid is asserted")
       assert(initialLast, "R.last should be true for single beat transfer")
-      
+
       // 完成握手
       dut.io.axi.r.ready #= true
       clockDomain.waitSampling(2)
-      
+
       // 验证响应正确性
       val (readData, readResp) = axiMaster.waitReadResponse(readTx)
       assert(readResp == 0, "Final read response should be OKAY")
@@ -451,7 +460,7 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
 
       // 首先测试同时有两个请求时的仲裁逻辑
       println("=== 测试仲裁逻辑修复 ===")
-      
+
       // 同时驱动AW和AR通道
       dut.io.axi.aw.valid #= true
       dut.io.axi.aw.addr #= testAddr1
@@ -459,43 +468,43 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
       dut.io.axi.aw.len #= 0
       dut.io.axi.aw.size #= 2
       dut.io.axi.aw.burst #= 1
-      
+
       dut.io.axi.ar.valid #= true
       dut.io.axi.ar.addr #= testAddr2
       dut.io.axi.ar.id #= 5
       dut.io.axi.ar.len #= 0
       dut.io.axi.ar.size #= 2
       dut.io.axi.ar.burst #= 1
-      
+
       // 在最初的几个周期中检查仲裁逻辑
       var awFirstReady = false
       var arFirstReady = false
       var bothReadyInFirstCycle = false
-      
+
       // 检查前3个周期的仲裁行为
       for (i <- 0 until 3) {
         clockDomain.waitSampling(1)
-        
+
         val awReady = dut.io.axi.aw.ready.toBoolean
         val arReady = dut.io.axi.ar.ready.toBoolean
-        
+
         println(s"Cycle $i: AW.ready=$awReady, AR.ready=$arReady")
-        
+
         if (i == 0) {
           // 在第一个周期，至少一个应该为ready
           awFirstReady = awReady
           arFirstReady = arReady
           bothReadyInFirstCycle = awReady && arReady
-          
+
           // 检查是否修复了循环依赖问题
           assert(awReady || arReady, "At least one channel should be ready in first cycle (fixed circular dependency)")
-          
+
           // 检查是否正确实现了仲裁：不应该同时都为ready（除非只有一个请求）
           if (bothReadyInFirstCycle) {
             println("WARNING: Both channels ready simultaneously - this might indicate implementation issue")
           }
         }
-        
+
         // 一旦有一个被接受，就会离开IDLE状态
         if (awReady && dut.io.axi.aw.valid.toBoolean) {
           println(s"AW accepted at cycle $i, will leave IDLE state")
@@ -504,22 +513,22 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
           println(s"AR accepted at cycle $i, will leave IDLE state")
         }
       }
-      
+
       println(s"\n=== 仲裁结果 ===")
       println(s"AW ready in first cycle: $awFirstReady")
       println(s"AR ready in first cycle: $arFirstReady")
       println(s"Both ready in first cycle: $bothReadyInFirstCycle")
-      
+
       // 主要的验证：修复了循环依赖问题
       assert(awFirstReady || arFirstReady, "Fixed circular dependency: at least one channel should be ready")
-      
+
       // 清理手动驱动的信号
       dut.io.axi.aw.valid #= false
       dut.io.axi.ar.valid #= false
-      
+
       // 重要：如果AW被接受但没有W数据，控制器会停留在WRITE_DATA_FETCH状态
       // 我们需要完成这个被接受的写事务或者重置控制器
-      
+
       // 检查是否有挂起的写事务需要完成
       val needsWData = dut.io.axi.w.ready.toBoolean
       if (needsWData) {
@@ -529,35 +538,35 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
         dut.io.axi.w.data #= 0x0
         dut.io.axi.w.strb #= 0xf
         dut.io.axi.w.last #= true
-        
+
         // 等待W被接受
         clockDomain.waitSamplingWhere(dut.io.axi.w.ready.toBoolean && dut.io.axi.w.valid.toBoolean)
         dut.io.axi.w.valid #= false
-        
+
         // 等待B响应并接受它
         dut.io.axi.b.ready #= true
         clockDomain.waitSamplingWhere(dut.io.axi.b.valid.toBoolean)
         clockDomain.waitSampling(1) // 让B握手完成
-        
+
         println("挂起的写事务已完成")
       }
-      
+
       println("\n=== 测试完整的事务流程 ===")
-      
+
       // 测试完整的事务流程，确保没有真正的死锁
       clockDomain.waitSampling(5)
-      
+
       // 发起一个完整的写事务
       val writeTx = axiMaster.writeWord(testAddr1, 0x12345678L)
       val writeResp = axiMaster.waitWriteResponse(writeTx)
       assert(writeResp == 0, "Write transaction should succeed")
-      
+
       // 发起一个完整的读事务
       val readTx = axiMaster.readWord(testAddr1)
       val (readData, readResp) = axiMaster.waitReadResponse(readTx)
       assert(readResp == 0, "Read transaction should succeed")
       assert(readData.head == 0x12345678L, "Read data should match written data")
-      
+
       println("Both write and read transactions completed successfully - no deadlock!")
     }
   }
@@ -575,7 +584,7 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
       dut.io.axi.ar.len #= burstLen
       dut.io.axi.ar.size #= 2
       dut.io.axi.ar.burst #= 1
-      
+
       // 等待AR被接受
       var arAccepted = false
       for (i <- 0 until 10 if !arAccepted) {
@@ -585,31 +594,31 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
           arAccepted = true
         }
       }
-      
+
       // 重置AR
       dut.io.axi.ar.valid #= false
-      
+
       // 监控R通道的突发响应
       var beatCount = 0
       var lastSignalErrors = scala.collection.mutable.ArrayBuffer[String]()
       var burstCompleted = false
-      
+
       for (i <- 0 until 50 if !burstCompleted) {
         clockDomain.waitSampling(1)
-        
+
         val rValid = dut.io.axi.r.valid.toBoolean
         val rReady = dut.io.axi.r.ready.toBoolean
         val rLast = dut.io.axi.r.last.toBoolean
-        
+
         // 设置间歇性ready来测试协议
         dut.io.axi.r.ready #= (i % 2 == 0)
-        
+
         if (rValid) {
           println(s"Cycle $i: R.valid=true, R.ready=$rReady, R.last=$rLast, beat=$beatCount")
-          
+
           if (rReady && rValid) {
             beatCount += 1
-            
+
             // 检查last信号的正确性
             val expectedLast = (beatCount == burstLen + 1)
             if (rLast != expectedLast) {
@@ -617,7 +626,7 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
               lastSignalErrors += error
               println(s"ERROR: $error")
             }
-            
+
             if (rLast) {
               println(s"Burst completed at beat $beatCount")
               burstCompleted = true
@@ -625,17 +634,17 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
           }
         }
       }
-      
+
       // 验证问题
       assert(beatCount > 0, "Should receive at least one beat")
       assert(beatCount == burstLen + 1, s"Should receive ${burstLen + 1} beats, got $beatCount")
-      
+
       // 报告last信号错误
       if (lastSignalErrors.nonEmpty) {
         println(s"Last signal errors detected: ${lastSignalErrors.mkString(", ")}")
         assert(false, s"Last signal errors: ${lastSignalErrors.head}")
       }
-      
+
       // 清理
       dut.io.axi.r.ready #= false
     }
@@ -645,12 +654,12 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
     withTestBench(createWordAddrRamConfig(enableLog = false)) { (dut, axiMaster, clockDomain) =>
       // 这个测试会暴露FSM状态和信号一致性问题 - 检查默认值问题
       val testAddr = 0x80000000L
-      
+
       // 初始状态检查
       clockDomain.waitSampling(5)
-      
+
       var inconsistencies = scala.collection.mutable.ArrayBuffer[String]()
-      
+
       // 检查初始状态 - 严格检查默认值
       val initialBValid = dut.io.axi.b.valid.toBoolean
       val initialRValid = dut.io.axi.r.valid.toBoolean
@@ -658,18 +667,18 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
       val initialBId = dut.io.axi.b.id.toInt
       val initialRResp = dut.io.axi.r.resp.toInt
       val initialRId = dut.io.axi.r.id.toInt
-      
+
       println(s"Initial state: B.valid=$initialBValid, R.valid=$initialRValid")
       println(s"Initial B values: resp=$initialBResp, id=$initialBId")
       println(s"Initial R values: resp=$initialRResp, id=$initialRId")
-      
+
       if (initialBValid) inconsistencies += "B.valid should be false initially"
       if (initialRValid) inconsistencies += "R.valid should be false initially"
-      
+
       // 检查默认值是否正确 - 这里暴露lines 90-95的问题
       if (initialBResp != 0) inconsistencies += s"B.resp initial value should be OKAY(0), got $initialBResp"
       if (initialBId != 0) inconsistencies += s"B.id initial value should be 0, got $initialBId"
-      
+
       // 发起写事务并监控状态变化
       val expectedId = 7
       dut.io.axi.aw.valid #= true
@@ -678,7 +687,7 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
       dut.io.axi.aw.len #= 0
       dut.io.axi.aw.size #= 2
       dut.io.axi.aw.burst #= 1
-      
+
       // 监控AW接受过程
       var awAccepted = false
       for (i <- 0 until 10 if !awAccepted) {
@@ -688,17 +697,17 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
           println(s"AW accepted at cycle $i")
         }
       }
-      
+
       if (!awAccepted) {
         inconsistencies += "AW should be accepted within reasonable time"
       }
-      
+
       // 发送W数据
       dut.io.axi.w.valid #= true
       dut.io.axi.w.data #= 0x12345678L
       dut.io.axi.w.strb #= 0xf
       dut.io.axi.w.last #= true
-      
+
       // 监控W接受过程
       var wAccepted = false
       for (i <- 0 until 10 if !wAccepted) {
@@ -708,17 +717,17 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
           println(s"W accepted at cycle $i")
         }
       }
-      
+
       if (!wAccepted) {
         inconsistencies += "W should be accepted within reasonable time"
       }
-      
+
       // 监控B响应 - 检查ID和响应值的正确性
       dut.io.axi.b.ready #= false
       var bValidSeen = false
       var actualBResp = -1
       var actualBId = -1
-      
+
       for (i <- 0 until 25 if !bValidSeen) {
         clockDomain.waitSampling(1)
         if (dut.io.axi.b.valid.toBoolean) {
@@ -728,24 +737,24 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
           println(s"B.valid asserted at cycle $i: resp=$actualBResp, id=$actualBId")
         }
       }
-      
+
       if (!bValidSeen) {
         inconsistencies += "B.valid should be asserted within reasonable time"
       }
-      
+
       // 严格检查B响应的正确性
       if (bValidSeen) {
         // 检查是否使用了正确的ID而不是默认值
         if (actualBId != expectedId) {
           inconsistencies += s"B.id should be $expectedId (from AW transaction), got $actualBId"
         }
-        
+
         // 检查响应值
         if (actualBResp != 0) {
           inconsistencies += s"B.resp should be OKAY(0) for valid transaction, got $actualBResp"
         }
       }
-      
+
       // 检查FSM状态一致性 - 验证默认值的问题
       // 问题出现在lines 90-95: 默认值被硬编码而不是来自实际事务
       val problemDescription = """
@@ -754,15 +763,15 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
       - io.axi.b.payload.resp := Axi4.resp.OKAY (line 91)
       These should be set from the actual transaction (aw_cmd_reg.id, actual response)
       """
-      
+
       println(problemDescription)
-      
+
       // 严格断言 - 这些应该FAIL来暴露问题
       if (inconsistencies.nonEmpty) {
         println(s"Inconsistencies found: ${inconsistencies.mkString(", ")}")
         assert(false, s"FSM inconsistencies: ${inconsistencies.head}")
       }
-      
+
       // 清理
       dut.io.axi.aw.valid #= false
       dut.io.axi.w.valid #= false
@@ -777,17 +786,17 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
       val testAddr = 0x80000000L
       val testData = 0x12345678L
       val expectedId = 1 // 使用一个非零的ID来检查
-      
+
       // 直接检查默认值问题
       clockDomain.waitSampling(5)
-      
+
       // 检查初始默认值
       val initialBId = dut.io.axi.b.id.toInt
       val initialBResp = dut.io.axi.b.resp.toInt
-      
+
       println(s"Initial B.id: $initialBId (should be 0)")
       println(s"Initial B.resp: $initialBResp (should be 0 for OKAY)")
-      
+
       // 发起写事务使用非零ID
       dut.io.axi.aw.valid #= true
       dut.io.axi.aw.addr #= testAddr
@@ -795,7 +804,7 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
       dut.io.axi.aw.len #= 0
       dut.io.axi.aw.size #= 2
       dut.io.axi.aw.burst #= 1
-      
+
       // 等待AW被接受
       var awAccepted = false
       for (i <- 0 until 10 if !awAccepted) {
@@ -805,13 +814,13 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
           println(s"AW accepted at cycle $i with ID $expectedId")
         }
       }
-      
+
       // 发送W数据
       dut.io.axi.w.valid #= true
       dut.io.axi.w.data #= testData
       dut.io.axi.w.strb #= 0xf
       dut.io.axi.w.last #= true
-      
+
       // 等待W被接受
       var wAccepted = false
       for (i <- 0 until 10 if !wAccepted) {
@@ -821,13 +830,13 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
           println(s"W accepted at cycle $i")
         }
       }
-      
+
       // 等待B响应
       dut.io.axi.b.ready #= false
       var bValidSeen = false
       var actualBId = -1
       var actualBResp = -1
-      
+
       for (i <- 0 until 25 if !bValidSeen) {
         clockDomain.waitSampling(1)
         if (dut.io.axi.b.valid.toBoolean) {
@@ -837,15 +846,18 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
           println(s"B.valid asserted at cycle $i: id=$actualBId, resp=$actualBResp")
         }
       }
-      
+
       println(s"Expected B.id: $expectedId, Actual B.id: $actualBId")
       println(s"Expected B.resp: 0 (OKAY), Actual B.resp: $actualBResp")
-      
+
       // 这个断言应该FAIL来暴露问题：
       // 由于代码中硬编码了 io.axi.b.payload.id := 0，
       // 实际返回的ID会是0而不是我们期望的42
-      assert(actualBId == expectedId, s"B.id should be $expectedId (from AW transaction), but got $actualBId. This indicates hardcoded default value problem at line 90!")
-      
+      assert(
+        actualBId == expectedId,
+        s"B.id should be $expectedId (from AW transaction), but got $actualBId. This indicates hardcoded default value problem at line 90!"
+      )
+
       // 清理
       dut.io.axi.aw.valid #= false
       dut.io.axi.w.valid #= false
@@ -858,22 +870,22 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
   test("AXI_VIOLATION_8 - Expose hardcoded payload assignments") {
     withTestBench(createWordAddrRamConfig(enableLog = false)) { (dut, axiMaster, clockDomain) =>
       // 这个测试会暴露lines 90-95中硬编码的默认值问题
-      
+
       // 初始化等待
       clockDomain.waitSampling(5)
-      
+
       // 检查初始状态的默认值
       val initialBId = dut.io.axi.b.id.toInt
       val initialBResp = dut.io.axi.b.resp.toInt
       val initialRId = dut.io.axi.r.id.toInt
       val initialRResp = dut.io.axi.r.resp.toInt
-      
+
       println(s"=== 默认值检查 ===")
       println(s"B.id initial: $initialBId")
       println(s"B.resp initial: $initialBResp")
       println(s"R.id initial: $initialRId")
       println(s"R.resp initial: $initialRResp")
-      
+
       // 预期这些都是默认值，正如代码中硬编码的那样
       val expectedDefaults = """
       代码中硬编码的默认值（lines 90-95）：
@@ -884,20 +896,20 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
       
       这些应该根据实际事务设置，而不是硬编码的默认值。
       """
-      
+
       println(expectedDefaults)
-      
+
       // 现在测试一个事务是否使用了正确的值
       val testAddr = 0x80000000L
-      val testData = 0xDEADBEEFL
+      val testData = 0xdeadbeefL
       val uniqueId = 9
-      
+
       // 使用axiMaster发起事务
       println(s"\n=== 发起写事务 ===")
       println(s"Test Address: 0x${testAddr.toHexString}")
       println(s"Test Data: 0x${testData.toHexString}")
       println(s"Expected ID: $uniqueId")
-      
+
       // 手动控制事务来检查ID传播
       dut.io.axi.aw.valid #= true
       dut.io.axi.aw.addr #= testAddr
@@ -905,52 +917,52 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
       dut.io.axi.aw.len #= 0
       dut.io.axi.aw.size #= 2
       dut.io.axi.aw.burst #= 1
-      
+
       // 等待事务完成并检查响应
       clockDomain.waitSampling(20)
-      
+
       // 检查最终的B响应
       val finalBId = dut.io.axi.b.id.toInt
       val finalBResp = dut.io.axi.b.resp.toInt
       val finalBValid = dut.io.axi.b.valid.toBoolean
-      
+
       println(s"\n=== 结果检查 ===")
       println(s"B.valid: $finalBValid")
       println(s"Expected B.id: $uniqueId")
       println(s"Actual B.id: $finalBId")
       println(s"Expected B.resp: 0 (OKAY)")
       println(s"Actual B.resp: $finalBResp")
-      
+
       // 这个测试检查B.id是否正确设置
       // 但我们应该首先确保这是一个有效的测试场景
       if (!finalBValid) {
         println(s"\n*** 测试注意 ***")
         println(s"B.valid=false，所以B.id值不重要。这是一个不完整的事务场景。")
         println(s"要真正测试B.id修复，需要完整的事务。")
-        
+
         // 我们需要提供W数据来完成事务，然后检查B.id
         println(s"现在完成事务来检查B.id修复...")
-        
+
         // 提供W数据
         if (dut.io.axi.w.ready.toBoolean) {
           dut.io.axi.w.valid #= true
           dut.io.axi.w.data #= testData
           dut.io.axi.w.strb #= 0xf
           dut.io.axi.w.last #= true
-          
+
           clockDomain.waitSamplingWhere(dut.io.axi.w.valid.toBoolean && dut.io.axi.w.ready.toBoolean)
           dut.io.axi.w.valid #= false
-          
+
           // 等待B响应
           dut.io.axi.b.ready #= true
           clockDomain.waitSamplingWhere(dut.io.axi.b.valid.toBoolean)
-          
+
           val completedBId = dut.io.axi.b.id.toInt
           val completedBResp = dut.io.axi.b.resp.toInt
           val completedBValid = dut.io.axi.b.valid.toBoolean
-          
+
           println(s"完成事务后 - B.valid: $completedBValid, B.id: $completedBId, B.resp: $completedBResp")
-          
+
           // 现在检查B.id是否正确
           if (completedBId != uniqueId) {
             println(s"*** AXI协议违规检测到 ***")
@@ -973,47 +985,366 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
           println(s"✓ B.id修复正确工作：期望 $uniqueId，实际 $finalBId")
         }
       }
-      
+
       // 清理
       dut.io.axi.aw.valid #= false
     }
   }
   test("WordAddr - Back-to-back burst write to expose timing hazard") {
-      // 这个测试专门用于复现连续写操作之间的数据/地址保持问题。
-      // 它写入一个序列，然后立即读回并检查。
-      // 如果存在时序竞争，读回的数据会出错。
-      withTestBench(createWordAddrRamConfig(readWaitCycles = 1, writeWaitCycles = 1, enableLog=true)) { (dut, axiMaster, clockDomain) =>
-          val baseAddr = 0x80004000L
-          val testData = Seq(
-              "AAAAAAAA", "BBBBBBBB", "CCCCCCCC", "DDDDDDDD",
-              "11111111", "22222222", "33333333", "44444444"
-          ).map(BigInt(_, 16)) 
-        val strbData = Seq.fill(testData.length)(0xF)
+    // 这个测试专门用于复现连续写操作之间的数据/地址保持问题。
+    // 它写入一个序列，然后立即读回并检查。
+    // 如果存在时序竞争，读回的数据会出错。
+    withTestBench(createWordAddrRamConfig(readWaitCycles = 1, writeWaitCycles = 1, enableLog = true)) {
+      (dut, axiMaster, clockDomain) =>
+        val baseAddr = 0x80004000L
+        val testData = Seq(
+          "AAAAAAAA",
+          "BBBBBBBB",
+          "CCCCCCCC",
+          "DDDDDDDD",
+          "11111111",
+          "22222222",
+          "33333333",
+          "44444444"
+        ).map(BigInt(_, 16))
+        val strbData = Seq.fill(testData.length)(0xf)
 
-          println("--- Starting back-to-back burst write test ---")
-          val writeTx = axiMaster.writeBurst(baseAddr, testData, strbData)
-          assert(axiMaster.waitWriteResponse(writeTx) == 0, "Burst write should succeed")
-          println("--- Burst write transaction complete ---")
+        println("--- Starting back-to-back burst write test ---")
+        val writeTx = axiMaster.writeBurst(baseAddr, testData, strbData)
+        assert(axiMaster.waitWriteResponse(writeTx) == 0, "Burst write should succeed")
+        println("--- Burst write transaction complete ---")
 
-          clockDomain.waitSampling(10) // 在读之前稍微等待一下，确保总线空闲
+        clockDomain.waitSampling(10) // 在读之前稍微等待一下，确保总线空闲
 
-          println("--- Reading back written data ---")
-          val readTx = axiMaster.readBurst(baseAddr, testData.length)
-          val (readData, readResp) = axiMaster.waitReadResponse(readTx)
-          
-          assert(readResp == 0, "Burst read should succeed")
-          
-          var mismatch = false
-          for(i <- testData.indices) {
-              if(readData(i) != testData(i)) {
-                  println(f"MISMATCH at index $i (addr 0x${(baseAddr + i*4).toHexString}): Expected=0x${testData(i)}%X, Got=0x${readData(i)}%X")
-                  mismatch = true
+        println("--- Reading back written data ---")
+        val readTx = axiMaster.readBurst(baseAddr, testData.length)
+        val (readData, readResp) = axiMaster.waitReadResponse(readTx)
+
+        assert(readResp == 0, "Burst read should succeed")
+
+        var mismatch = false
+        for (i <- testData.indices) {
+          if (readData(i) != testData(i)) {
+            println(
+              f"MISMATCH at index $i (addr 0x${(baseAddr + i * 4).toHexString}): Expected=0x${testData(i)}%X, Got=0x${readData(i)}%X"
+            )
+            mismatch = true
+          }
+        }
+
+        assert(!mismatch, "All data read back must match the written data.")
+        println("--- Back-to-back burst write test PASSED ---")
+    }
+  }
+
+  test("WordAddr - Template-based fuzzy test (Robust & Debuggable)") {
+    val sramSizeBytes = 4 * 1024 * 1024
+    val ramConfig = createWordAddrRamConfig(
+      readWaitCycles = 1,
+      writeWaitCycles = 1,
+      sramSize = sramSizeBytes,
+      enableLog = false
+    )
+    case class TestFailure(addr: BigInt, expected: BigInt, got: BigInt, message: String)
+
+    def check(condition: Boolean, onFailure: => TestFailure): Option[TestFailure] = {
+      if (condition) {
+        None // 成功，返回 None
+      } else {
+        Some(onFailure) // 失败，返回包含错误信息的 Some
+      }
+    }
+
+    withTestBench(ramConfig) { (dut, axiMaster, _) =>
+      val random = new Random(12345)
+      val numTemplatesToRun = 300
+
+      var shadowMemory = mutable.Map[BigInt, BigInt]()
+      val logger = new TransactionLogger()
+      val templates = Seq(
+        MemTestTemplates.CompactWriteRead,
+        MemTestTemplates.SparseWriteRandomRead,
+        MemTestTemplates.ReadModifyWrite
+      )
+
+      // 用于保存第一次失败的信息
+      var firstFailure: Option[TestFailure] = None
+
+      println(s"Starting robust template-based fuzzy test...")
+
+      // 使用 forall 来实现提前退出循环
+      (0 until numTemplatesToRun).forall { i =>
+        val template = templates(random.nextInt(templates.length))
+        val (ops, nextState) = template.generate(random, shadowMemory, ramConfig)
+
+        println(f"--- [${i + 1}/$numTemplatesToRun] Executing Template: ${template.name} (${ops.size} ops) ---")
+
+        val templateResult = ops.zipWithIndex.forall { case (op, opIndex) =>
+          op match {
+            case Write(addr, data, strb) =>
+              val stateBefore = shadowMemory.getOrElse(addr, BigInt(0))
+              val stateAfter = nextState(addr)
+              logger.record(logger.LoggedMemOp(template.name, i, opIndex, op, stateBefore, stateAfter))
+
+              val writeTx = axiMaster.writeWord(addr.toLong, data.toLong, strb)
+              val resp = axiMaster.waitWriteResponse(writeTx)
+
+              val writeOk = check(resp == 0, TestFailure(addr, 0, resp, "Write response was not OKAY"))
+              if (writeOk.isDefined) firstFailure = writeOk
+              writeOk.isEmpty // continue if empty (success)
+
+            case Read(addr, expectedData) =>
+              val stateBefore = shadowMemory.getOrElse(addr, BigInt(0))
+              logger.record(logger.LoggedMemOp(template.name, i, opIndex, op, stateBefore, stateBefore))
+
+              val readTx = axiMaster.readWord(addr.toLong)
+              val (readData, readResp) = axiMaster.waitReadResponse(readTx)
+
+              val respOk = check(readResp == 0, TestFailure(addr, 0, readResp, "Read response was not OKAY"))
+              if (respOk.isDefined) {
+                firstFailure = respOk
+                false // Stop execution
+              } else {
+                val dataOk = check(
+                  readData.head == expectedData,
+                  TestFailure(addr, expectedData, readData.head, "Data Mismatch")
+                )
+                if (dataOk.isDefined) firstFailure = dataOk
+                dataOk.isEmpty // continue if empty (success)
               }
           }
-          
-          assert(!mismatch, "All data read back must match the written data.")
-          println("--- Back-to-back burst write test PASSED ---")
+        }
+
+        if (templateResult) {
+          shadowMemory = nextState // 模板成功，更新状态
+        }
+
+        firstFailure.isEmpty // 主循环继续条件：当没有失败发生时
       }
+
+      // 循环结束后，检查是否发生了失败
+      firstFailure match {
+        case Some(failure) =>
+          // 我们成功地退出了循环，现在可以安全地打印报告
+          logger.printFailureReport(failure.addr, failure.expected, failure.got)
+          // 最后，用一个明确的 assert 来让测试框架知道失败了
+          assert(false, s"TEST FAILED: ${failure.message} at address 0x${failure.addr.toString(16)}")
+        case None =>
+          println(s"Robust template-based fuzzy test completed successfully.")
+      }
+    }
   }
+
   thatsAll
+}
+
+// =============================================================================
+// 1. HELPER CLASSES FOR THE DEBUGGABLE TEMPLATE-BASED FUZZER
+// =============================================================================
+
+/** A sealed trait representing a single memory operation. */
+sealed trait MemOp
+case class Write(addr: BigInt, data: BigInt, strb: Int) extends MemOp
+case class Read(addr: BigInt, expectedData: BigInt) extends MemOp
+
+/** A trait for defining memory test sequence generators (templates). */
+trait MemTestTemplate {
+  def name: String
+  def generate(
+      rand: Random,
+      state: mutable.Map[BigInt, BigInt],
+      sramConfig: SRAMConfig
+  ): (Seq[MemOp], mutable.Map[BigInt, BigInt])
+}
+
+object MemTestTemplates {
+  private def getSafeBaseAddr(rand: Random, numWords: Int, sramConfig: SRAMConfig): BigInt = {
+    val bytesPerWord = sramConfig.dataWidth / 8
+    val totalWords = (sramConfig.sizeBytes / bytesPerWord).toInt
+    val maxWordIndex = totalWords - numWords - 1 
+    require(maxWordIndex > 0, s"SRAM size is too small for template length of $numWords words.")
+    sramConfig.virtualBaseAddress + (BigInt(rand.nextInt(maxWordIndex)) * bytesPerWord)
+  }
+
+  /**
+   * Helper function to perform a masked write and update a state map.
+   * This centralizes the byte-enable logic.
+   */
+  private def performMaskedWrite(
+    state: mutable.Map[BigInt, BigInt], 
+    addr: BigInt, 
+    data: BigInt, 
+    strb: Int
+  ): Unit = {
+    val oldValue = state.getOrElse(addr, BigInt(0)) // Assumes pre-initialized memory
+    var mask: BigInt = 0
+    if ((strb & 1) != 0) mask |= BigInt("FF", 16)
+    if ((strb & 2) != 0) mask |= BigInt("FF00", 16)
+    if ((strb & 4) != 0) mask |= BigInt("FF0000", 16)
+    if ((strb & 8) != 0) mask |= BigInt("FF000000", 16)
+    val newValue = (oldValue & ~mask) | (data & mask)
+    state(addr) = newValue
+  }
+
+  /**
+   * Template 1: Compact Write/Read - Corrected
+   */
+  object CompactWriteRead extends MemTestTemplate {
+    def name = "CompactWriteRead"
+    def generate(rand: Random, state: mutable.Map[BigInt, BigInt], sramConfig: SRAMConfig): (Seq[MemOp], mutable.Map[BigInt, BigInt]) = {
+      val ops = mutable.ArrayBuffer[MemOp]()
+      val liveState = state.clone() // Use a live, evolving state for this template
+      val len = 4 + rand.nextInt(12)
+      val base = getSafeBaseAddr(rand, len, sramConfig)
+
+      // 1. Sequential Write
+      val writtenData = for (i <- 0 until len) yield {
+        val addr = base + i * 4
+        val data = BigInt(sramConfig.dataWidth, rand)
+        // Always use full write in this simple template to establish known state
+        ops += Write(addr, data, 0xf) 
+        liveState(addr) = data // Update live state immediately
+        data
+      }
+
+      // 2. Sequential Read
+      for (i <- 0 until len) {
+        val addr = base + i * 4
+        ops += Read(addr, writtenData(i)) // Read expects the data just written
+      }
+      (ops.toSeq, liveState)
+    }
+  }
+
+  /**
+   * Template 2: Sparse Write/Random Read - Corrected
+   */
+  object SparseWriteRandomRead extends MemTestTemplate {
+    def name = "SparseWrite"
+    def generate(rand: Random, state: mutable.Map[BigInt, BigInt], sramConfig: SRAMConfig): (Seq[MemOp], mutable.Map[BigInt, BigInt]) = {
+      val ops = mutable.ArrayBuffer[MemOp]()
+      val liveState = state.clone()
+      val numWrites = 8 + rand.nextInt(8)
+      val stride = (128 + rand.nextInt(1024)) * 4
+      val base = getSafeBaseAddr(rand, numWrites * (stride / 4), sramConfig)
+      val writtenLocations = mutable.ArrayBuffer[BigInt]()
+
+      // 1. Sparse Write
+      for (i <- 0 until numWrites) {
+        val addr = base + i * stride
+        
+        // *** CORE FIX 1: Initialize the address if it's new ***
+        if (!liveState.contains(addr)) {
+          val initData = BigInt(0)
+          ops += Write(addr, initData, 0xf)
+          liveState(addr) = initData
+        }
+        
+        val data = BigInt(sramConfig.dataWidth, rand)
+        val strb = rand.nextInt(15) + 1
+        ops += Write(addr, data, strb)
+        
+        // *** CORE FIX 2: Update live state immediately for subsequent reads ***
+        performMaskedWrite(liveState, addr, data, strb)
+        writtenLocations += addr
+      }
+
+      // 2. Random Read
+      rand.shuffle(writtenLocations).foreach { addr =>
+        ops += Read(addr, liveState(addr)) // Read from the final, updated live state
+      }
+      (ops.toSeq, liveState)
+    }
+  }
+
+  /**
+   * Template 3: Read-Modify-Write - Corrected
+   */
+  object ReadModifyWrite extends MemTestTemplate {
+    def name = "ReadModifyWrite"
+    def generate(rand: Random, state: mutable.Map[BigInt, BigInt], sramConfig: SRAMConfig): (Seq[MemOp], mutable.Map[BigInt, BigInt]) = {
+      val ops = mutable.ArrayBuffer[MemOp]()
+      val liveState = state.clone()
+      
+      // Select an address, initializing it if it's new
+      val addr = if (liveState.isEmpty || rand.nextBoolean()) { // Sometimes create a new addr
+        val tempAddr = getSafeBaseAddr(rand, 1, sramConfig)
+        val initialData = BigInt(sramConfig.dataWidth, rand) // Initialize with random data
+        ops += Write(tempAddr, initialData, 0xf)
+        liveState(tempAddr) = initialData
+        tempAddr
+      } else {
+        liveState.keys.toSeq(rand.nextInt(liveState.size))
+      }
+      
+      // 1. Read the known, current value
+      val oldValue = liveState(addr)
+      ops += Read(addr, oldValue)
+
+      // 2. Perform a partial write
+      val newData = BigInt(sramConfig.dataWidth, rand)
+      val strb = rand.nextInt(14) + 1 
+      ops += Write(addr, newData, strb)
+      
+      // 3. Update live state and read back to verify
+      performMaskedWrite(liveState, addr, newData, strb)
+      ops += Read(addr, liveState(addr))
+
+      (ops.toSeq, liveState)
+    }
+  }
+}
+
+/** A debug logger to record transactions and print a detailed failure report. */
+class TransactionLogger {
+  case class LoggedMemOp(
+      templateName: String,
+      templateIndex: Int,
+      opIndex: Int,
+      op: MemOp,
+      expectedStateBefore: BigInt,
+      expectedStateAfter: BigInt
+  )
+  private val log = mutable.ArrayBuffer[LoggedMemOp]()
+
+  def record(op: LoggedMemOp): Unit = log += op
+
+  def printFailureReport(failureAddr: BigInt, expected: BigInt, got: BigInt): Unit = {
+    println("\n" + "=" * 110)
+    println(" " * 40 + "MEMORY TEST FAILURE REPORT")
+    println("=" * 110)
+    println(f"Mismatch at Address : 0x$failureAddr%x")
+    println(f"           Expected : 0x$expected%x")
+    println(f"                Got : 0x$got%x")
+    println("-" * 110)
+    println("Transaction History for the Failing Address:")
+
+    val relevantHistory = log.filter { loggedOp =>
+      loggedOp.op match {
+        case Read(addr, _)     => addr == failureAddr
+        case Write(addr, _, _) => addr == failureAddr
+      }
+    }
+
+    if (relevantHistory.isEmpty) {
+      println("!!! No prior operations recorded for this address. This implies a read from uninitialized memory. !!!")
+    } else {
+      println(
+        " Tmpl Name     | Tmpl Idx | Op Idx | Operation |  Address   |        Data / Expected        | Strobe | State Before | State After  "
+      )
+      println(
+        "---------------+----------+--------+-----------+------------+-------------------------------+--------+--------------+--------------"
+      )
+      relevantHistory.foreach { item =>
+        val opStr = item.op match {
+          case Write(addr, data, strb) => f"Write     | 0x$addr%-8x | Data:   0x$data%-18x | 0x$strb%-5x |"
+          case Read(addr, expected)    => f"Read      | 0x$addr%-8x | Expect: 0x$expected%-18x | N/A     |"
+        }
+        println(
+          f" ${item.templateName.padTo(13, ' ')} | ${item.templateIndex}%-8d | ${item.opIndex}%-6d | $opStr 0x${item.expectedStateBefore}%-10x | 0x${item.expectedStateAfter}%-10x"
+        )
+      }
+    }
+    println("=" * 110)
+  }
 }

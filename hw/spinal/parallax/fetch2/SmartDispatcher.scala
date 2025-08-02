@@ -20,7 +20,7 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
     val flush = in Bool ()
   }
 
-  val enableLog = true
+  val enableLog = false
   val cycleReg = Reg(UInt(32 bits)) init (0)
   cycleReg := cycleReg + 1
   if (enableLog) {

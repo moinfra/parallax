@@ -50,7 +50,7 @@ class RobAllocPlugin(val pCfg: PipelineConfig) extends Plugin with LockedImpl {
         
         // --- 逐个字段赋值，现在 inUop.rename 是正确的了 ---
         outUop.decoded      := inUop.decoded
-        outUop.rename       := inUop.rename // 现在这个赋值是正确的！
+        outUop.rename       := inUop.rename
         outUop.uniqueId     := inUop.uniqueId
         outUop.dispatched   := inUop.dispatched
         outUop.executed     := inUop.executed
@@ -58,6 +58,10 @@ class RobAllocPlugin(val pCfg: PipelineConfig) extends Plugin with LockedImpl {
         outUop.exceptionCode:= inUop.exceptionCode
         
         outUop.robPtr       := robAllocPorts(i).robPtr
+
+        when(robAllocPorts(i).valid) {
+          report(L"S2: ROB Allocated robPtr=${outUop.robPtr} for uop@${inUop.decoded.pc}")
+        }
     }
     
     val flushLogic = new Area {

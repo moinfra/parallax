@@ -215,6 +215,7 @@ case class LsuAguRequest(lsuConfig: LsuConfig) extends Bundle { // 替换 pCfg
   val isLoad = Bool()
   val isStore = Bool()
   val isIO = Bool()
+  val isCoherent = Bool()
   val qPtr = UInt(Math.max(lsuConfig.lqPtrWidth.value, lsuConfig.sqPtrWidth.value) bits)
   val physDestOrSrc = UInt(lsuConfig.physGprIdxWidth) // 对于 Load 是 physDest, 对于 Store 是 physDataSrc
   val physDestOrSrcIsFpr = Bool()
@@ -224,6 +225,7 @@ case class LsuAguRequest(lsuConfig: LsuConfig) extends Bundle { // 替换 pCfg
     val aguIn = AguInput(lsuConfig)
     aguIn.basePhysReg := basePhysReg
     aguIn.isIO := isIO
+    aguIn.isCoherent := isCoherent
     aguIn.immediate := immediate
     aguIn.accessSize := accessSize
     aguIn.usePc := usePc

@@ -11,6 +11,8 @@ import spinal.lib.pipeline._
 import scala.collection.mutable.ArrayBuffer
 import scala.reflect.{ClassTag, classTag}
 import spinal.idslplugin.Location
+import spinal.lib.History
+import spinal.lib.OHToUInt
 
 /** 服务（Service）特质（Trait）
   * 这是一个标记特质，用于标识框架中的各种服务或组件。
@@ -503,5 +505,45 @@ object AddressToMask {
 
     // 4. 将掩码左移并返回
     baseMask |<< shiftAmount
+  }
+}
+
+object Verification {
+
+  /**
+   * Asserts that a Stream remains silent (valid=false) during and for a specified
+   * number of cycles after a flush signal is asserted.
+   *
+   * This is a critical verification utility to prevent "ghost" data from propagating
+   * through the pipeline after a flush.
+   *
+   * @param stream The Stream to monitor.
+   * @param flush The flush signal (a Bool). When true, the silence period begins.
+   * @param silenceCycles The number of cycles the stream must remain silent *after* the flush cycle.
+   *                      Defaults to 1, meaning the stream must be silent on the flush cycle
+   *                      itself and the immediately following cycle.
+   * @param message A custom message prefix for the assertion failure.
+   */
+  def assertFlushSilence[T <: Data](
+      stream: spinal.lib.Stream[T],
+      flush: Bool,
+      silenceCycles: Int = 1,
+      message: Seq[Any] = L"Error: Stream is valid during or after a flush"
+  ): Unit = {
+    
+    // Create a shift register to track the recent history of the flush signal.
+    // The register will be true if a flush occurred in the last `silenceCycles` cycles.
+    val flushHistory = History(flush, 0 to silenceCycles, init = False)
+    val recentlyFlushed = OHToUInt(flushHistory) > 0
+
+    // The assertion condition: it's an error if the stream is valid AND
+    // a flush is active or was active recently.
+    val assertionFailed = recentlyFlushed && stream.valid
+
+    assert(
+      assertion = !assertionFailed,
+      message   = message,
+      severity  = FAILURE
+    )
   }
 }

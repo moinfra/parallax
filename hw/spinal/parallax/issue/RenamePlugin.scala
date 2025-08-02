@@ -93,7 +93,7 @@ class RenamePlugin(
         when(wantsToAllocate) {
           debug(L"pc=${decodedUops(i).pc} wantsToAllocate is true and success=${flAllocPorts(i).success}," :+
           L" in.valid = ${s1_rename.isValid} in.ready = ${s1_rename.isReady} ":+
-          L"granted_reg=${allocationGrantedReg(i)} allocated_reg=${flAllocPorts(i).physReg}" :+
+          L"granted_reg=${allocationGrantedReg(i)} allocated_reg=${flAllocPorts(i).physReg} " :+
           L"isFiring=${s1_rename.isFiring} isFlushed=${s1_rename.isFlushed}"
           )
         }

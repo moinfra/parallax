@@ -4,6 +4,27 @@ import spinal.core._
 import spinal.lib._
 import parallax.common.PipelineConfig
 
+object LsuHelper {
+  def isOlder(robPtrA: UInt, robPtrB: UInt): Bool = {
+    val width = robPtrA.getWidth
+    require(width == robPtrB.getWidth, "ROB pointer widths must match")
+
+    if (width <= 1) { // 处理没有generation bit的简单情况
+      return robPtrA < robPtrB
+    }
+
+    val genA = robPtrA.msb
+    val idxA = robPtrA(width - 2 downto 0)
+    val genB = robPtrB.msb
+    val idxB = robPtrB(width - 2 downto 0)
+    
+    // A比B旧的条件:
+    // 1. 在同一个环绕周期内，A的索引小于B的索引。
+    // 2. 在不同的环绕周期内 (A旧B新)，A的索引大于B的索引 (因为B已经回绕了)。
+    (genA === genB && idxA < idxB) || (genA =/= genB && idxA > idxB)
+  }
+}
+
 // =========================================================
 // >> MDU 接口定义
 // =========================================================
@@ -61,28 +82,6 @@ class MemoryDisambiguationUnit(
   // "在途Store"的寄存器文件
   val pendingStores = Vec.fill(pendingStoreDepth)(Reg(StoreInfo()).init(defaultStoreInfo))
 
-  // --- 3. 辅助函数 ---
-  // 比较带回绕的ROB指针 (A是否比B旧)
-  // 假设 robPtr 包含一个环绕位 (generation bit) 作为最高位
-  private def isOlder(robPtrA: UInt, robPtrB: UInt): Bool = {
-    val width = robPtrA.getWidth
-    require(width == robPtrB.getWidth, "ROB pointer widths must match")
-
-    if (width <= 1) { // 处理没有generation bit的简单情况
-      return robPtrA < robPtrB
-    }
-
-    val genA = robPtrA.msb
-    val idxA = robPtrA(width - 2 downto 0)
-    val genB = robPtrB.msb
-    val idxB = robPtrB(width - 2 downto 0)
-    
-    // A比B旧的条件:
-    // 1. 在同一个环绕周期内，A的索引小于B的索引。
-    // 2. 在不同的环绕周期内 (A旧B新)，A的索引大于B的索引 (因为B已经回绕了)。
-    (genA === genB && idxA < idxB) || (genA =/= genB && idxA > idxB)
-  }
-
   // --- 4. 核心逻辑 ---
 
   // a. Store 入队逻辑 (当Store被发射到LSU时)
@@ -122,7 +121,7 @@ class MemoryDisambiguationUnit(
   when(queryCmd.valid) {
     for (pendingStore <- pendingStores) {
       // 检查是否存在一个有效的、且比当前Load更旧的pendingStore
-      when(pendingStore.valid && isOlder(pendingStore.robPtr, queryCmd.payload.robPtr)) {
+      when(pendingStore.valid && LsuHelper.isOlder(pendingStore.robPtr, queryCmd.payload.robPtr)) {
         loadIsBlocked := True
       }
     }

@@ -226,7 +226,7 @@ class BranchEuPlugin(
       euResult.hasException := False
       euResult.exceptionCode := 0
       euResult.destIsFpr := False
-      report(L"[BranchEU-S3-Result] RESULT: euResult.valid=1, writesToPreg=${euResult.writesToPreg}, data=0x${euResult.data}, mispredicted=${euResult.isMispredictedBranch}")
+      report(L"[BranchEU-S3-Result] RESULT: for uop@${uopAtS3.pc}euResult.valid=1, writesToPreg=${euResult.writesToPreg}, data=0x${euResult.data}, mispredicted=${euResult.isMispredictedBranch}")
     }
 
     pipeline.build()

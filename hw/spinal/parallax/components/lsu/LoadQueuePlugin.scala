@@ -18,8 +18,10 @@ import parallax.components.rename.BusyTableService
 case class LoadQueuePushCmd(pCfg: PipelineConfig, lsuCfg: LsuConfig) extends Bundle {
   val robPtr            = UInt(lsuCfg.robPtrWidth)
   val pdest             = UInt(pCfg.physGprIdxWidth)
+  val pc                = UInt(lsuCfg.pcWidth)
   val address           = UInt(lsuCfg.pcWidth)
   val isIO              = Bool()
+  val isCoherent        = Bool()
   val size              = MemAccessSize()
   val isSignedLoad      = Bool()
   val hasEarlyException = Bool()
@@ -35,11 +37,13 @@ trait LoadQueueService extends Service with LockedImpl {
 // 因为地址已经在LsuEu中计算好了
 case class LoadQueueSlot(pCfg: PipelineConfig, lsuCfg: LsuConfig, dCacheParams: DataCacheParameters) extends Bundle with Formattable {
     val valid             = Bool()
+    val pc                = UInt(lsuCfg.pcWidth)
     val address           = UInt(lsuCfg.pcWidth)
     val size              = MemAccessSize()
     val robPtr            = UInt(lsuCfg.robPtrWidth)
     val pdest             = UInt(pCfg.physGprIdxWidth)
     val isIO              = Bool()
+    val isCoherent        = Bool()
     val isSignedLoad      = Bool()
 
     val hasException      = Bool()
@@ -52,11 +56,13 @@ case class LoadQueueSlot(pCfg: PipelineConfig, lsuCfg: LsuConfig, dCacheParams: 
     
     def setDefault(): this.type = {
         this.valid                 := False
+        this.pc                    := 0
         this.address               := 0
         this.size                  := MemAccessSize.W
         this.robPtr                := 0
         this.pdest                 := 0
         this.isIO                  := False
+        this.isCoherent            := False
         this.isSignedLoad          := False
         this.hasException          := False
         this.exceptionCode         := 0
@@ -69,11 +75,13 @@ case class LoadQueueSlot(pCfg: PipelineConfig, lsuCfg: LsuConfig, dCacheParams: 
 
     def initFromPushCmd(cmd: LoadQueuePushCmd): this.type = {
         this.valid                 := True
+        this.pc                    := cmd.pc
         this.address               := cmd.address
         this.size                  := cmd.size
         this.robPtr                := cmd.robPtr
         this.pdest                 := cmd.pdest
         this.isIO                  := cmd.isIO
+        this.isCoherent            := cmd.isCoherent
         this.isSignedLoad          := cmd.isSignedLoad
         this.hasException          := cmd.hasEarlyException
         this.exceptionCode         := cmd.earlyExceptionCode
@@ -87,12 +95,13 @@ case class LoadQueueSlot(pCfg: PipelineConfig, lsuCfg: LsuConfig, dCacheParams: 
 
     def initFromAguOutput(cmd: AguOutput): this.type = {
         this.valid                 := True
-        // this.addrValid             := True
+        this.pc                    := cmd.pc
         this.address               := cmd.address
         this.size                  := cmd.accessSize
         this.robPtr                := cmd.robPtr
         this.pdest                 := cmd.physDst
         this.isIO                  := cmd.isIO
+        this.isCoherent            := cmd.isCoherent
         this.isSignedLoad          := cmd.isSignedLoad
         
         // 这些字段在 AguRspCmd 中可能没有直接对应，但为了完整性，这里也进行初始化
@@ -116,11 +125,13 @@ case class LoadQueueSlot(pCfg: PipelineConfig, lsuCfg: LsuConfig, dCacheParams: 
     def format: Seq[Any] = {
         Seq(
             L"LQSlot(valid=${valid}, " :+
+            L"pc=${pc}, " :+
             L"address=${address}, " :+
             L"size=${size}, " :+
             L"robPtr=${robPtr}, " :+
             L"pdest=${pdest}, " :+
             L"isIO=${isIO}, " :+
+            L"isCoherent=${isCoherent}, " :+
             L"isSignedLoad=${isSignedLoad}, " :+
             L"hasException=${hasException}, " :+
             L"isWaitingForFwdRsp=${isWaitingForFwdRsp}, " :+
@@ -139,7 +150,7 @@ class LoadQueuePlugin(
     val lsuConfig: LsuConfig,
     val dCacheParams: DataCacheParameters,
     val lqDepth: Int = 16,
-    val mmioConfig: Option[GenericMemoryBusConfig] = None
+    val ioConfig: Option[GenericMemoryBusConfig] = None
 ) extends Plugin with LoadQueueService {
 
     private val pushPorts = ArrayBuffer[Stream[LoadQueuePushCmd]]()
@@ -168,14 +179,14 @@ class LoadQueuePlugin(
         // ROB 刷新端口应该也会在硬重定向时触发，我们监听了ROB刷新，所以处理 doHardRedirect 应该是多余的
         val doHardRedirect = hardRedirectService.doHardRedirect()
 
-        // MMIO支持：如果配置了MMIO，则创建SGMB读通道
+        // IO支持：如果配置了IO，则创建SGMB读通道
         var sgmbServiceOpt: Option[SgmbService] = None
-        var mmioReadChannel: Option[SplitGmbReadChannel] = None
+        var ioReadChannel: Option[SplitGmbReadChannel] = None
 
-        if (mmioConfig.isDefined) {
+        if (ioConfig.isDefined) {
             val sgmbService = getService[SgmbService]
             sgmbServiceOpt = Some(sgmbService)
-            mmioReadChannel = Some(sgmbService.newReadPort())
+            ioReadChannel = Some(sgmbService.newReadPort())
         }
 
         busyTableServiceInst.retain()
@@ -231,7 +242,7 @@ class LoadQueuePlugin(
                 val valid = Bool()
                 val fromFwd = Bool() // 来自Store转发
                 val fromDCache = Bool() // 来自DCache
-                val fromMMIO = Bool() // 来自MMIO
+                val fromIO = Bool() // 来自IO
                 val fromEarlyExc = Bool() // 来自早期异常
                 
                 // 携带需要的数据
@@ -243,7 +254,7 @@ class LoadQueuePlugin(
                     valid := False
                     fromFwd := False
                     fromDCache := False
-                    fromMMIO := False
+                    fromIO := False
                     fromEarlyExc := False
                     data.assignDontCare()
                     hasFault := False
@@ -322,14 +333,15 @@ class LoadQueuePlugin(
                                          !head.isWaitingForFwdRsp && !head.isStalledByDependency &&
                                          !head.isWaitingForRsp && !head.isReadyForDCache
 
-            sbQueryPort.cmd.valid   := headIsReadyForFwdQuery
-            sbQueryPort.cmd.address := head.address
-            sbQueryPort.cmd.size    := head.size
-            sbQueryPort.cmd.robPtr  := head.robPtr
+            sbQueryPort.cmd.valid       := headIsReadyForFwdQuery
+            sbQueryPort.cmd.address     := head.address
+            sbQueryPort.cmd.size        := head.size
+            sbQueryPort.cmd.robPtr      := head.robPtr
+            sbQueryPort.cmd.isCoherent  := head.isCoherent
 
             when(sbQueryPort.cmd.valid) {
                 slotsAfterUpdates(0).isWaitingForFwdRsp := True
-                ParallaxSim.log(L"[LQ-Fwd] QUERY: robPtr=${head.robPtr} addr=${head.address}")
+                ParallaxSim.log(L"[LQ-Fwd] QUERY: pc=${head.pc} robPtr=${head.robPtr} addr=${head.address}")
             }
             
             when(head.isWaitingForFwdRsp && sbQueryRspValid) {
@@ -341,12 +353,12 @@ class LoadQueuePlugin(
                 )
                 when(fwdRsp.hit) {
                     // Completion logic is handled below by popOnFwdHit
-                    ParallaxSim.log(L"[LQ-Fwd] HIT: robPtr=${head.robPtr}, data=${fwdRsp.data}. Will complete via popOnFwdHit.")
+                    ParallaxSim.log(L"[LQ-Fwd] HIT: pc=${head.pc} robPtr=${head.robPtr}, data=${fwdRsp.data}. Will complete via popOnFwdHit.")
                 } .elsewhen(fwdRsp.olderStoreHasUnknownAddress || fwdRsp.olderStoreDataNotReady) {
-                    ParallaxSim.log(L"[LQ-Fwd] STALL: robPtr=${head.robPtr} has dependency...")
+                    ParallaxSim.log(L"[LQ-Fwd] STALL: pc=${head.pc} robPtr=${head.robPtr} has dependency...")
                     slotsAfterUpdates(0).isStalledByDependency := True
                 } otherwise {
-                    ParallaxSim.log(L"[LQ-Fwd] MISS: robPtr=${head.robPtr} is clear to access D-Cache or MMIO.")
+                    ParallaxSim.log(L"[LQ-Fwd] MISS: pc=${head.pc} robPtr=${head.robPtr} is clear to access D-Cache or IO.")
                     slotsAfterUpdates(0).isReadyForDCache := True
                 }
             }
@@ -359,42 +371,42 @@ class LoadQueuePlugin(
             // For instructions with early exceptions, skip forwarding and mark as ready for exception handling
             when(headIsVisible && head.hasException && !head.isReadyForDCache && !head.isWaitingForFwdRsp && !head.isWaitingForRsp) {
                 slotsAfterUpdates(0).isReadyForDCache := True
-                ParallaxSim.log(L"[LQ] Early exception for robPtr=${head.robPtr}, marking ready for exception handling")
+                ParallaxSim.log(L"[LQ] Early exception for pc=${head.pc} robPtr=${head.robPtr}, marking ready for exception handling")
             }
             
-            // --- Cache/MMIO Interaction ---
+            // --- Cache/IO Interaction ---
             // --- Memory System Interaction ---
             // The condition to send a command to the memory system is now VERY simple:
             // The head must be visible, and it must be explicitly marked as `isReadyForDCache`.
             // This flag is ONLY set when the forwarding logic has confirmed it is safe.
             val canSendToMemorySystem = headIsVisible && head.isReadyForDCache && !head.isWaitingForRsp
             
-            // MMIO Path
-            val mmioReadCmd = hw.mmioReadChannel.map { mmioChannel =>
-                mmioChannel.cmd.valid := canSendToMemorySystem && head.isIO && !head.hasException
+            // IO Path
+            val ioReadCmd = hw.ioReadChannel.map { ioChannel =>
+                ioChannel.cmd.valid := canSendToMemorySystem && head.isIO && !head.hasException
                 
-                mmioChannel.cmd.address := head.address
-                if (mmioConfig.get.useId) {
-                    mmioChannel.cmd.id := head.robPtr.resized
+                ioChannel.cmd.address := head.address
+                if (ioConfig.get.useId) {
+                    ioChannel.cmd.id := head.robPtr.resized
                 }
                 
-                when(mmioChannel.cmd.fire) {
+                when(ioChannel.cmd.fire) {
                     slotsAfterUpdates(0).isWaitingForRsp := True
                     slotsAfterUpdates(0).isReadyForDCache := False // Consume the ready signal
-                    ParallaxSim.log(L"[LQ-MMIO] SEND_TO_MMIO FIRED: robPtr=${head.robPtr} addr=${head.address}")
+                    ParallaxSim.log(L"[LQ-IO] SEND_TO_IO FIRED: pc=${head.pc} robPtr=${head.robPtr} addr=${head.address}")
                 }
-                mmioChannel.cmd
+                ioChannel.cmd
             }
 
 
 
-            // Track MMIO command firing for response correlation
-            val mmioCmdFired = hw.mmioReadChannel.map(_.cmd.fire).getOrElse(False)
+            // Track IO command firing for response correlation
+            val ioCmdFired = hw.ioReadChannel.map(_.cmd.fire).getOrElse(False)
 
-            // Add MMIO response identification logic similar to StoreBufferPlugin
-            val mmioResponseIsForHead = hw.mmioReadChannel.map { mmioChannel =>
-                mmioChannel.rsp.valid && head.valid && 
-                (head.isWaitingForRsp || mmioCmdFired) && head.isIO
+            // Add IO response identification logic similar to StoreBufferPlugin
+            val ioResponseIsForHead = hw.ioReadChannel.map { ioChannel =>
+                ioChannel.rsp.valid && head.valid && 
+                (head.isWaitingForRsp || ioCmdFired) && head.isIO && head.isCoherent
             }.getOrElse(False)
 
             // --- 4. Memory Response Handling ---
@@ -404,14 +416,14 @@ class LoadQueuePlugin(
             //dcachedisable     when(dCacheLoadPort.rsp.payload.redo) {
             //dcachedisable         slotsAfterUpdates(0).isWaitingForRsp := False
             //dcachedisable         slotsAfterUpdates(0).isReadyForDCache      := True 
-            //dcachedisable         ParallaxSim.log(L"[LQ-DCache] REDO received for robPtr=${head.robPtr}")
+            //dcachedisable         ParallaxSim.log(L"[LQ-DCache] REDO received for pc=${head.pc} robPtr=${head.robPtr}")
             //dcachedisable     }
             //dcachedisable }
 
-            // MMIO Response Handling (MMIO operations don't have redo)
-            hw.mmioReadChannel.foreach { mmioChannel =>
-                // mmioChannel.rsp.ready := head.valid && head.isIO && head.isWaitingForRsp
-                mmioChannel.rsp.ready := head.valid && head.isIO
+            // IO Response Handling (IO operations don't have redo)
+            hw.ioReadChannel.foreach { ioChannel =>
+                // ioChannel.rsp.ready := head.valid && head.isIO && head.isWaitingForRsp
+                ioChannel.rsp.ready := head.valid && head.isIO && head.isCoherent
                 // TODO: 调查 head.isWaitingForRsp
             }
 
@@ -421,9 +433,9 @@ class LoadQueuePlugin(
             val popOnFwdHit = head.isWaitingForFwdRsp && sbQueryRspReg.hit
             //dcachedisable val popOnDCacheSuccess = dCacheLoadPort.rsp.valid && head.valid && head.isWaitingForRsp && !head.isIO && !dCacheLoadPort.rsp.payload.redo
             val popOnDCacheSuccess = False
-            val popOnMMIOSuccess = mmioResponseIsForHead
+            val popOnIOSuccess = ioResponseIsForHead
             val popOnEarlyException = head.valid && head.hasException && !head.isReadyForDCache
-            val popRequest = popOnFwdHit || popOnDCacheSuccess || popOnMMIOSuccess || popOnEarlyException
+            val popRequest = popOnFwdHit || popOnDCacheSuccess || popOnIOSuccess || popOnEarlyException
             // when(popRequest) {
             //     ParallaxSim.log(
             //         L"--- LQ POP REQUEST --- Cycle=${perfCounter.value}\n" :+
@@ -431,7 +443,7 @@ class LoadQueuePlugin(
             //         L"  Triggers: \n" :+
             //         L"    - popOnFwdHit: ${popOnFwdHit}\n" :+
             //         L"    - popOnDCacheSuccess: ${popOnDCacheSuccess}\n" :+
-            //         L"    - popOnMMIOSuccess: ${popOnMMIOSuccess}\n" :+
+            //         L"    - popOnIOSuccess: ${popOnIOSuccess}\n" :+
             //         L"    - popOnEarlyException: ${popOnEarlyException}\n" :+
             //         L"  Head State (at time of pop request):\n" :+
             //         L"    - valid: ${head.valid}, isWaitingForFwdRsp: ${head.isWaitingForFwdRsp}, isReadyForDCache: ${head.isReadyForDCache}, isWaitingForRsp: ${head.isWaitingForRsp}"
@@ -449,15 +461,15 @@ class LoadQueuePlugin(
             //dcachedisable     completionInfo.data := dCacheLoadPort.rsp.payload.data
             //dcachedisable     completionInfo.hasFault := dCacheLoadPort.rsp.payload.fault
             //dcachedisable     completionInfo.exceptionCode := ExceptionCode.LOAD_ACCESS_FAULT
-            } .elsewhen(popOnMMIOSuccess) {
-                hw.mmioReadChannel.foreach { mmioChannel =>
+            } .elsewhen(popOnIOSuccess) {
+                hw.ioReadChannel.foreach { ioChannel =>
                     completionInfo.valid := True
-                    completionInfo.fromMMIO := True
-                    completionInfo.data := mmioChannel.rsp.payload.data
-                    completionInfo.hasFault := mmioChannel.rsp.payload.error
+                    completionInfo.fromIO := True
+                    completionInfo.data := ioChannel.rsp.payload.data
+                    completionInfo.hasFault := ioChannel.rsp.payload.error
                     completionInfo.exceptionCode := ExceptionCode.LOAD_ACCESS_FAULT
 
-                    report(L"[LQ-MMIO] MMIO RESPONSE: robPtr=${head.robPtr}, data=${mmioChannel.rsp.payload.data}, error=${mmioChannel.rsp.payload.error}")
+                    report(L"[LQ-IO] IO RESPONSE: pc=${head.pc} robPtr=${head.robPtr}, data=${ioChannel.rsp.payload.data}, error=${ioChannel.rsp.payload.error}")
                 }
             } .elsewhen(popOnEarlyException) {
                 completionInfo.valid := True

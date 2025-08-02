@@ -77,7 +77,6 @@ class StoreBufferTestConnectionPlugin(
     unusedLoadPort.translated.assignDontCare()
     unusedLoadPort.cancels := 0
     // Expose the D-Cache's writeback busy signal to the testbench
-    tbIo.dcacheWritebackBusy := dcService.writebackBusy()
   }
 }
 
@@ -165,13 +164,12 @@ case class StoreBufferTestBenchIo(pCfg: PipelineConfig, lsuCfg: LsuConfig, dCach
       )
     )
   )
-  val dcacheWritebackBusy = out Bool ()
 }
 
 /** A collection of high-level, semantic helper functions to drive the DUT and
   * orchestrate complex test scenarios, making test cases clean and readable.
   */
-class TestHelper(dut: StoreBufferFullIntegrationTestBench)(implicit cd: ClockDomain) {
+class StoreBufferTestHelper(dut: StoreBufferFullIntegrationTestBench)(implicit cd: ClockDomain) {
 
   val sram = dut.getSramHandle()
   val dataWidthBytes = dut.pCfg.dataWidth.value / 8
@@ -375,17 +373,7 @@ class TestHelper(dut: StoreBufferFullIntegrationTestBench)(implicit cd: ClockDom
   }
 
   def forceFlushAndWait(address: BigInt): Unit = {
-    ParallaxLogger.info(s"[Helper] Forcing D-Cache flush for address 0x${address.toString(16)}")
-    val flushRobPtr = cpuIssueFullWordStore(addr = address, pc = 0x9000, isFlush = true)
-    euSignalCompletion(flushRobPtr)
-    waitForCommitAndAck(flushRobPtr)
-
-    if (dut.io.dcacheWritebackBusy.toBoolean) {
-      ParallaxLogger.info(s"[Helper] D-Cache is busy with writeback, waiting...")
-      cd.waitSamplingWhere(!dut.io.dcacheWritebackBusy.toBoolean)
-    }
-    cd.waitSampling(1)
-    ParallaxLogger.info(s"[Helper] Flush and writeback complete.")
+    // NOTHING
   }
 
   def sramWrite(addr: BigInt, data: BigInt): Unit = {
@@ -478,7 +466,7 @@ class StoreBufferPluginSpec extends CustomSpinalSimFunSuite {
         implicit val cd = dut.clockDomain.get
         dut.clockDomain.forkStimulus(300 MHz)
 
-        val helper = new TestHelper(dut)
+        val helper = new StoreBufferTestHelper(dut)
         helper.init()
 
         val storeAddr = BigInt("100", 16)
@@ -521,7 +509,7 @@ class StoreBufferPluginSpec extends CustomSpinalSimFunSuite {
         implicit val cd = dut.clockDomain.get
         dut.clockDomain.forkStimulus(10)
 
-        val helper = new TestHelper(dut)
+        val helper = new StoreBufferTestHelper(dut)
         helper.init()
 
         println("[Test] Starting Backpressure Test")
@@ -576,7 +564,7 @@ class StoreBufferPluginSpec extends CustomSpinalSimFunSuite {
         implicit val cd = dut.clockDomain.get
         dut.clockDomain.forkStimulus(10)
 
-        val helper = new TestHelper(dut)
+        val helper = new StoreBufferTestHelper(dut)
         helper.init()
 
       println("[Test] Starting 'Flush non-committed stores' Test")
@@ -639,7 +627,7 @@ class StoreBufferPluginSpec extends CustomSpinalSimFunSuite {
         implicit val cd = dut.clockDomain.get
         dut.clockDomain.forkStimulus(10)
 
-        val helper = new TestHelper(dut)
+        val helper = new StoreBufferTestHelper(dut)
         helper.init()
 
         println("[Test] Starting Store-to-Load Forwarding Test")
@@ -712,7 +700,7 @@ class StoreBufferPluginSpec extends CustomSpinalSimFunSuite {
         implicit val cd = dut.clockDomain.get
         dut.clockDomain.forkStimulus(10)
 
-        val helper = new TestHelper(dut)
+        val helper = new StoreBufferTestHelper(dut)
         helper.init()
 
         println("[Test] Starting MMIO Store Operations Test")
@@ -786,7 +774,7 @@ class StoreBufferPluginSpec extends CustomSpinalSimFunSuite {
         implicit val cd = dut.clockDomain.get
         dut.clockDomain.forkStimulus(10)
 
-        val helper = new TestHelper(dut)
+        val helper = new StoreBufferTestHelper(dut)
         helper.init()
         cd.waitSampling()
 

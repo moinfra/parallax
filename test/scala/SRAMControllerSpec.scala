@@ -32,57 +32,59 @@ class ExtSRAMTestBench(axiConfig: Axi4Config, ramConfig: SRAMConfig, useBlackbox
   if (useBlackbox) {
     // --- BlackBox 硬件模型模式 ---
     println("SRAM TestBench is using the Verilog BlackBox model.")
-  // 1. 实例化两个 SRAM BlackBox 模型
-  val sramModelHi = new SRAMModelBlackbox()
-  val sramModelLo = new SRAMModelBlackbox()
+    // 1. 实例化两个 SRAM BlackBox 模型
+    val sramModelHi = new SRAMModelBlackbox()
+    val sramModelLo = new SRAMModelBlackbox()
 
-  // 2. 为每个 BlackBox 创建一个独立的 16 位 Analog 信号
-  val sramDataBusHi = Analog(Bits(16 bits))
-  val sramDataBusLo = Analog(Bits(16 bits))
+    // 2. 为每个 BlackBox 创建一个独立的 16 位 Analog 信号
+    val sramDataBusHi = Analog(Bits(16 bits))
+    val sramDataBusLo = Analog(Bits(16 bits))
 
-  // 3. 将每个 BlackBox 的 inout 端口连接到其对应的 Analog 信号
-  sramModelHi.io.DataIO <> sramDataBusHi
-  sramModelLo.io.DataIO <> sramDataBusLo
+    // 3. 将每个 BlackBox 的 inout 端口连接到其对应的 Analog 信号
+    sramModelHi.io.DataIO <> sramDataBusHi
+    sramModelLo.io.DataIO <> sramDataBusLo
 
-  // 4. 实现 TriState[Bits(32 bits)] 和两个 Analog 信号之间的三态逻辑
+    // 4. 实现 TriState[Bits(32 bits)] 和两个 Analog 信号之间的三态逻辑
 
-  // a. 读取路径：将两个 16 位的 Analog 总线拼接成 32 位，送给 dut
-  //    使用 .asBits 将 Analog 转换为可读的 Bits 类型
-  dut.io.ram.data.read := sramDataBusHi.asBits ## sramDataBusLo.asBits
+    // a. 读取路径：将两个 16 位的 Analog 总线拼接成 32 位，送给 dut
+    //    使用 .asBits 将 Analog 转换为可读的 Bits 类型
+    dut.io.ram.data.read := sramDataBusHi.asBits ## sramDataBusLo.asBits
 
-  // b. 写入路径：当 dut 的单个 writeEnable 信号有效时，
-  //    将 dut 的 32 位写数据分别驱动到两个 16 位的 Analog 总线上。
-  when(dut.io.ram.data.writeEnable) {
-    sramDataBusHi := dut.io.ram.data.write(31 downto 16)
-    sramDataBusLo := dut.io.ram.data.write(15 downto 0)
-  }
+    // b. 写入路径：当 dut 的单个 writeEnable 信号有效时，
+    //    将 dut 的 32 位写数据分别驱动到两个 16 位的 Analog 总线上。
+    when(dut.io.ram.data.writeEnable) {
+      sramDataBusHi := dut.io.ram.data.write(31 downto 16)
+      sramDataBusLo := dut.io.ram.data.write(15 downto 0)
+    }
 
-  // --- 将 BlackBox 的其他控制信号连接到 dut ---
-  val sram_addr = dut.io.ram.addr
-  val sram_ce_n = dut.io.ram.ce_n
-  val sram_oe_n = dut.io.ram.oe_n
-  val sram_we_n = dut.io.ram.we_n
-  
-  // 两个SRAM模型共享大部分控制信号
-  sramModelHi.io.Address := sram_addr
-  sramModelLo.io.Address := sram_addr
-  
-  sramModelHi.io.CE_n := sram_ce_n
-  sramModelLo.io.CE_n := sram_ce_n
+    // --- 将 BlackBox 的其他控制信号连接到 dut ---
+    val sram_addr = dut.io.ram.addr
+    val sram_ce_n = dut.io.ram.ce_n
+    val sram_oe_n = dut.io.ram.oe_n
+    val sram_we_n = dut.io.ram.we_n
 
-  sramModelHi.io.OE_n := sram_oe_n
-  sramModelLo.io.OE_n := sram_oe_n
+    // 两个SRAM模型共享大部分控制信号
+    sramModelHi.io.Address := sram_addr
+    sramModelLo.io.Address := sram_addr
 
-  sramModelHi.io.WE_n := sram_we_n
-  sramModelLo.io.WE_n := sram_we_n
+    sramModelHi.io.CE_n := sram_ce_n
+    sramModelLo.io.CE_n := sram_ce_n
 
-  // 字节使能信号
-  sramModelHi.io.UB_n := dut.io.ram.be_n(3)
-  sramModelHi.io.LB_n := dut.io.ram.be_n(2)
-  sramModelLo.io.UB_n := dut.io.ram.be_n(1)
-  sramModelLo.io.LB_n := dut.io.ram.be_n(0)
-  report(L"[DEBUG] sramModelHi.io.UB_n=${sramModelHi.io.UB_n}, sramModelHi.io.LB_n=${sramModelHi.io.LB_n}, sramModelLo.io.UB_n=${sramModelLo.io.UB_n}, sramModelLo.io.LB_n=${sramModelLo.io.LB_n}")
-  report(L"[DEBUG] dut.io.ram.be_n=${dut.io.ram.be_n}")
+    sramModelHi.io.OE_n := sram_oe_n
+    sramModelLo.io.OE_n := sram_oe_n
+
+    sramModelHi.io.WE_n := sram_we_n
+    sramModelLo.io.WE_n := sram_we_n
+
+    // 字节使能信号
+    sramModelHi.io.UB_n := dut.io.ram.be_n(3)
+    sramModelHi.io.LB_n := dut.io.ram.be_n(2)
+    sramModelLo.io.UB_n := dut.io.ram.be_n(1)
+    sramModelLo.io.LB_n := dut.io.ram.be_n(0)
+    report(
+      L"[DEBUG] sramModelHi.io.UB_n=${sramModelHi.io.UB_n}, sramModelHi.io.LB_n=${sramModelHi.io.LB_n}, sramModelLo.io.UB_n=${sramModelLo.io.UB_n}, sramModelLo.io.LB_n=${sramModelLo.io.LB_n}"
+    )
+    report(L"[DEBUG] dut.io.ram.be_n=${dut.io.ram.be_n}")
   } else {
     // --- 纯软件模拟模型模式 ---
     println("SRAM TestBench is using the pure software SimulatedSRAM model.")
@@ -237,6 +239,7 @@ class AxiMasterHelper(axi: Axi4, clockDomain: ClockDomain) {
 
       // 启动写数据阶段
       for (((dataWord, strbWord), idx) <- (data zip strb).zipWithIndex) {
+        println(f"[AxiMasterHelper] Driving W channel for ID $id. strbWord = 0x$strbWord%x")
         clockDomain.waitSampling()
         axi.w.valid #= true
         axi.w.data #= dataWord
@@ -258,6 +261,15 @@ class AxiMasterHelper(axi: Axi4, clockDomain: ClockDomain) {
 
   // Burst读取 - 非阻塞版本
   def readBurst(addr: BigInt, length: Int): ReadTransaction = {
+    // --- NEW: Wait until an ID is free ---
+    var once = false
+    while (pendingReads.contains(nextReadId)) {
+      if (!once) print(s"WARNING: Read ID ${nextReadId} is busy. Waiting...") else print(".")
+      once = true
+      clockDomain.waitSampling()
+    }
+    println()
+
     val id = nextReadId
     nextReadId = (nextReadId + 1) % 16
 
@@ -691,5 +703,5 @@ class SRAMControllerSpec extends CustomSpinalSimFunSuite {
     }
   }
 
-  thatsAll
+  startTests
 }

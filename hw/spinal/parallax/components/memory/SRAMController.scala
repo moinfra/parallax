@@ -8,6 +8,7 @@ import spinal.lib.io.TriState
 import spinal.lib.bus.amba4.axi.Axi4Aw
 import parallax.utilities.ParallaxLogger
 import parallax.utilities.Formattable
+import parallax.utilities.ParallaxSim.fatal
 
 // ExtSRAM 的配置参数
 case class SRAMConfig(
@@ -149,14 +150,16 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
     } else { True }
     
     // 5. 执行最终的边界检查
-    val is_negative = byte_offset_addr(config.addressWidth)
     val is_out_of_bounds = end_byte_offset_addr >= U(config.sizeBytes, extendedWidth bits)
 
     // 6. 计算SRAM地址
     val sram_addr_candidate = (byte_offset_addr(config.addressWidth-1 downto 0) >> config.addressShift).resized
 
     // 7. 组合所有错误条件
-    val is_error = (cmd.burst =/= Axi4.burst.INCR) || !addr_aligned || !word_aligned_if_needed || !size_compatible_if_needed || is_negative || is_out_of_bounds
+    val is_error = (cmd.burst =/= Axi4.burst.INCR) || !addr_aligned || !word_aligned_if_needed || !size_compatible_if_needed || is_out_of_bounds
+    when(is_error) {
+      fatal(L"INVALID AXI COMMAND: addr=${cmd.addr}, len=${cmd.len}, size=${cmd.size}, burst=${cmd.burst} Conditions: burst!=INCR?=${cmd.burst =/= Axi4.burst.INCR}, !addr_aligned?=${!addr_aligned}, !word_aligned_if_needed?=${!word_aligned_if_needed}, !size_compatible_if_needed?=${!size_compatible_if_needed}, is_out_of_bounds?=${is_out_of_bounds}")
+    }
     
     // 8. 返回结果
     (is_error, sram_addr_candidate)
@@ -421,6 +424,10 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
       whenIsActive {
         io.axi.w.ready := True
         when(io.axi.w.fire) {
+              if (enableLog) {
+                // *** 新增日志 ***
+                report(L"W Fire in WRITE_DATA_FETCH! strb = ${io.axi.w.strb}")
+              }
             // 不再锁存到临时寄存器，直接进入下一状态
             goto(WRITE_EXECUTE)
         }
@@ -435,6 +442,10 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
         sram_data_out_reg             := io.axi.w.data // << 直接来自AXI W通道
         sram_data_writeEnable_out_reg := True
         if (config.sramByteEnableIsActiveLow) {
+            if (enableLog) {
+              // *** 新增日志 ***
+              report(L"WRITE_EXECUTE: input strb=${io.axi.w.strb}, calculated be_n=~${io.axi.w.strb}=${(~io.axi.w.strb)}")
+            }
             sram_be_n_out_reg := ~io.axi.w.strb // << 直接来自AXI W通道
         } else {
             sram_be_n_out_reg := io.axi.w.strb
@@ -450,7 +461,9 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
       whenIsActive {
         // 在这里保持所有信号稳定，这是关键！
         // SpinalHDL会综合出这些寄存器保持原值
-        
+        if (enableLog) {
+          report(L"IN WRITE_EXECUTE: sram_be_n_out_reg=${sram_be_n_out_reg}, io.ram.be_n=${io.ram.be_n}")
+        }
         val waitCond = if (hasWriteWaitCycles) write_wait_counter === config.writeWaitCycles else True
         when(waitCond) {
             burst_count_remaining := burst_count_remaining - 1
@@ -749,7 +762,7 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
   // 当两者同时拉低，说明bug了
   when(sram_ce_n_out_reg_prev === False && sram_we_n_out_reg_prev === False) {
     when(sram_ce_n_out_reg === True && sram_we_n_out_reg === True) {
-      assert(False, "This is a bug.")
+      assert(False, "ERROR: SRAM CE and WE are both active at the same time.")
     }
   }
 }

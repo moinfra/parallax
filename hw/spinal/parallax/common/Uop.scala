@@ -297,7 +297,16 @@ object MemAccessSize extends SpinalEnum(binarySequential) {
         BigInt(0xFF) << alignedAddr // 0b11111111
     }
   }
-
+  /** Converts a MemAccessSize enum to its corresponding size in bits. */
+  def sizeInBits(size: MemAccessSize.E): Int = {
+    size match {
+      case MemAccessSize.B => 8
+      case MemAccessSize.H => 16
+      case MemAccessSize.W => 32
+      // We don't use Double Word in this 32-bit test environment
+      case MemAccessSize.D => throw new IllegalArgumentException("64-bit Double Word access not supported in this test.")
+    }
+  }
 }
 case class MemCtrlFlags() extends Bundle {
   val size = MemAccessSize()

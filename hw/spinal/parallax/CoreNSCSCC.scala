@@ -331,9 +331,9 @@ class CoreNSCSCC(simDebug: Boolean = false, injectAxi: Boolean = false) extends 
     robDepth = 8,
     commitWidth = 1,
     resetVector = BigInt("80000000", 16), // 新的启动地址
-    transactionIdWidth = 3,
+    transactionIdWidth = 4,
     memOpIdWidth = 4 bits,
-    forceMMIO = true
+    defaultIsIO = true
   )
 
   def createAxi4Config(pCfg: PipelineConfig): Axi4Config = Axi4Config(
@@ -536,10 +536,11 @@ class CoreNSCSCC(simDebug: Boolean = false, injectAxi: Boolean = false) extends 
       new AluIntEuPlugin("AluIntEU", pCfg),
       new MulEuPlugin("MulEU", pCfg, simDebug = simDebug),
       new BranchEuPlugin("BranchEU", pCfg),
-      new LsuEuPlugin("LsuEU", pCfg, lsuConfig = lsuConfig, dParams, pCfg.forceMMIO),
+      new LsuEuPlugin("LsuEU", pCfg, lsuConfig = lsuConfig, dParams, defaultIsIO = pCfg.defaultIsIO),
       new AguPlugin(lsuConfig, supportPcRel = true, mmioRanges = Seq(uartMmioRange)),
-      new StoreBufferPlugin(pCfg, lsuConfig, dParams, lsuConfig.sqDepth, mmioConfig),
-      new LoadQueuePlugin(pCfg, lsuConfig, dParams, lsuConfig.lqDepth, mmioConfig),
+      // new StoreBufferPlugin(pCfg, lsuConfig, dParams, lsuConfig.sqDepth, mmioConfig),
+      new StoreRingBufferPlugin(pCfg, lsuConfig, dParams, lsuConfig.sqDepth, mmioConfig),
+      new LoadRingBufferPlugin(pCfg, lsuConfig, dParams, lsuConfig.lqDepth, mmioConfig),
       new ICachePlugin(iCfg, axiCfg = axiConfig, pcWidth = pCfg.pcWidth.value),
 
       // Dispatch and linking
@@ -577,7 +578,7 @@ class CoreNSCSCC(simDebug: Boolean = false, injectAxi: Boolean = false) extends 
   // if (onboardDebug) {
   val commitService = framework.getService[CommitPlugin]
   // TODO: REMOVE THIS HARDCODED AFTER BUG FIXED
-  commitService.setMaxCommitPc(U(BigInt("80001000", 16), 32 bits), True)
+  commitService.setMaxCommitPc(U(BigInt("803FFFFF", 16), 32 bits), True)
   // }
 
   val memSysPlugin = framework.getService[CoreMemSysPlugin]

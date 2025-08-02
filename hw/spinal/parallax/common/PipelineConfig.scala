@@ -35,7 +35,7 @@ case class PipelineConfig(
     // Add other IQ depths as needed, e.g.:
     // val lsuIqDepth: Int = 16
     // val mulIqDepth: Int = 4
-    val forceMMIO: Boolean = false, // Force LS requests to bypass the DCache
+    val defaultIsIO: Boolean = true, // Force LS requests to bypass the DCache
     val memOpIdWidth: BitCount = 6 bits,
     val mulEuCount: Int = 0,
     val fetchGenIdWidth: BitCount = 4 bits,

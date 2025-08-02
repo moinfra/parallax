@@ -84,6 +84,7 @@ class AluIntEuPlugin(
     // +++ CORRECTED: Use strict, field-by-field assignment to avoid overlapping +++
     val iqEntryForAlu = intAlu.io.iqEntryIn.payload
     iqEntryForAlu.robPtr := uopAtS2.robPtr
+    iqEntryForAlu.pc := uopAtS2.pc
     iqEntryForAlu.physDest := uopAtS2.physDest
     iqEntryForAlu.physDestIsFpr := uopAtS2.physDestIsFpr
     iqEntryForAlu.writesToPhysReg := uopAtS2.writesToPhysReg
@@ -113,7 +114,7 @@ class AluIntEuPlugin(
       ParallaxSim.debug(
         Seq(
           L"AluIntEu (${euName}) S2 Firing: ",
-          L"RobPtr=${uopAtS2.robPtr}, ResultData=${intAlu.io.resultOut.payload.data}, ",
+          L"For uop@${uopAtS2.pc}, robPtr=${uopAtS2.robPtr}, ResultData=${intAlu.io.resultOut.payload.data}, ",
           L"WritesPreg=${intAlu.io.resultOut.payload.writesToPhysReg}, ",
           L"ImmUsage=${uopAtS2.immUsage.asBits}, UseSrc2=${uopAtS2.useSrc2}", 
           L" op: ${uopAtS2.aluCtrl.format}, lhs=${aluSrc1Data}, rhs=${effectiveSrc2Data}"

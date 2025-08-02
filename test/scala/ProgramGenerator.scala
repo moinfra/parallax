@@ -336,13 +336,13 @@ object ProgramGenerator {
             
             // Conditional Branches (note: offset is from the next instruction)
             case BeqPlaceholder(rj, rd, targetId) =>
-              val offset = blockAddrMap(targetId) - (currentPc + 4)
+              val offset = blockAddrMap(targetId) - currentPc
               finalInstructions += beq(rj, rd, offset.toInt)
             case BnePlaceholder(rj, rd, targetId) =>
-              val offset = blockAddrMap(targetId) - (currentPc + 4)
+              val offset = blockAddrMap(targetId) - currentPc
               finalInstructions += bne(rj, rd, offset.toInt)
             case BltuPlaceholder(rj, rd, targetId) =>
-              val offset = blockAddrMap(targetId) - (currentPc + 4)
+              val offset = blockAddrMap(targetId) - currentPc
               finalInstructions += bltu(rj, rd, offset.toInt)
 
             // JIRL sequence

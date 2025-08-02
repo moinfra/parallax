@@ -56,6 +56,8 @@ class CustomSpinalSimFunSuite extends SpinalSimFunSuite {
     }
   }
 
+  def startTests = thatsAll()
+
   def disableAbove(): Unit = {
     tests.clear()
     testsOnly.clear()

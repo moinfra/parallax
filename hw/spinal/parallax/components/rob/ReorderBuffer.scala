@@ -78,8 +78,21 @@ case class ROBStatus[RU <: Data with Formattable with HasRobPtr](config: ROBConf
   val result = Bits(config.pcWidth)
   val hasException = Bool()
   val exceptionCode = UInt(config.exceptionCodeWidth)
-  val pendingRetirement = Bool() 
+  // val pendingRetirement = Bool() 
   val genBit = Bool()
+
+  def setDefault(): this.type = {
+    this.busy := False
+    this.done := False
+    this.isMispredictedBranch := False
+    this.targetPc.assignDontCare()
+    this.isTaken := False
+    this.result.assignDontCare()
+    this.hasException := False
+    this.exceptionCode.assignDontCare()
+    // 关键：不要在这里重置genBit，它的生命周期由指针逻辑管理。
+    this
+  }
 }
 
 case class ROBPayload[RU <: Data with Formattable with HasRobPtr](config: ROBConfig[RU]) extends Bundle {
@@ -124,7 +137,7 @@ case class ROBWritebackPort[RU <: Data with Formattable with HasRobPtr](config: 
     in(fire, robPtr, isMispredictedBranch, targetPc, isTaken, result, exceptionOccurred, exceptionCodeIn)
   }
 
-  def setDefault(): Unit = {
+  def setDefault(): this.type = {
     this.fire := False
     this.robPtr.assignDontCare()
     this.isMispredictedBranch.assignDontCare()
@@ -133,6 +146,7 @@ case class ROBWritebackPort[RU <: Data with Formattable with HasRobPtr](config: 
     this.result.assignDontCare()
     this.exceptionOccurred.assignDontCare()
     this.exceptionCodeIn.assignDontCare()
+    this
   }
 }
 
@@ -183,7 +197,7 @@ case class ROBIo[RU <: Data with Formattable with HasRobPtr](config: ROBConfig[R
 }
 
 class ReorderBuffer[RU <: Data with Formattable with HasRobPtr](config: ROBConfig[RU]) extends Component {
-  val enableLog = false
+  val enableLog = true
   ParallaxLogger.log(
     s"Creating ReorderBuffer with config: ${config.format().mkString("")}"
   )
@@ -215,6 +229,10 @@ class ReorderBuffer[RU <: Data with Formattable with HasRobPtr](config: ROBConfi
   // --- 2a. Allocation Logic (无环路 ready/fire 计算) ---
   val slotWillAllocate = Vec(Bool(), config.allocateWidth)
 
+  // <<< 新增逻辑：创建一个向量来跟踪本周期被分配的物理索引 >>>
+  val isBeingAllocatedThisCycle = Vec(Bool(), config.robDepth)
+  isBeingAllocatedThisCycle.foreach(_ := False) // 默认所有索引都未被分配
+
   if (enableLog) report(L"[ROB] CYCLE_START: head=${headPtr_reg}, tail=${tailPtr_reg}, count=${count_reg}")
 
   for (i <- 0 until config.allocateWidth) {
@@ -228,11 +246,18 @@ class ReorderBuffer[RU <: Data with Formattable with HasRobPtr](config: ROBConfi
 
     val robPtrForThisSlot = tailPtr_reg + numPrevSlotsFiring
     allocPort.robPtr := robPtrForThisSlot
-        if(enableLog) report(L"[ROB] ALLOC_PORT_DRIVE[${i}]: Driving ready(spaceAvailable)=${spaceAvailable}")
+    if(enableLog) report(L"[ROB] ALLOC_PORT_DRIVE[${i}]: Driving ready(spaceAvailable)=${spaceAvailable}")
 
     // **新增日志: 打印getAllocatePorts的valid/ready状态**
     if (enableLog) {
       report(L"[ROB] ALLOC_PORT[${i}]: valid=${allocPort.valid}, ready=${allocPort.ready}, fire=${slotWillAllocate(i)}")
+    }
+
+    // <<< 新增逻辑：当一个槽位被分配时，标记其物理索引 >>>
+    when(slotWillAllocate(i)) {
+      val ptr = tailPtr_reg + numPrevSlotsFiring
+      val physIdx = ptr.resize(config.robPhysIdxWidth)
+      isBeingAllocatedThisCycle(physIdx) := True
     }
   }
   val numActuallyAllocatedThisCycle = CountOne(slotWillAllocate)
@@ -270,8 +295,15 @@ class ReorderBuffer[RU <: Data with Formattable with HasRobPtr](config: ROBConfi
     val currentStatus = statuses(currentCommitPhysIdx)
     
     val flushBlocking = io.flush.valid || flushInProgressReg || flushWasActiveLastCycle
-    canCommitFlags(i) := !flushBlocking && 
-                        (count_reg > U(i)) && currentStatus.done && (currentCommitGenBit === currentStatus.genBit)
+
+    // <<< 新增逻辑：获取“未被分配”的条件 >>>
+    val notBeingAllocatedThisCycle = !isBeingAllocatedThisCycle(currentCommitPhysIdx)
+
+    canCommitFlags(i) := notBeingAllocatedThisCycle && // <-- 防竞争检查
+                        !flushBlocking && 
+                        (count_reg > U(i)) && 
+                        currentStatus.done && 
+                        (currentCommitGenBit === currentStatus.genBit)
     
     io.commit(i).valid := count_reg > U(i)
     io.commit(i).canCommit := canCommitFlags(i)
@@ -281,21 +313,14 @@ class ReorderBuffer[RU <: Data with Formattable with HasRobPtr](config: ROBConfi
     val prevCommitsAccepted = if (i == 0) True else actualCommittedMask(i - 1)
     actualCommittedMask(i) := prevCommitsAccepted && canCommitFlags(i) && io.commitAck(i)
 
-    // when(actualCommittedMask(i)) {
-    //   val committedUop = io.commit(i).entry.payload.uop
-    //   // 检查这条指令是不是需要等待退休确认的类型 (例如 Store)
-    //   // 这需要uop中有一个isStore之类的标志，这里我们假设有
-    //   val needsRetireAck = committedUop.asInstanceOf[RenamedUop].decoded.memCtrl.isStore
-      
-    //   when(needsRetireAck) {
-    //     // 是Store指令：标记它，但不移动 headPtr
-    //     statuses(currentCommitPhysIdx).pendingRetirement := True
-    //     if(enableLog) report(L"[ROB] COMMIT_STORE[${i}]: ptr=${currentCommitFullIdx} marked as pending retirement. Head not moved.")
-    //   }
-    // }
+    // 您的方案：在指令被确认提交的当周期，就将其状态重置为默认值
+    when(actualCommittedMask(i)) {
+        if(enableLog) report(L"[ROB] COMMIT_CLEAN[${i}]: Cleaning status for committed robPtr=${currentCommitFullIdx}")
+        statuses(currentCommitPhysIdx).setDefault() // 调用修改后的setDefault
+    }
     
     if(enableLog) when(count_reg > U(i)) {
-      report(L"[ROB] COMMIT_CHECK[${i}]: ptr=${currentCommitFullIdx}, done=${currentStatus.done}, genMatch=${currentCommitGenBit === currentStatus.genBit}, flushBlocking=${flushBlocking} -> canCommitFlags(i)=${canCommitFlags(i)}. io.commitAck(i)=${io.commitAck(i)} -> actualCommit=${actualCommittedMask(i)}")
+      report(L"[ROB] COMMIT_CHECK[${i}]: ptr=${currentCommitFullIdx}, done=${currentStatus.done}, genMatch=${currentCommitGenBit === currentStatus.genBit}, flushBlocking=${flushBlocking}, isBeingAllocated=${!notBeingAllocatedThisCycle} -> canCommitFlags(i)=${canCommitFlags(i)}. io.commitAck(i)=${io.commitAck(i)} -> actualCommit=${actualCommittedMask(i)}")
       when(flushBlocking) {
         report(L"[ROB] COMMIT_BLOCKED[${i}]: Commit blocked due to flush (current=${io.flush.valid}, inProgress=${flushInProgressReg}, wasActive=${flushWasActiveLastCycle})")
       }
@@ -303,7 +328,7 @@ class ReorderBuffer[RU <: Data with Formattable with HasRobPtr](config: ROBConfi
   }
   val numToCommit = CountOne(actualCommittedMask)
   when(numToCommit > 0) {
-    report(L"[ROB] COMMIT_SUMMARY: Committing ${numToCommit} entries, total entries=${count_reg}, capacity=${config.robDepth}")
+    report(L"[ROB] COMMIT_SUMMARY: Committing ${numToCommit} entries, total entries=${count_reg}, capacity=${config.robDepth}, first commit ${io.commit(0).entry.payload.uop.robPtr}")
   }
   if(enableLog) when(numToCommit > 0) { report(L"[ROB] COMMIT_SUMMARY: Committing ${numToCommit} entries.") }
 
@@ -378,6 +403,7 @@ class ReorderBuffer[RU <: Data with Formattable with HasRobPtr](config: ROBConfi
       newPayload.pc := io.allocate(i).pcIn
       payloads.write(address = physIdx, data = newPayload)
       
+      // 在分配时设置状态，genBit在这里被正确设置
       statuses(physIdx).busy := True
       statuses(physIdx).done := False
       statuses(physIdx).hasException := False
@@ -392,18 +418,32 @@ class ReorderBuffer[RU <: Data with Formattable with HasRobPtr](config: ROBConfi
     val wbGenBit = wbPort.robPtr.msb
     val statusBeforeWb = statuses(wbPhysIdx)
     
-    when(!io.flush.valid && wbPort.fire && wbGenBit === statusBeforeWb.genBit) {
-      statuses(wbPhysIdx).busy := False
-      statuses(wbPhysIdx).done := True
-      statuses(wbPhysIdx).isMispredictedBranch := wbPort.isMispredictedBranch
-      statuses(wbPhysIdx).targetPc := wbPort.targetPc
-      statuses(wbPhysIdx).isTaken := wbPort.isTaken
-      statuses(wbPhysIdx).result := wbPort.result
-      statuses(wbPhysIdx).hasException := wbPort.exceptionOccurred
-      statuses(wbPhysIdx).exceptionCode := Mux(wbPort.exceptionOccurred, wbPort.exceptionCodeIn, statusBeforeWb.exceptionCode)
-      if (enableLog) report(L"[ROB] WB_WRITE: ptr=${wbPort.robPtr} -> status.done=T")
-    } elsewhen(wbPort.fire) {
-        if (enableLog) report(L"[ROB] WB_WARN: Writeback for ptr=${wbPort.robPtr} ignored due to genBit mismatch.")
+    val isLegalWriteback = !io.flush.valid && (wbGenBit === statusBeforeWb.genBit) && statusBeforeWb.busy
+
+    when(wbPort.fire) {
+        assert(
+            assertion = isLegalWriteback,
+            message   = L"[ROB] FATAL: Illegal writeback detected for robPtr=${wbPort.robPtr}!\n" :+
+                      L"  Details:\n" :+
+                      L"    - isFlushing: ${io.flush.valid}\n" :+
+                      L"    - genBitMatch: ${wbGenBit === statusBeforeWb.genBit} (portGen=${wbGenBit}, statusGen=${statusBeforeWb.genBit})\n" :+
+                      L"    - isBusyInRob: ${statusBeforeWb.busy}\n" :+
+                      L"  This indicates a double writeback, a write to a flushed/committed entry, or a logic error in a functional unit.",
+            severity  = FAILURE // 立即停止仿真
+        )
+
+        // 只有在断言通过后，才执行状态更新
+        when(isLegalWriteback) {
+            statuses(wbPhysIdx).busy := False
+            statuses(wbPhysIdx).done := True
+            statuses(wbPhysIdx).isMispredictedBranch := wbPort.isMispredictedBranch
+            statuses(wbPhysIdx).targetPc := wbPort.targetPc
+            statuses(wbPhysIdx).isTaken := wbPort.isTaken
+            statuses(wbPhysIdx).result := wbPort.result
+            statuses(wbPhysIdx).hasException := wbPort.exceptionOccurred
+            statuses(wbPhysIdx).exceptionCode := Mux(wbPort.exceptionOccurred, wbPort.exceptionCodeIn, statusBeforeWb.exceptionCode)
+            if (enableLog) report(L"[ROB] WB_WRITE: ptr=${wbPort.robPtr} -> status.done=T")
+        }
     }
   }
 
@@ -414,7 +454,8 @@ class ReorderBuffer[RU <: Data with Formattable with HasRobPtr](config: ROBConfi
           statuses(k).busy := False
           statuses(k).done := False
           statuses(k).hasException := False
-          statuses(k).genBit := False
+          // 在这里清理genBit是正确的，因为是完全冲刷，所有世代信息都无效了
+          statuses(k).genBit := False 
         }
       }
       is(FlushReason.ROLLBACK_TO_ROB_IDX) {
@@ -438,9 +479,7 @@ class ReorderBuffer[RU <: Data with Formattable with HasRobPtr](config: ROBConfi
 
             when(isInSquashedRange) {
                 if (enableLog) report(L"[ROB] FLUSH_CLEAR: Squashing status for physIdx ${physIdx} (full ptr ${fullIdx})")
-                statuses(physIdx).busy := False
-                statuses(physIdx).done := False
-                statuses(physIdx).hasException := False
+                statuses(physIdx).setDefault()
             }
         }
       }
@@ -459,25 +498,90 @@ class ReorderBuffer[RU <: Data with Formattable with HasRobPtr](config: ROBConfi
     report(L"[ROB] IO_OUTPUT: empty=${io.empty}, headPtrOut=${io.headPtrOut}, tailPtrOut=${io.tailPtrOut}, countOut=${io.countOut}")
   }
 
-  // val debg=  new Area {
-  //   val expected_count = UInt(config.robPtrWidth)
+  val debg =  new Area {
+    val robPtrToMonitor: Int = 1 // 我们要监控的robPtr
+    val physIdxToMonitor = robPtrToMonitor % config.robDepth
+    val statusToMonitor = statuses(physIdxToMonitor)
+
+    report(
+      L"Status for physIdx=${physIdxToMonitor}: " :+
+      L"busy=${statusToMonitor.busy}, " :+
+      L"done=${statusToMonitor.done}, " :+
+      L"genBit=${statusToMonitor.genBit}, " :+
+      L"hasException=${statusToMonitor.hasException}"
+    )
+
+  }
+
+  val verification = new Area {
+    val expected_count = UInt(config.robPtrWidth.value + 1 bits)
     
-  //   // 使用扩展一位的指针进行减法以正确处理环绕
-  //   val head_ext = headPtr_reg.resize(config.robPtrWidth.value + 1)
-  //   val tail_ext = tailPtr_reg.resize(config.robPtrWidth.value + 1)
+    val head_ext = headPtr_reg.resize(config.robPtrWidth.value + 1)
+    val tail_ext = tailPtr_reg.resize(config.robPtrWidth.value + 1)
 
-  //   when(tail_ext >= head_ext) {
-  //     expected_count := (tail_ext - head_ext).resized
-  //   } otherwise {
-  //     // 发生了环绕
-  //     expected_count := (tail_ext + (U(1) << config.robPtrWidth.value) - head_ext).resized
-  //   }
+    when(tail_ext >= head_ext) {
+      expected_count := (tail_ext - head_ext)
+    } otherwise {
+      expected_count := (tail_ext + (U(1) << config.robPtrWidth.value) - head_ext)
+    }
 
-  //   assert(
-  //     assertion = count_reg === expected_count,
-  //     message = L"[ROB] FATAL: count_reg (${count_reg}) mismatches pointer difference (${expected_count}). head=${headPtr_reg}, tail=${tailPtr_reg}",
-  //     severity = FAILURE
-  //   )
+    assert(
+      assertion = count_reg === expected_count.resized,
+      message   = L"[ROB] FATAL: count_reg (${count_reg}) mismatches pointer difference (${expected_count.resized}).\n" :+
+                L"  - headPtr=${headPtr_reg}, tailPtr=${tailPtr_reg}",
+      severity  = FAILURE
+    )
 
-  // }
+    report(L"[ROB] COUNTER_UPDATE: count=${count_reg}, allocs=${numActuallyAllocatedThisCycle}, commits=${numToCommit} => nextCount=${nextCount}")
+
+  }
+
+    val perfCounter = Reg(UInt(32 bits)) init(0)
+  perfCounter := perfCounter + 1
+
+  // ... (所有逻辑) ...
+
+  // --- 8. (新增) 全面的状态转储区域 ---
+  val full_state_dump = new Area {
+      // 打印最核心的指针和计数器状态 (在周期开始时)
+      report(
+        L"[ROB_SNAPSHOT] Cycle=${perfCounter} | " :+
+        L"head=${headPtr_reg}, tail=${tailPtr_reg}, count=${count_reg} | " :+
+        L"allocs=${numActuallyAllocatedThisCycle}, commits=${numToCommit} | " :+
+        L"canAllocate=${io.canAllocate(0)}" // 假设allocateWidth至少为1
+      )
+      
+      // 打印ROB中所有有效条目的状态
+      // 这将告诉我们，在分配 `robPtr=1` (Load) 的瞬间，旧的 `robPtr=1` (Store) 是否还在ROB中
+      val hasValidEntries = count_reg > 0
+      when(hasValidEntries) {
+        report(L"  -- ROB Contents --")
+        for(i <- 0 until config.robDepth) {
+          val current_ptr = headPtr_reg + i
+          // 检查这个索引是否在有效范围内
+          val isInRange = Bool()
+          val head_ext = headPtr_reg.resize(config.robPtrWidth.value + 1)
+          val tail_ext = tailPtr_reg.resize(config.robPtrWidth.value + 1)
+          val current_ext = current_ptr.resize(config.robPtrWidth.value + 1)
+          
+          when(tail_ext > head_ext) { // No wrap
+            isInRange := current_ext >= head_ext && current_ext < tail_ext
+          } otherwise { // Wrapped
+            isInRange := current_ext >= head_ext || current_ext < tail_ext
+          }
+
+          // 只有当条目在逻辑上有效时才打印
+          when(i < count_reg) { // 一个更简单的检查
+            val physIdx = current_ptr.resize(config.robPhysIdxWidth)
+            val status = statuses(physIdx)
+            val payload = payloads.readAsync(physIdx) // 注意: readAsync用于仿真/调试
+
+            report(
+              L"  -> Entry[robPtr=${current_ptr}]: pc=${payload.pc}, " :+
+              L"status(busy=${status.busy}, done=${status.done}, gen=${status.genBit}, ex=${status.hasException})"
+            )
+          }
+        }
+      }
+  }
 }

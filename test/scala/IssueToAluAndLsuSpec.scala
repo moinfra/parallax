@@ -76,7 +76,7 @@ class TestOnlyMemSystemPlugin(axiConfig: Axi4Config, sgmbConfig: Option[GenericM
   }
 
   override def getBus(): Axi4 = {
-    println("CALL getBus.")
+    println("NOT IMPLEMENTED: TestOnlyMemSystemPlugin.getBus().")
     null
   }
 

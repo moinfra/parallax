@@ -20,12 +20,16 @@ case class SqQuery(lsuCfg: LsuConfig, pipelineCfg: PipelineConfig) extends Bundl
     val robPtr      = UInt(pipelineCfg.robPtrWidth) // ESSENTIAL for ordering
     val address     = UInt(lsuCfg.pcWidth)
     val size        = MemAccessSize()
+    val isIO        = Bool()
+    val isCoherent  = Bool()
 
     def format: Seq[Any] = {
         Seq(
             L"SqQuery(",
             L"robPtr=${robPtr},",
             L"address=${address},",
+            L"isIO=${isIO},",
+            L"isCoherent=${isCoherent},",
             L"size=${size}",
             L")"
         )
@@ -51,6 +55,14 @@ case class SqQueryRsp(lsuCfg: LsuConfig) extends Bundle with Formattable {
             L")"
         )
     }
+
+    def setDefault(): this.type = {
+        hit := False
+        data := 0
+        olderStoreHasUnknownAddress := False
+        olderStoreDataNotReady := False
+        this
+    }
 }
 
 // SqQueryPort
@@ -62,6 +74,7 @@ case class SqQueryPort(lsuCfg: LsuConfig, pipelineCfg: PipelineConfig) extends B
 
 // StoreBufferPushCmd
 case class StoreBufferPushCmd(val pCfg: PipelineConfig, val lsuCfg: LsuConfig) extends Bundle {
+    val pc    = UInt(pCfg.pcWidth)
     val addr    = UInt(pCfg.pcWidth)
     val data    = Bits(pCfg.dataWidth)
     val be      = Bits(pCfg.dataWidth.value / 8 bits)
@@ -69,19 +82,23 @@ case class StoreBufferPushCmd(val pCfg: PipelineConfig, val lsuCfg: LsuConfig) e
     val accessSize = MemAccessSize()
     val isFlush = Bool() // Bench Test only
     val isIO    = Bool()
+    val isCoherent = Bool()
     val hasEarlyException = Bool()
     val earlyExceptionCode= UInt(pCfg.exceptionCodeWidth)
 }
 
 // StoreBufferSlot
 case class StoreBufferSlot(val pCfg: PipelineConfig, val lsuCfg: LsuConfig, val dCacheParams: DataCacheParameters) extends Bundle with Formattable {
+    val txid                = UInt(pCfg.transactionIdWidth bits)
     val isFlush             = Bool()
+    val pc                  = UInt(pCfg.pcWidth)
     val addr                = UInt(pCfg.pcWidth)
     val data                = Bits(pCfg.dataWidth)
     val be                  = Bits(pCfg.dataWidth.value / 8 bits)
     val robPtr              = UInt(lsuCfg.robPtrWidth)
     val accessSize          = MemAccessSize()
     val isIO                = Bool()
+    val isCoherent          = Bool()
     val valid               = Bool()
     val hasEarlyException   = Bool()
     val earlyExceptionCode  = UInt(pCfg.exceptionCodeWidth)
@@ -93,14 +110,17 @@ case class StoreBufferSlot(val pCfg: PipelineConfig, val lsuCfg: LsuConfig, val 
     val refillSlotToWatch   = Bits(dCacheParams.refillCount bits)
 
     def setDefault(): this.type = {
+        txid                := 0
         isFlush             := False
         valid               := False
+        pc                  := 0
         addr                := 0
         data                := 0
         be                  := 0
         robPtr              := 0
         accessSize          := MemAccessSize.W
         isIO                := False
+        isCoherent          := False
         hasEarlyException   := False
         earlyExceptionCode  := 0
         isCommitted         := False
@@ -112,14 +132,16 @@ case class StoreBufferSlot(val pCfg: PipelineConfig, val lsuCfg: LsuConfig, val 
         this
     }
 
-    def initFromCommand(command: StoreBufferPushCmd): this.type = {
+      def initFromCommand(command: StoreBufferPushCmd, transactionId: UInt): this.type = {
+        this.txid                := transactionId
         this.isFlush             := command.isFlush
+        this.pc                  := command.pc
         this.addr                := command.addr
-        this.data                := command.data
         this.be                  := command.be
         this.robPtr              := command.robPtr
         this.accessSize          := command.accessSize
         this.isIO                := command.isIO
+        this.isCoherent          := command.isCoherent
         this.hasEarlyException   := command.hasEarlyException
         this.earlyExceptionCode  := command.earlyExceptionCode
         this.valid               := True
@@ -129,21 +151,31 @@ case class StoreBufferSlot(val pCfg: PipelineConfig, val lsuCfg: LsuConfig, val 
         this.isWaitingForRefill  := False
         this.isWaitingForWb      := False
         this.refillSlotToWatch   := 0
+
+        // Calculate and assign the aligned data
+        val dataWidth = command.data.getWidth
+        val dataWidthBytes = dataWidth / 8
+        val byteOffset = command.addr(log2Up(dataWidthBytes)-1 downto 0)
+        val shiftedData = command.data << (byteOffset << 3)
+
+        this.data := shiftedData(dataWidth-1 downto 0)
         this
     }
 
     override def format: Seq[Any] = {
         Seq(
             L"StoreBufferSlot(",
+            L"txid=${txid},",
             L"valid=${valid},",
-
             L"isFlush=${isFlush},",
             L"addr=${addr},",
+            L"pc=${pc},",
             L"data=${data},",
             L"be=${be},",
             L"robPtr=${robPtr},",
             L"accessSize=${accessSize},",
             L"isIO=${isIO},",
+            L"isCoherent=${isCoherent},",
             L"hasEarlyException=${hasEarlyException},",
             L"earlyExceptionCode=${earlyExceptionCode},",
             L"isCommitted=${isCommitted},",
@@ -161,6 +193,8 @@ case class StoreBufferSlot(val pCfg: PipelineConfig, val lsuCfg: LsuConfig, val 
 case class BypassAccumulator(pCfg: PipelineConfig) extends Bundle {
     val data    = Bits(pCfg.dataWidth)
     val hitMask = Bits(pCfg.dataWidth.value / 8 bits)
+
+    def setDefault(): this.type = { data := 0; hitMask := 0; this }
 }
 
 // StoreBufferBypassData
@@ -234,7 +268,7 @@ class StoreBufferPlugin(
             // 用于本周期更新的组合逻辑视图,会根据各自的条件来覆盖这个默认值。这最终会生成一个大型的多路复用器（Mux）结构。
             val slotsAfterUpdates = CombInit(slots) 
             // 用于下一周期寄存器更新的视图, 只有那些需要改变队列结构的逻辑（比如 pop_write_logic 中的 popRequest）才会来覆盖这个值。
-            val slotsNext   = CombInit(slotsAfterUpdates)
+            val slotsNext   = CombInit(slotsAfterUpdates) // 默认继承本周期的组合逻辑更新
 
             for(i <- 0 until sbDepth) {
                 slots(i).init(StoreBufferSlot(pipelineConfig, lsuConfig, dCacheParams).setDefault())
@@ -323,11 +357,20 @@ class StoreBufferPlugin(
 
             // 全局冲刷逻辑
             when(robFlushPort.valid && robFlushPort.payload.reason === FlushReason.FULL_FLUSH) {
-                if(enableLog) report(L"[SQ] FULL_FLUSH received. Clearing all slots.")
+                if(enableLog) report(L"[SQ] FULL_FLUSH received. Processing slots.")
                 for(i <- 0 until sbDepth) {
-                    // 已提交的条目必须被保留，直到它们成功写入内存。
-                    when(!storage.slots(i).isCommitted) {
-                        storage.slotsAfterUpdates(i).valid := False
+                    // (1) 读取本周期中间组合逻辑视图，这里包含了同周期Commit的最新状态
+                    val slotToCheck = storage.slotsAfterUpdates(i)
+
+                    // (2) 【核心原则】: 只清除未提交的条目。
+                    // 已提交的条目(isCommitted=True)是架构状态的一部分，必须被保留下来等待完成。
+                    // 无论是普通内存写还是MMIO写，一旦提交，就必须执行。
+                    // 这种做法可以防止数据丢失，并正确处理了另一个AI指出的“僵尸问题”——我们选择让“僵尸”寿终正寝，而不是杀死它。
+                    when(!slotToCheck.isCommitted) {
+                        // (3) 写入下一周期的状态视图 `slotsNext`，将其无效化。
+                        // 使用 setDefault() 是最彻底的清理方式，确保所有状态位都被重置。
+                        storage.slotsNext(i).setDefault()
+                        if(enableLog) report(L"[SQ] FLUSH (Full): Invalidating UNCOMMITTED slotIdx=${i} (robPtr=${slotToCheck.robPtr}).")
                     }
                 }
             }
@@ -371,7 +414,7 @@ class StoreBufferPlugin(
 
             when(pushPortIn.fire) {
                 val newSlotData = StoreBufferSlot(pipelineConfig, lsuConfig, dCacheParams)
-                newSlotData.initFromCommand(pushPortIn.payload)
+                newSlotData.initFromCommand(pushPortIn.payload, U(0))
                 // 使用 pushIdx (正确位宽) 进行索引
                 storage.slotsAfterUpdates(pushIdx) := newSlotData
                 if(enableLog) report(L"[SQ] PUSH: robPtr=${pushPortIn.payload.robPtr} to slotIdx=${pushIdx}")
@@ -383,24 +426,27 @@ class StoreBufferPlugin(
         //  Store Buffer 弹出与内存写入逻辑 (SB Pop and Memory Write Logic)
         // =================================================================
         val pop_write_logic = new Area {
-            val headSlotReg = storage.slots(0)
-            val headSlotIsCommittedTC = storage.slotsAfterUpdates(0).isCommitted
+            // 【第1步：识别本周期的动作候选者】
+            // 这些都是纯组合逻辑，判断每个槽位 *如果* 位于头部，是否满足条件
+            val headSlotReg = storage.slots(0) // 读取上一周期的稳定状态
+            val headSlotIsCommittedTC = storage.slotsAfterUpdates(0).isCommitted // 使用本周期更新后的 isCommitted
 
-            val sharedWriteCond = headSlotReg.valid && headSlotIsCommittedTC && !headSlotReg.isFlush &&
-                                !headSlotReg.waitRsp && !headSlotReg.isWaitingForRefill && !headSlotReg.isWaitingForWb &&
-                                !headSlotReg.hasEarlyException // 仅当没有早期异常时才尝试发送
-            val canPopNormalOp = sharedWriteCond && !headSlotReg.isIO // 普通DCache写
-            val canPopFlushOp = headSlotReg.valid && headSlotReg.isFlush && !headSlotReg.waitRsp && !headSlotReg.isWaitingForWb
-            val canPopMMIOOp = sharedWriteCond && headSlotReg.isIO
+            // --- 发送决策 (Fire Decision) ---
+            // 决策基于上一周期的稳定状态，但结合了本周期的Commit信息
+            val isHeadReadyToSend = headSlotReg.valid && headSlotIsCommittedTC && !headSlotReg.isFlush &&
+                                   !headSlotReg.sentCmd && // 尚未发送命令
+                                   !headSlotReg.waitRsp && !headSlotReg.isWaitingForRefill && !headSlotReg.isWaitingForWb &&
+                                   !headSlotReg.hasEarlyException // 仅当没有早期异常时才尝试发送
+            
+            val canSendToMMIO = isHeadReadyToSend && headSlotReg.isIO
             when(Bool(!mmioConfig.isDefined) && headSlotReg.isIO) {
                 assert(False, "Got isIO but no MMIO service.")
             }
-            val canSendToDCache = canPopNormalOp || canPopFlushOp
-            val canSendToMMIO = canPopMMIOOp
-            if(enableLog) report(Seq(L"[SQ] sharedWriteCond = ${sharedWriteCond} of headslot: ${headSlotReg.format}", L"canSendToDCache = ${canSendToDCache}. ", L"canSendToMMIO = ${canSendToMMIO}. "))
+            if(enableLog) report(Seq(L"[SQ] isHeadReadyToSend = ${isHeadReadyToSend} of headslot: ${headSlotReg.format}", L"canSendToMMIO = ${canSendToMMIO}. "))
             
-            // MMIO 写入逻辑
-            val mmioWriteCmd = hw.mmioWriteChannel.map { mmioChannel =>
+            // --- 连接MMIO接口 ---
+            // 实际的发送命令。这里的数据仍然来自上一周期的稳定状态
+            val mmioCmdFired = hw.mmioWriteChannel.map { mmioChannel =>
                 mmioChannel.cmd.valid := canSendToMMIO
                 mmioChannel.cmd.address := headSlotReg.addr
                 mmioChannel.cmd.data := headSlotReg.data
@@ -413,72 +459,78 @@ class StoreBufferPlugin(
                 when(mmioChannel.cmd.valid) {
                     if(enableLog) report(L"[SQ-MMIO] Sending MMIO STORE: payload=${mmioChannel.cmd.payload.format} headslot=${headSlotReg.format} valid=${mmioChannel.cmd.valid} ready=${mmioChannel.cmd.ready}")
                 }
-                mmioChannel.cmd
-            }
-            val mmioCmdFired = hw.mmioWriteChannel.map(channel => canSendToMMIO && channel.cmd.ready).getOrElse(False)
+                mmioChannel.cmd.ready && canSendToMMIO
+            }.getOrElse(False)
             if(enableLog) report(L"[SQ] mmioCmdFired=${mmioCmdFired} because canSendToMMIO=${canSendToMMIO}, channel.cmd.ready=${hw.mmioWriteChannel.map(_.cmd.ready).getOrElse(null)}")
-            when(mmioCmdFired) {
-                storage.slotsAfterUpdates(0).sentCmd := True
-                storage.slotsAfterUpdates(0).waitRsp := True
-                report(L"[SQ] CMD_FIRED_MMIO: robPtr=${headSlotReg.robPtr} (slotIdx=0), addr=${headSlotReg.addr} data=${headSlotReg.data} be=${headSlotReg.be}")
-            }
+
+            // --- 响应决策 (Response Decision) ---
             val mmioResponseForHead = hw.mmioWriteChannel.map { mmioChannel =>
-                mmioChannel.rsp.valid && headSlotReg.valid && headSlotReg.isIO && // 必须是MMIO事务
-                (headSlotReg.waitRsp || mmioCmdFired) && // 'mmioCmdFired' 确保响应是为当前发送的命令
+                mmioChannel.rsp.valid && headSlotReg.valid && headSlotReg.isIO && headSlotReg.waitRsp && // 必须是MMIO事务，且正在等待响应
                 (headSlotReg.robPtr.resized === mmioChannel.rsp.payload.id) // ID匹配
             }.getOrElse(False)
-            when(mmioResponseForHead) {
-                hw.mmioWriteChannel.foreach { mmioChannel =>
-                    // MMIO 响应到达，操作完成 (MMIO 没有 redo)
-                    storage.slotsAfterUpdates(0).waitRsp := False
-                    val mmioError = mmioChannel.rsp.payload.error
+            
+            // MMIO响应总线
+            hw.mmioWriteChannel.foreach(_.rsp.ready := mmioResponseForHead)
+            getServiceOption[DebugDisplayService].foreach(dbg => { 
+                dbg.setDebugValueOnce(mmioResponseForHead, DebugValue.MEM_WRITE_FIRE, expectIncr = true)
+            })
+
+            // --- 弹出决策 (Pop Decision) ---
+            // 弹出决策基于上一周期的稳定状态 + 本周期的响应
+            val operationDone = headSlotReg.sentCmd && 
+                                ((!headSlotReg.waitRsp) || mmioResponseForHead) && // 如果在等响应，那必须本周期收到
+                                !headSlotReg.isWaitingForRefill && !headSlotReg.isWaitingForWb
+
+            val popRequest = False
+            when(headSlotReg.valid && headSlotIsCommittedTC) {
+                when(headSlotReg.isFlush) {
+                    when(operationDone) { 
+                        popRequest := True
+                        report(L"[SQ] POP_FLUSH: robPtr=${headSlotReg.robPtr}")
+                    }
+                } elsewhen (headSlotReg.hasEarlyException) { // 早期异常的Store，一旦提交即可弹出
+                    popRequest := True
+                    report(L"[SQ] POP_EARLY_EXCEPTION: robPtr=${headSlotReg.robPtr}")
+                } otherwise {
+                    when(operationDone) { 
+                        popRequest := True
+                        report(L"[SQ] POP_NORMAL_STORE/MMIO: robPtr=${headSlotReg.robPtr}, isIO=${headSlotReg.isIO}")
+                    }
+                }
+            }
+
+            // 【第2步：执行动作并更新下一周期状态】
+            // 将所有更新逻辑集中到 `slotsNext` 的生成中，打断时序路径
+            when(popRequest) {
+                // 如果弹出，就移位
+                for (i <- 0 until sbDepth - 1) {
+                    // 注意：我们从 `storage.slotsAfterUpdates` 移位，因为它包含了最新的 commit 信息
+                    storage.slotsNext(i) := storage.slotsAfterUpdates(i + 1)
+                }
+                storage.slotsNext(sbDepth - 1).setDefault()
+                report(L"[SQ] POPPING HEAD: robPtr=${headSlotReg.robPtr}")
+            } otherwise {
+                // 如果不弹出，则继承本周期的组合逻辑更新
+                storage.slotsNext := storage.slotsAfterUpdates
+
+                // 并且，只对头部槽位应用本周期的动作后果
+                when(mmioCmdFired) {
+                    storage.slotsNext(0).sentCmd := True
+                    storage.slotsNext(0).waitRsp := True
+                    report(L"[SQ] CMD_FIRED_MMIO: robPtr=${headSlotReg.robPtr} (slotIdx=0), addr=${headSlotReg.addr} data=${headSlotReg.data} be=${headSlotReg.be}")
+                }
+                when(mmioResponseForHead) {
+                    storage.slotsNext(0).waitRsp := False
+                    val mmioError = hw.mmioWriteChannel.get.rsp.payload.error
                     when(mmioError) {
                         report(L"[SQ-MMIO] MMIO RSP_ERROR received for robPtr=${headSlotReg.robPtr}.")
                         // 标记为有异常以便处理和弹出
-                        storage.slotsAfterUpdates(0).hasEarlyException := True
-                        storage.slotsAfterUpdates(0).earlyExceptionCode := ExceptionCode.STORE_ACCESS_FAULT 
+                        storage.slotsNext(0).hasEarlyException := True
+                        storage.slotsNext(0).earlyExceptionCode := ExceptionCode.STORE_ACCESS_FAULT 
                     } otherwise {
                         report(L"[SQ-MMIO] MMIO RSP_SUCCESS received for robPtr=${headSlotReg.robPtr}.")
                     }
                 }
-            }
-            getServiceOption[DebugDisplayService].foreach(dbg => { 
-                dbg.setDebugValueOnce(mmioResponseForHead, DebugValue.MEM_WRITE_FIRE, expectIncr = true)
-            })
-            hw.mmioWriteChannel.foreach { mmioChannel =>
-                mmioChannel.rsp.ready := mmioResponseForHead
-            }
-
-            // 弹出逻辑
-            val popHeadSlot = storage.slotsAfterUpdates(0)
-            if(enableLog) report("slotsAfterUpdates(0): " :+ popHeadSlot.format)
-            val operationDone = popHeadSlot.sentCmd && !popHeadSlot.waitRsp && !popHeadSlot.isWaitingForRefill && !popHeadSlot.isWaitingForWb
-            val popRequest = False
-            when(popHeadSlot.valid && popHeadSlot.isCommitted) {
-                when(popHeadSlot.isFlush) {
-                    when(operationDone) {
-                        popRequest := True
-                        report(L"[SQ] POP_FLUSH: robPtr=${popHeadSlot.robPtr}")
-                    }
-                } elsewhen (popHeadSlot.hasEarlyException) {
-                    popRequest := True
-                    report(L"[SQ] POP_EARLY_EXCEPTION: robPtr=${popHeadSlot.robPtr}")
-                } otherwise {
-                    when(operationDone) {
-                        popRequest := True
-                        report(L"[SQ] POP_NORMAL_STORE/MMIO: robPtr=${popHeadSlot.robPtr}, isIO=${popHeadSlot.isIO}")
-                    }
-                }
-            } 
-            .elsewhen(!popHeadSlot.valid && !storage.slots.tail.map(_.valid).orR) {
-                popRequest := True
-                if(enableLog) report(L"[SQ] POP_INVALID_SLOT: Clearing invalid head slot.")
-            }
-            when(popRequest) {
-                for (i <- 0 until sbDepth - 1) {
-                    storage.slotsNext(i) := storage.slotsAfterUpdates(i + 1)
-                }
-                storage.slotsNext(sbDepth - 1).setDefault()
             }
         }
 
@@ -513,7 +565,7 @@ class StoreBufferPlugin(
                 // 如果这个 slot 是本周期 PUSH 的目标，使用最新的命令数据
                 // 否则，使用经过其他逻辑（commit, pop等）更新后的组合逻辑视图
                 when(pushPortIn.fire && (push_logic.pushIdx === i)) {
-                    slotsView(i).initFromCommand(pushPortIn.payload)
+                    slotsView(i).initFromCommand(pushPortIn.payload, U(0))
                 } otherwise {
                     // 【关键修复】: 使用 storage.slotsAfterUpdates 而不是 storage.slots
                     slotsView(i) := storage.slotsAfterUpdates(i) 

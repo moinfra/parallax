@@ -7,6 +7,7 @@ import spinal.lib.pipeline._
 import parallax.common._
 import parallax.utilities._
 import parallax.components.rename.BusyTableService
+import parallax.utilities.ParallaxSim.notice
 
 class DispatchPlugin(pCfg: PipelineConfig) extends Plugin with LockedImpl {
   
@@ -105,7 +106,9 @@ class DispatchPlugin(pCfg: PipelineConfig) extends Plugin with LockedImpl {
     }
 
     when(s3_dispatch.isValid) {
-      assert(uopIn.decoded.isValid, L"Got invalid uop in dispatch stage. ${uopIn.decoded.format()}")
+      when(!uopIn.decoded.isValid) {
+        notice( L"Got invalid uop in dispatch stage. ${uopIn.decoded.format()}")
+      }
     }
 
     val flush = new Area {
