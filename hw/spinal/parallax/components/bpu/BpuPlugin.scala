@@ -14,7 +14,7 @@ import parallax.common.HardRedirectService
 case class BpuPluginConfig(
     phtDepth: Int = 1024,
     btbDepth: Int = 256,
-    enableLog: Boolean = true,
+    enableLog: Boolean = false,
     disableForwarding: Boolean = true
 ) {
   require(isPow2(phtDepth), "PHT depth must be a power of 2")
@@ -128,7 +128,7 @@ class BpuPipelinePlugin(
     // ParallaxSim.debugStage(u1_read)
     if (enableLog) {
       when(u1_read.isFiring) {
-        ParallaxSim.debug(
+        if(enableLog) ParallaxSim.debug(
           L"[BPU.U1] Update Firing for PC=0x${(u1_read(U_PAYLOAD).pc)}, isTaken=${u1_read(U_PAYLOAD).isTaken}"
         )
       }
@@ -149,7 +149,7 @@ class BpuPipelinePlugin(
 
     if (enableLog) {
       when(u2_write.isFiring) {
-        ParallaxSim.debug(
+        if(enableLog) ParallaxSim.debug(
           L"[BPU.U2] Write Firing for PC=0x${(u2_updatePayload.pc)} | Old PHT=${u2_oldPhtState} -> New PHT=${newPhtState} | isTaken=${u2_updatePayload.isTaken}, Wr BTB?=${u2_updatePayload.isTaken}"
         )
       }
@@ -227,7 +227,7 @@ class BpuPipelinePlugin(
     responseFlowOut.payload.transactionId := s2_predict(TRANSACTION_ID)
     responseFlowOut.payload.qPc := s2_predict(Q_PC)
     when(s2_predict.isValid) {
-      report(
+      if(enableLog) report(
         L"[BPU] Query PC=0x${(RegNext(queryPortIn.payload.pc))}, TID=${RegNext(queryPortIn.payload.transactionId)} -> Predict: isTaken=${responseFlowOut.payload.isTaken} target=0x${(responseFlowOut.payload.target)}"
       )
     }

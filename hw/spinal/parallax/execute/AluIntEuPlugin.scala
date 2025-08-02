@@ -14,7 +14,7 @@ class AluIntEuPlugin(
     override val euName: String,
     override val pipelineConfig: PipelineConfig
 ) extends EuBasePlugin(euName, pipelineConfig) {
-
+  val enableLog = false
   override def numGprReadPortsPerEu: Int = 2
   override def numFprReadPortsPerEu: Int = 0
 
@@ -111,7 +111,7 @@ class AluIntEuPlugin(
     // Connect inputs to IntAlu
     intAlu.io.iqEntryIn.valid := pipeline.s2_execute.isFiring
     when(pipeline.s2_execute.isFiring) {
-      ParallaxSim.debug(
+      if(enableLog) ParallaxSim.debug(
         Seq(
           L"AluIntEu (${euName}) S2 Firing: ",
           L"For uop@${uopAtS2.pc}, robPtr=${uopAtS2.robPtr}, ResultData=${intAlu.io.resultOut.payload.data}, ",

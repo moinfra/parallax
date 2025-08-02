@@ -28,7 +28,7 @@ package object icache {
       ways: Int,
       bytesPerLine: Int,
       fetchWidth: Int, // Note: fetchWidth is for future use in instruction extraction logic.
-      enableLog: Boolean = true
+      enableLog: Boolean = false
   ) {
     // Derived parameters for easy use in the design
     val linesPerWay = totalSize.toInt / ways / bytesPerLine

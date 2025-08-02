@@ -34,7 +34,7 @@ case class IFetchPort(config: InstructionFetchUnitConfig) extends Bundle with IM
   val flush = Bool()
   override def asMaster(): Unit = { master(cmd); slave(rsp); out(flush) }
 }
-case class InstructionFetchUnitConfig(pCfg: PipelineConfig, dcacheParameters: DataCacheParameters, pcWidth: BitCount = 32 bits, instructionWidth: BitCount = 32 bits, fetchGroupDataWidth: BitCount = 64 bits, enableLog: Boolean = true) {
+case class InstructionFetchUnitConfig(pCfg: PipelineConfig, dcacheParameters: DataCacheParameters, pcWidth: BitCount = 32 bits, instructionWidth: BitCount = 32 bits, fetchGroupDataWidth: BitCount = 64 bits, enableLog: Boolean = false) {
   val xlen: Int = dcacheParameters.cpuDataWidth
   require(fetchGroupDataWidth.value >= xlen, s"IFU fetchGroupDataWidth (${fetchGroupDataWidth.value}) must be >= DCache port xlen (${xlen}).")
   require(fetchGroupDataWidth.value % xlen == 0, s"IFU fetchGroupDataWidth (${fetchGroupDataWidth.value}) must be a multiple of DCache port xlen (${xlen}).")

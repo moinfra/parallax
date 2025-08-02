@@ -31,7 +31,7 @@ class RenameUnit(
     val ratConfig: RenameMapTableConfig,
     val freeListConfig: SimpleFreeListConfig
 ) extends Component {
-
+  val enableLog = false
   val io = slave(RenameUnitIo(pipelineConfig, ratConfig))
 
   // 假设 renameWidth = 1
@@ -97,7 +97,7 @@ class RenameUnit(
   ratWp.archReg := decodedUop.archDest.idx
   ratWp.physReg := io.physRegsIn(slotIdx)
 
-  val logger = new Area {
+  val logger = enableLog generate new Area {
     when(uopNeedsNewPhysDest) {
       report(
         Seq(

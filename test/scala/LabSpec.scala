@@ -12,6 +12,7 @@ import _root_.test.scala.LA32RInstrBuilder._
 import java.io.BufferedOutputStream
 import java.io.FileOutputStream
 import parallax.issue.CommitSlotLog
+import parallax.components.uart.UartWrapperBlackbox
 
 /** Testbench for LabSpec.
   * This component wraps the CoreNSCSCC DUT and connects it to two SimulatedSRAM instances,
@@ -28,11 +29,12 @@ class LabTestBench(
   ) extends Component {
 
   val dut = new CoreNSCSCC(simDebug = true)
-
+  val uartWrapper = new UartWrapperBlackbox(
+    clk_freq = 100000000L, // 必须与CPU时钟匹配
+    uart_baud = 9600
+  )
   val io = new Bundle {
     val commitStats = out(CommitStats())
-    val simRxData = in Bits (8 bits) default (B(0, 8 bits))
-    val simRxDataValid = in Bool () default (False)
     val rxd = in Bool () default (False)
     val txd = out Bool ()
   }
@@ -106,52 +108,45 @@ class LabTestBench(
     clockHz = 100000000L // Matches clk_cpu frequency
   )
   // --- Connect CoreNSCSCC's UART AXI Master to LabUartSim's AXI Slave ---
-  // This is the crucial part that directly maps your CoreNSCSCCIo's individual signals
-  // to LabUartSim's Axi4 bundle signals.
-  labUartSim.io.simRxData := io.simRxData
-  labUartSim.io.simRxDataValid := io.simRxDataValid
-  labUartSim.io.rxd := io.rxd
-  io.txd := labUartSim.io.txd
-  labUartSim.io.simPublic()
+    // 连接 uart_wrapper 的物理串口线到顶层IO
+  uartWrapper.io.rxd := io.rxd
+  io.txd := uartWrapper.io.txd
+  
+  // --- 4. 连接CPU的AXI接口到uart_wrapper的扁平化AXI接口 ---
+  // 这是最关键也是最繁琐的一步，但必须精确匹配
+  uartWrapper.io.io_uart_ar_valid := dut.io.uart_ar_valid
+  uartWrapper.io.io_uart_ar_id    := dut.io.uart_ar_bits_id
+  uartWrapper.io.io_uart_ar_addr  := dut.io.uart_ar_bits_addr
+  uartWrapper.io.io_uart_ar_len   := dut.io.uart_ar_bits_len
+  uartWrapper.io.io_uart_ar_size  := dut.io.uart_ar_bits_size
+  uartWrapper.io.io_uart_ar_burst := dut.io.uart_ar_bits_burst
+  dut.io.uart_ar_ready            := uartWrapper.io.io_uart_ar_ready
 
-  // AR channel (Read Address)
-  labUartSim.io.axi.ar.valid := dut.io.uart_ar_valid
-  labUartSim.io.axi.ar.payload.id := dut.io.uart_ar_bits_id.asUInt.resized
-  labUartSim.io.axi.ar.payload.addr := dut.io.uart_ar_bits_addr.asUInt.resized
-  labUartSim.io.axi.ar.payload.len := dut.io.uart_ar_bits_len.asUInt.resized
-  labUartSim.io.axi.ar.payload.size := dut.io.uart_ar_bits_size.asUInt.resized
-  labUartSim.io.axi.ar.payload.burst := dut.io.uart_ar_bits_burst.asBits // burst is Bits in SpinalHDL AXI
-  dut.io.uart_ar_ready := labUartSim.io.axi.ar.ready
+  dut.io.uart_r_valid             := uartWrapper.io.io_uart_r_valid
+  dut.io.uart_r_bits_id           := uartWrapper.io.io_uart_r_id
+  dut.io.uart_r_bits_data         := uartWrapper.io.io_uart_r_data
+  dut.io.uart_r_bits_resp         := uartWrapper.io.io_uart_r_resp
+  dut.io.uart_r_bits_last         := uartWrapper.io.io_uart_r_last
+  uartWrapper.io.io_uart_r_ready  := dut.io.uart_r_ready
 
-  // R channel (Read Data)
-  dut.io.uart_r_bits_id := labUartSim.io.axi.r.payload.id.asBits.resized
-  dut.io.uart_r_bits_resp := labUartSim.io.axi.r.payload.resp.asBits
-  dut.io.uart_r_bits_data := labUartSim.io.axi.r.payload.data.asBits
-  dut.io.uart_r_bits_last := labUartSim.io.axi.r.payload.last
-  dut.io.uart_r_valid := labUartSim.io.axi.r.valid
-  labUartSim.io.axi.r.ready := dut.io.uart_r_ready
+  uartWrapper.io.io_uart_aw_valid := dut.io.uart_aw_valid
+  uartWrapper.io.io_uart_aw_id    := dut.io.uart_aw_bits_id
+  uartWrapper.io.io_uart_aw_addr  := dut.io.uart_aw_bits_addr
+  uartWrapper.io.io_uart_aw_len   := dut.io.uart_aw_bits_len
+  uartWrapper.io.io_uart_aw_size  := dut.io.uart_aw_bits_size
+  uartWrapper.io.io_uart_aw_burst := dut.io.uart_aw_bits_burst
+  dut.io.uart_aw_ready            := uartWrapper.io.io_uart_aw_ready
 
-  // AW channel (Write Address)
-  labUartSim.io.axi.aw.valid := dut.io.uart_aw_valid
-  labUartSim.io.axi.aw.payload.id := dut.io.uart_aw_bits_id.asUInt.resized
-  labUartSim.io.axi.aw.payload.addr := dut.io.uart_aw_bits_addr.asUInt.resized
-  labUartSim.io.axi.aw.payload.len := dut.io.uart_aw_bits_len.asUInt.resized
-  labUartSim.io.axi.aw.payload.size := dut.io.uart_aw_bits_size.asUInt.resized
-  labUartSim.io.axi.aw.payload.burst := dut.io.uart_aw_bits_burst.asBits
-  dut.io.uart_aw_ready := labUartSim.io.axi.aw.ready
+  uartWrapper.io.io_uart_w_valid  := dut.io.uart_w_valid
+  uartWrapper.io.io_uart_w_data   := dut.io.uart_w_bits_data
+  uartWrapper.io.io_uart_w_strb   := dut.io.uart_w_bits_strb
+  uartWrapper.io.io_uart_w_last   := dut.io.uart_w_bits_last
+  dut.io.uart_w_ready             := uartWrapper.io.io_uart_w_ready
 
-  // W channel (Write Data)
-  labUartSim.io.axi.w.valid := dut.io.uart_w_valid
-  labUartSim.io.axi.w.payload.data := dut.io.uart_w_bits_data
-  labUartSim.io.axi.w.payload.strb := dut.io.uart_w_bits_strb
-  labUartSim.io.axi.w.payload.last := dut.io.uart_w_bits_last
-  dut.io.uart_w_ready := labUartSim.io.axi.w.ready
-
-  // B channel (Write Response)
-  dut.io.uart_b_bits_id := labUartSim.io.axi.b.payload.id.asBits.resized
-  dut.io.uart_b_bits_resp := labUartSim.io.axi.b.payload.resp.asBits
-  dut.io.uart_b_valid := labUartSim.io.axi.b.valid
-  labUartSim.io.axi.b.ready := dut.io.uart_b_ready
+  dut.io.uart_b_valid             := uartWrapper.io.io_uart_b_valid
+  dut.io.uart_b_bits_id           := uartWrapper.io.io_uart_b_id
+  dut.io.uart_b_bits_resp         := uartWrapper.io.io_uart_b_resp
+  uartWrapper.io.io_uart_b_ready  := dut.io.uart_b_ready
 
   // --- Connect Physical Serial Lines (txd/rxd) ---
   // CoreNSCSCC's txd/rxd are not part of its `io` bundle directly,

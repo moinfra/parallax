@@ -33,7 +33,7 @@ class StoreRingBufferPlugin(
     with LockedImpl {
   require(isPow2(sbDepth), s"StoreRingBufferPlugin depth must be a power of two. Got $sbDepth.")
 
-  val enableLog = true // 控制关键事件日志
+  val enableLog = false // 控制关键事件日志
   val verbose = true // 控制高频/每周期日志
 
   // --- Hardware Area: Define all hardware interfaces ---
@@ -765,7 +765,7 @@ class StoreRingBufferPlugin(
           )
         }
       }
-      debug("...")
+      if(enableLog) debug("...")
       // --- Resource Release ---
       hw.robServiceInst.release()
       hw.sgmbServiceOpt.foreach(_.release())

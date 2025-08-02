@@ -13,7 +13,7 @@ class ROBPlugin[RU <: Data with Formattable with HasRobPtr](
     val defaultUop: () => RU // 显式传递 Uop 默认值构造函数
 ) extends Plugin
     with ROBService[RU] {
-
+      val enableLog = false
   val robConfig = ROBConfig[RU](
     robDepth = pipelineConfig.robDepth,
     pcWidth = pipelineConfig.pcWidth,
@@ -147,11 +147,11 @@ class ROBPlugin[RU <: Data with Formattable with HasRobPtr](
       ParallaxLogger.log(s"ROBPlugin: Aggregated ${flushPortsList.size} flush ports with OR logic")
 
       when(aggregatedFlushSignal.valid) {
-        report(L"[ROBPlugin] Aggregated flush signal is valid! Total ports: ${flushPortsList.size}")
+        if(enableLog) report(L"[ROBPlugin] Aggregated flush signal is valid! Total ports: ${flushPortsList.size}")
       }
       for (i <- flushPortsList.indices) {
         when(flushPortsList(i).valid) {
-          report(L"[ROBPlugin] Flush port ${i} is valid (reason=${flushPortsList(i).payload.reason})")
+          if(enableLog) report(L"[ROBPlugin] Flush port ${i} is valid (reason=${flushPortsList(i).payload.reason})")
         }
       }
     } else {
@@ -165,14 +165,14 @@ class ROBPlugin[RU <: Data with Formattable with HasRobPtr](
     robComponent.io.flush.payload := aggregatedFlushSignal.payload
 
     when(robComponent.io.flush.valid) {
-      report(L"[ROBPlugin] ROB component flush input is valid!")
+      if(enableLog) report(L"[ROBPlugin] ROB component flush input is valid!")
     }
 
     // 并行监控所有写回端口，用于调试
     for ((euName, wbPort) <- writebackPortInfo) {
       when(wbPort.fire) {
         // 每当有任何一个写回端口触发fire，就打印其来源和内容
-        report(
+        if(enableLog) report(
           L"[ROBPlugin] Writeback detected!" :+
             L" Source EU Name: '$euName'" :+
             L" robPtr: ${wbPort.robPtr}" :+

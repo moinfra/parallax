@@ -126,8 +126,8 @@ class LoadRingBufferPlugin(
     with LoadQueueService {
   require(isPow2(lqDepth), s"LoadRingBufferPlugin depth must be a power of two. Got $lqDepth.")
 
-  val enableLog = true // 控制关键事件日志
-  val verbose = true // 控制高频/每周期日志
+  val enableLog = false // 控制关键事件日志
+  val verbose = false // 控制高频/每周期日志
 
   // --- Service Interface Implementation ---
   private val pushPorts = ArrayBuffer[Stream[LoadQueuePushCmd]]()
@@ -670,7 +670,7 @@ class LoadRingBufferPlugin(
         }
       }
 
-      debug("...")
+      if(enableLog) debug("...")
 
       // --- Resource Release ---
       hw.robServiceInst.release()

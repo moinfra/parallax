@@ -79,6 +79,7 @@ class IssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
   // 实例化 IO
   val io = slave (IssueQueueComponentIo(iqConfig, numWakeupPorts))
   val idStr = s"${iqConfig.name}-${id.toString()}"
+  val enableLog = false
 
   val wakeupInReg = RegNextWhen(io.wakeupIn, cond = !io.flush) initZero()
   when(io.flush) {
@@ -244,7 +245,7 @@ when(io.flush) {
   val currentValidCount = CountOne(entryValids)
 
   // 为了减少日志量，只在有活动（分配或发射）时打印状态
-  val logCondition = io.allocateIn.fire || io.issueOut.fire
+  val logCondition = (io.allocateIn.fire || io.issueOut.fire) && Bool(enableLog)
   
   when(logCondition) {
     ParallaxSim.log(

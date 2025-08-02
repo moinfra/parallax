@@ -19,7 +19,7 @@ case class ProgramCounterIo(pCfg: PipelineConfig) extends Bundle with IMasterSla
 
 class ProgramCounter(
     pCfg: PipelineConfig,
-    enableLog: Boolean = true // +++ 新增参数 +++
+    enableLog: Boolean = false // +++ 新增参数 +++
 ) extends Component {
 
   val io = ProgramCounterIo(pCfg)

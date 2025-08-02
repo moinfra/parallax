@@ -135,7 +135,7 @@ class AguPlugin(
 ) extends Plugin
     with AguService
     with LockedImpl {
-  val enableLog = true
+  val enableLog = false
 
   // --- 结构性修复 1: 改变数据结构以存储绑定的资源 ---
   // ArrayBuffer 现在存储一个元组: (外部请求的AGU端口, 为其创建的PRF基址读端口, 为其创建的PRF数据读端口)
@@ -255,7 +255,7 @@ class AguPlugin(
           val mmioHits = mmioRanges.map(_.contains(addressCalc.effectiveAddress))
           isInMmioRange := mmioHits.fold(False)(_ || _)
           when(isInMmioRange) {
-            notice(L"MMIO range hit! address=0x${addressCalc.effectiveAddress}")
+           if(enableLog) notice(L"MMIO range hit! address=0x${addressCalc.effectiveAddress}")
           }
         }
 
@@ -274,7 +274,7 @@ class AguPlugin(
 
           // 原始的 AGU Debug 日志，现在更名为 AGU-S1-Output-Debug
           when(s1.valid) {
-              ParallaxSim.log(
+              if(enableLog) ParallaxSim.log(
                 L"[AGU-${i}-S1-Output-Debug] s1.payload=${s1.payload.format} " :+
                 L"baseData=0x${(baseData)} " :+ // 打印最终选择的 baseData
                 L"==> effAddr=0x${(addressCalc.effectiveAddress)}"

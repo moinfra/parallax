@@ -60,7 +60,7 @@ class PhysicalRegFilePlugin(
 ) extends Plugin
     with PhysicalRegFileService
     with LockedImpl {
-
+  val enableLog = false
   private case class PrfReadPortRequest(port: PrfReadPort, traceName: String, isFromDebugger: Boolean)
   private case class PrfWritePortRequest(port: PrfWritePort, traceName: String)
 
@@ -110,7 +110,7 @@ class PhysicalRegFilePlugin(
       
       if (!req.isFromDebugger) {
         when(req.port.valid) {
-          ParallaxSim.log(
+          if(enableLog) ParallaxSim.log(
             L"[PRegPlugin] Read from `${req.traceName}` on reg[p${req.port.address}] -> ${req.port.rsp}"
           )
         }
@@ -143,7 +143,7 @@ class PhysicalRegFilePlugin(
           regFile(req.port.address) := req.port.data
 
           // 仿真日志
-          ParallaxSim.log(
+          if(enableLog) ParallaxSim.log(
             L"[PRegPlugin] Write from `${req.traceName}` to reg[p${req.port.address}] with data ${req.port.data}"
           )
         }

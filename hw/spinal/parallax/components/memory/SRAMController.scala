@@ -22,7 +22,7 @@ case class SRAMConfig(
     sramByteEnableIsActiveLow: Boolean = true,
     // --- NEW ---: 添加字地址模式配置
     useWordAddressing: Boolean = false,
-    enableLog: Boolean = true,
+    enableLog: Boolean = false,
     enableValidation: Boolean = false,
 ) {
   require(isPow2(dataWidth / 8), "dataWidth must be a power of 2 bytes")

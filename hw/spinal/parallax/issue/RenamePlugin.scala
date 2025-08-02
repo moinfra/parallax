@@ -20,7 +20,7 @@ class RenamePlugin(
 ) extends Plugin
     with LockedImpl {
 
-  val enableLog = true
+  val enableLog = false
   // --- 定义新的流水线载荷 (Stageable) ---
   // 用于从 S1 传递分配好的物理寄存器号到 S2
   val ALLOCATED_PHYS_REGS = Stageable(Vec.fill(pipelineConfig.renameWidth)(UInt(ratConfig.physRegIdxWidth)))
@@ -91,7 +91,7 @@ class RenamePlugin(
         val wantsToAllocate = s1_rename.isValid && needsPhysRegVec(i) && !allocationGrantedReg(i)
         flAllocPorts(i).enable := wantsToAllocate // FreeList 会在 enable 为 True 时分配物理寄存器，如果持续 True，会导致分配泄露
         when(wantsToAllocate) {
-          debug(L"pc=${decodedUops(i).pc} wantsToAllocate is true and success=${flAllocPorts(i).success}," :+
+          if(enableLog) debug(L"pc=${decodedUops(i).pc} wantsToAllocate is true and success=${flAllocPorts(i).success}," :+
           L" in.valid = ${s1_rename.isValid} in.ready = ${s1_rename.isReady} ":+
           L"granted_reg=${allocationGrantedReg(i)} allocated_reg=${flAllocPorts(i).physReg} " :+
           L"isFiring=${s1_rename.isFiring} isFlushed=${s1_rename.isFlushed}"
@@ -118,7 +118,7 @@ class RenamePlugin(
       // 3. 如果分配失败，暂停 S1
       when(!allocationOk) {
         s1_rename.haltIt()
-        notice(L"[RegAlloc] S1: Failed to allocate physical registers. Halting pipeline at S1.")
+        if(enableLog) notice(L"[RegAlloc] S1: Failed to allocate physical registers. Halting pipeline at S1.")
       }
 
       for(i <- 0 until pipelineConfig.renameWidth) {
@@ -180,7 +180,7 @@ class RenamePlugin(
 
           // 可选的调试信息
           when(uopOut.rename.allocatesPhysDest) {
-            notice(L"uop@${uopOut.decoded.pc} renamed with p${uopOut.rename.physDest.idx} (allocated in S1)")
+            if(enableLog) notice(L"uop@${uopOut.decoded.pc} renamed with p${uopOut.rename.physDest.idx} (allocated in S1)")
           }
         }
         
@@ -190,7 +190,7 @@ class RenamePlugin(
 
         val prevSuccCounter = RegNext(successCounter, init = U(0))
         when(consumeCounter =/= prevSuccCounter){
-          fatal(L"Some pregs are leaked or reused!!! Allocated: ${prevSuccCounter}, Consumed: ${consumeCounter}")
+          if(enableLog) fatal(L"Some pregs are leaked or reused!!! Allocated: ${prevSuccCounter}, Consumed: ${consumeCounter}")
         }
       }
     }

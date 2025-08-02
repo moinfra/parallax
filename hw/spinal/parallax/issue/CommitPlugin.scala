@@ -104,7 +104,7 @@ class CommitPlugin(
     with CommitService {
   assert(pipelineConfig.commitWidth == 1, "This revised logic currently supports commitWidth=1 only.")
 
-  val enableLog = true // 控制是否启用周期性详细日志
+  val enableLog = false // 控制是否启用周期性详细日志
 
   // Service interface state (这部分保持不变)
   private val commitEnableExt = Bool()
@@ -201,7 +201,7 @@ class CommitPlugin(
       hw.redirectPort.payload := hardRedirectTarget
 
       // 4. 日志记录冲刷事件
-      ParallaxSim.notice(
+      if(enableLog) ParallaxSim.notice(
         L"FLUSH EXECUTION: Flushing pipeline due to mispredict. Redirecting to 0x${hardRedirectTarget}."
       )
     }
@@ -238,7 +238,7 @@ class CommitPlugin(
           ratCommitUpdatePort.wen := True
           ratCommitUpdatePort.archReg := headUop.decoded.archDest.idx
           ratCommitUpdatePort.physReg := headUop.rename.physDest.idx
-          debug(
+          if(enableLog) debug(
             L"[RegRes] Update ARAT: archReg=a${ratCommitUpdatePort.archReg}, physReg=p${ratCommitUpdatePort.physReg}"
           )
         }
@@ -247,7 +247,7 @@ class CommitPlugin(
         when(headUop.rename.allocatesPhysDest) {
           freePorts(0).enable := True
           freePorts(0).physReg := headUop.rename.oldPhysDest.idx
-          debug(
+          if(enableLog) debug(
             L"[RegRes] freelist recycle reg p${headUop.rename.oldPhysDest.idx} (committing PC=0x${headUop.decoded.pc})"
           )
         }
@@ -258,7 +258,7 @@ class CommitPlugin(
           bpuUpdatePort.payload.pc := headUop.decoded.pc
           bpuUpdatePort.payload.isTaken := headSlot.entry.status.isTaken
           bpuUpdatePort.payload.target := headSlot.entry.status.targetPc
-          debug(
+          if(enableLog) debug(
             L"[COMMIT] BPU UPDATE: pc=0x${bpuUpdatePort.payload.pc}, isTaken=${bpuUpdatePort.payload.isTaken}, target=0x${bpuUpdatePort.payload.target}"
           )
         }
@@ -277,7 +277,7 @@ class CommitPlugin(
 
         // 无论怎样只要提交就创建检查点，尤其对于有副作用的BL和JIRL指令
         saveCheckpointTrigger := True
-        debug(L"CHECKPOINT: Save checkpoint triggered on successful commit. PC=0x${headUop.decoded.pc}")
+        if(enableLog) debug(L"CHECKPOINT: Save checkpoint triggered on successful commit. PC=0x${headUop.decoded.pc}")
         when(mispredictedBranchCanCommit) {
           ParallaxSim.notice(
             L"MISPREDICT MARK (T): Marking for flush in next cycle. PC=0x${headUop.decoded.pc}, " :+
@@ -378,7 +378,7 @@ class CommitPlugin(
     // === 集中式周期性日志打印 ===
     if (enableLog) {
 
-      debug(
+      if(enableLog) debug(
         L"[COMMIT] Cycle ${counter} Log: " :+
           L"Stats=${commitStatsReg.format}\n" :+
           L"  Slot Details: ${commitSlotLogs.map(s => L"\n    Slot: ${s.format} commitPc=0x${s0.commitPcs(0)}")}" // 为每个槽位格式化输出，每个槽位独占一行
@@ -387,13 +387,13 @@ class CommitPlugin(
       // 只打印首次 valid=1 和 doCommit = 1
       val prevValid = RegNext(commitSlots(0).valid, init = False)
       when(!prevValid && commitSlots(0).valid) {
-        debug(
+        if(enableLog) debug(
           L"[COMMIT] Cycle ${counter} Log: " :+
             L"Stats=${commitStatsReg.format}\n" :+
             L"  Slot Details: ${commitSlotLogs(0).format} commitAck=${commitAcks(0)} commitPc=0x${s0.commitPcs(0)}" // 只打印第一个槽位
         )
       } elsewhen (commitAcks(0)) {
-        debug(
+        if(enableLog) debug(
           L"[COMMIT] Cycle ${counter} Log: " :+
             L"Stats=${commitStatsReg.format}\n" :+
             L"  Slot Details: ${commitSlotLogs(0).format} commitAck=${commitAcks(0)} commitPc=0x${s0.commitPcs(0)}" // 只打印第一个槽位

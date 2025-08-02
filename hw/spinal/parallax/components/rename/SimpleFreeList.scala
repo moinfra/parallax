@@ -81,7 +81,7 @@ case class SimpleFreeListIO(config: SimpleFreeListConfig) extends Bundle with IM
 // --- SimpleFreeList 组件主体 ---
 class SimpleFreeList(val config: SimpleFreeListConfig) extends Component {
   val io = slave(SimpleFreeListIO(config))
-  val enableLog = true
+  val enableLog = false
   val verbose = false
 
   // =========================================================================

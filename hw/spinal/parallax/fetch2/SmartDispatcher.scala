@@ -291,7 +291,7 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
     }
 
     WAITING_FOR_BPU.whenIsActive {
-      report(L"DISPATCH-WAIT-DEBUG: Current State (BEFORE flush check): io.flush=${io.flush}, io.bpuRsp.valid=${io.bpuRsp.valid}, io.bpuRsp.payload.transactionId=${io.bpuRsp.payload.transactionId}, pendingTID=${pendingBpuQueryReg.bpuTransactionId}")
+      if(enableLog) report(L"DISPATCH-WAIT-DEBUG: Current State (BEFORE flush check): io.flush=${io.flush}, io.bpuRsp.valid=${io.bpuRsp.valid}, io.bpuRsp.payload.transactionId=${io.bpuRsp.payload.transactionId}, pendingTID=${pendingBpuQueryReg.bpuTransactionId}")
       when(io.flush) {
         ParallaxSim.notice(L"DISPATCHER: Flushing while WAITING_FOR_BPU. -> DRAINING_BPU")
         // isBusyReg 保持为 True，由 DRAINING_BPU 状态清理

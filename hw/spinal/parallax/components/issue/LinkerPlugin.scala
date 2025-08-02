@@ -21,7 +21,7 @@ import parallax.components.issue._ // 确保这里引入了所有IQ相关的类�
  * 5. Connecting global signals like wakeup and flush to all IQs.
  */
 class LinkerPlugin(pCfg: PipelineConfig) extends Plugin with LockedImpl {
-
+  val enableLog = false // Enable simulation-time logging for data flow between IQ and EU
   // A helper case class to hold a pair of an EU and its IQ.
   // We use Any to avoid complex generic type issues while maintaining functionality.
   // Note: While 'issueQueue' is typed as IssueQueueComponent, we will instantiate
@@ -139,7 +139,7 @@ class LinkerPlugin(pCfg: PipelineConfig) extends Plugin with LockedImpl {
         for (conn <- connections) {
           conn.issueQueue.io.flush := doHardRedirect
         }
-        ParallaxSim.logWhen(doHardRedirect, L"LinkerPlugin: Global doHardRedirect signal is asserted!")
+        if(enableLog) ParallaxSim.logWhen(doHardRedirect, L"LinkerPlugin: Global doHardRedirect signal is asserted!")
       })
     }
 
@@ -152,7 +152,7 @@ class LinkerPlugin(pCfg: PipelineConfig) extends Plugin with LockedImpl {
 
       // Add simulation-time logging to trace the data flow between IQ and EU
       when(conn.execUnit.getEuInputPort.fire) {
-        ParallaxSim.log(
+        if(enableLog) ParallaxSim.log(
           L"LinkerPlugin-Trace: Firing from IQ '${conn.issueQueue.idStr}' to EU '${conn.execUnit.euName}'. " :+
           L"RobPtr=${conn.execUnit.getEuInputPort.payload.robPtr}"
         )

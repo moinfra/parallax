@@ -222,7 +222,7 @@ class StoreBufferPlugin(
     val mmioConfig: Option[GenericMemoryBusConfig] = None
 ) extends Plugin with StoreBufferService with LockedImpl {
     ParallaxLogger.debug("Creating Store Buffer Plugin, mmioConfig = " + mmioConfig.toString())
-    val enableLog = true
+    val enableLog = false
     val hw = create early new Area {
         val pushPortInst      = Stream(StoreBufferPushCmd(pipelineConfig, lsuConfig))
         val bypassQueryAddrIn = UInt(pipelineConfig.pcWidth)

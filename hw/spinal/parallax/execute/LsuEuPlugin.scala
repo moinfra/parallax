@@ -20,7 +20,7 @@ class LsuEuPlugin(
     val defaultIsIO: Boolean = false,
     val defaultIsCoherent: Boolean = true,
 ) extends EuBasePlugin(euName, pipelineConfig) {
-
+  val enableLog = false
   // =========================================================================
   // === EuBasePlugin 契约实现 (修正版) ===
   // =========================================================================
@@ -73,7 +73,7 @@ class LsuEuPlugin(
     val uop = euIn.payload
     val isStore = uop.memCtrl.isStore
     when(euIn.fire) {
-      report(L"[LsuEu_INPUT] Firing into EU: robPtr=${euIn.payload.robPtr}, isStore=${euIn.payload.memCtrl.isStore}")
+      if(enableLog) report(L"[LsuEu_INPUT] Firing into EU: robPtr=${euIn.payload.robPtr}, isStore=${euIn.payload.memCtrl.isStore}")
     }
     // --- 2. 将EU输入流转换为AGU输入流 ---
     val aguInStream = euIn.translateWith {
@@ -150,8 +150,8 @@ class LsuEuPlugin(
 
     // 只有当分派事件发生时才进行处理
     when(dispatchCompleted) {
-        ParallaxSim.logWhen(aguOutPayload.isLoad, L"[LsuEu] Dispatched LOAD to LQ: robPtr=${aguOutPayload.robPtr}")
-        ParallaxSim.logWhen(aguOutPayload.isStore, L"[LsuEu] Dispatched STORE to SB: robPtr=${aguOutPayload.robPtr} pc=${aguOutPayload.pc} addr=${aguOutPayload.address} data=${aguOutPayload.storeData}")
+        if(enableLog) ParallaxSim.logWhen(aguOutPayload.isLoad, L"[LsuEu] Dispatched LOAD to LQ: robPtr=${aguOutPayload.robPtr}")
+        if(enableLog) ParallaxSim.logWhen(aguOutPayload.isStore, L"[LsuEu] Dispatched STORE to SB: robPtr=${aguOutPayload.robPtr} pc=${aguOutPayload.pc} addr=${aguOutPayload.address} data=${aguOutPayload.storeData}")
         
     // 对于Store指令，进入Store Buffer就可以认为其“执行阶段”完成。
     // ROB可以继续处理，等待该Store指令成为队头再提交到内存。
@@ -172,7 +172,7 @@ class LsuEuPlugin(
           euResult.exceptionCode := ExceptionCode.STORE_ADDRESS_MISALIGNED
           euResult.destIsFpr     := False
 
-          report(L"[LsuEu] Completed STORE: robPtr=${aguOutPayload.robPtr} pc=${aguOutPayload.pc} addr=${aguOutPayload.address} data=${aguOutPayload.storeData}")
+          if(enableLog) report(L"[LsuEu] Completed STORE: robPtr=${aguOutPayload.robPtr} pc=${aguOutPayload.pc} addr=${aguOutPayload.address} data=${aguOutPayload.storeData}")
       }
     }
 

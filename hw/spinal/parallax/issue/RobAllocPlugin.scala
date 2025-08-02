@@ -9,7 +9,7 @@ import parallax.utilities.{Plugin, LockedImpl, ParallaxLogger}
 import parallax.utilities.ParallaxSim.notice
 
 class RobAllocPlugin(val pCfg: PipelineConfig) extends Plugin with LockedImpl {
-
+  val enableLog = false
   val setup = create early new Area {
     val issuePpl = getService[IssuePipeline]
     val robService = getService[ROBService[RenamedUop]]
@@ -30,7 +30,7 @@ class RobAllocPlugin(val pCfg: PipelineConfig) extends Plugin with LockedImpl {
     // 1. 停顿决策：只关心 ROB 是否已满
     s2_rob_alloc.haltWhen(!robAllocPorts(0).ready)
     when(s2_rob_alloc.isValid && !robAllocPorts(0).ready) {
-      notice(L"S2 STALLED BY ROB")
+      if(enableLog) notice(L"S2 STALLED BY ROB")
     }
     // 2. 驱动 ROB 分配端口
     // 【关键】: 数据源是 RENAMED_UOPS
@@ -60,7 +60,7 @@ class RobAllocPlugin(val pCfg: PipelineConfig) extends Plugin with LockedImpl {
         outUop.robPtr       := robAllocPorts(i).robPtr
 
         when(robAllocPorts(i).valid) {
-          report(L"S2: ROB Allocated robPtr=${outUop.robPtr} for uop@${inUop.decoded.pc}")
+          if(enableLog) report(L"S2: ROB Allocated robPtr=${outUop.robPtr} for uop@${inUop.decoded.pc}")
         }
     }
     
@@ -69,7 +69,7 @@ class RobAllocPlugin(val pCfg: PipelineConfig) extends Plugin with LockedImpl {
         doGlobalFlush := hr.doHardRedirect()
         when(doGlobalFlush) {
           s2_rob_alloc.flushIt()
-          report(L"DispatchPlugin: (s3): Flushing pipeline due to hard redirect")
+          if(enableLog) report(L"DispatchPlugin: (s3): Flushing pipeline due to hard redirect")
         }
       })
     }

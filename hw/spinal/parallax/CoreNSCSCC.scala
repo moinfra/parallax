@@ -287,9 +287,9 @@ class CoreMemSysPlugin(axiConfig: Axi4Config, mmioConfig: GenericMemoryBusConfig
     // 创建Crossbar，实现新的内存映射
     val crossbar = Axi4CrossbarFactory()
 
-    // BaseRAM: 0x80000000～0x800FFFFF (1MB)
+    // BaseRAM
     crossbar.addSlave(hw.baseramCtrl.io.axi, SizeMapping(BigInt("80000000", 16), hw.sramSize))
-    // ExtRAM: 0x80100000～0x801FFFFF (1MB)
+    // ExtRAM
     crossbar.addSlave(hw.extramCtrl.io.axi, SizeMapping(BigInt("80400000", 16), hw.sramSize))
 
     // 暴露SRAM控制器以便外部连接
@@ -687,7 +687,7 @@ class CoreNSCSCC(simDebug: Boolean = false, injectAxi: Boolean = false) extends 
 object CoreNSCSCCGen extends App {
   val spinalConfig = SpinalConfig(
     defaultConfigForClockDomains = ClockDomainConfig(resetKind = SYNC),
-    defaultClockDomainFrequency = FixedFrequency(50 MHz),
+    defaultClockDomainFrequency = FixedFrequency(100 MHz),
     targetDirectory = "soc"
   )
   spinalConfig.addTransformationPhase(new EnforceSyncRamPhase)

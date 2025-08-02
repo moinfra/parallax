@@ -33,7 +33,7 @@ abstract class EuBasePlugin(
     val pipelineConfig: PipelineConfig
 ) extends Plugin // Plugin 已经继承了 Area 和 Service
     with LockedImpl { // LockedImpl 用于 lock.await()
-
+  private val enableLog = false
   // --- 需要由派生 EU 实现的抽象成员 ---
   type T_IQEntry <: Bundle with IQEntryLike // EU 特定 IQ Entry Bundle 的类型
   def iqEntryType: HardType[T_IQEntry] // 返回 EU 特定 IQ Entry 的 HardType
@@ -230,7 +230,7 @@ abstract class EuBasePlugin(
     val isFlushed = robFlushPort.valid
     
     when(isFlushed && euResult.valid) {
-      report(L"EUBase ($euName): Killing in-flight uop. robPtr=${uopAtWb.robPtr}, flushTarget=${robFlushPort.payload.targetRobPtr}")
+      if(enableLog) report(L"EUBase ($euName): Killing in-flight uop. robPtr=${uopAtWb.robPtr}, flushTarget=${robFlushPort.payload.targetRobPtr}")
     }
 
     // --- 修改：指令完成的定义现在必须考虑冲刷信号 ---
@@ -242,7 +242,7 @@ abstract class EuBasePlugin(
 
     // 用于调试的日志
     when(euResult.valid) {
-      report(L"EUBase ($euName): Result valid, writesToPreg=${euResult.writesToPreg}, hasException=${euResult.hasException}, executionCompletes=${executionCompletes}, completesSuccessfully=${completesSuccessfully}, isFlushed=${isFlushed}")
+      if(enableLog) report(L"EUBase ($euName): Result valid, writesToPreg=${euResult.writesToPreg}, hasException=${euResult.hasException}, executionCompletes=${executionCompletes}, completesSuccessfully=${completesSuccessfully}, isFlushed=${isFlushed}")
     }
     getServiceOption[DebugDisplayService].foreach(dbg => { 
       dbg.setDebugValueOnce(executionCompletes, DebugValue.EXEC_FIRE, expectIncr = true)
@@ -302,7 +302,7 @@ abstract class EuBasePlugin(
     
     // RAW HAZARD DEBUG: Track when each EU clears busy bits (only for registers 1-5 and only when actually writing)
     when(executionCompletes && euResult.writesToPreg && uopAtWb.physDest.idx < 6) {
-      report(L"[RAW_DEBUG] EU ($euName) clearing BusyTable: physReg=p${uopAtWb.physDest.idx}, robPtr=${uopAtWb.robPtr}")
+      if(enableLog) report(L"[RAW_DEBUG] EU ($euName) clearing BusyTable: physReg=p${uopAtWb.physDest.idx}, robPtr=${uopAtWb.robPtr}")
     }
     
     ParallaxLogger.log(s"EUBase ($euName): BusyTable 清除逻辑已连接。")
@@ -351,7 +351,7 @@ abstract class EuBasePlugin(
       // ParallaxLogger.error(s"$euName 尝试 FPR 读取，但 FPU 未全局启用。") // 此错误更适合在配置时捕获
       stage(prfDataTarget).assignDontCare()
       when(stage.isFiring && useThisSrcSignal) {
-        report(L"SIM_ERROR: $euName: FPU 在 pipelineConfig 中禁用时尝试 FPR 读取。物理寄存器: ${physRegIdx}")
+        if(enableLog) report(L"SIM_ERROR: $euName: FPU 在 pipelineConfig 中禁用时尝试 FPR 读取。物理寄存器: ${physRegIdx}")
         stage.haltIt()
       }
       return
@@ -361,7 +361,7 @@ abstract class EuBasePlugin(
       ParallaxLogger.error(s"$euName (类型: $reason) 尝试 FPR 读取。设计错误。")
       stage(prfDataTarget).assignDontCare()
       when(stage.isFiring && useThisSrcSignal) {
-        report(L"SIM_ERROR: $euName: 非 FPR EU 或 FPR 服务缺失时尝试 FPR 读取。物理寄存器: ${physRegIdx}")
+        if(enableLog) report(L"SIM_ERROR: $euName: 非 FPR EU 或 FPR 服务缺失时尝试 FPR 读取。物理寄存器: ${physRegIdx}")
         stage.haltIt()
       }
       return
@@ -375,7 +375,7 @@ abstract class EuBasePlugin(
       ParallaxLogger.error(s"$euName: 请求的 FPR 读端口索引 $prfReadPortIdx 超出范围 (${fprReadPorts.length} 可用)。")
       stage(prfDataTarget).assignDontCare()
       when(stage.isFiring && useThisSrcSignal) {
-        report(L"SIM_ERROR: $euName: FPR 读端口索引 ${prfReadPortIdx.toString} 超出范围。物理寄存ator: ${physRegIdx}")
+        if(enableLog) report(L"SIM_ERROR: $euName: FPR 读端口索引 ${prfReadPortIdx.toString} 超出范围。物理寄存ator: ${physRegIdx}")
         stage.haltIt()
       }
     }

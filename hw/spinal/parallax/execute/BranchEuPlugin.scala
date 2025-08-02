@@ -16,7 +16,7 @@ class BranchEuPlugin(
     override val pipelineConfig: PipelineConfig,
     val genMonitorSignals: Boolean = false
 ) extends EuBasePlugin(euName, pipelineConfig) {
-
+  val enableLog = false
   // 需要2个GPR读端口（比较两个源操作数），不需要FPR端口
   override def numGprReadPortsPerEu: Int = 2
   override def numFprReadPortsPerEu: Int = 0
@@ -95,13 +95,13 @@ class BranchEuPlugin(
     pipeline.s0_dispatch.driveFrom(getEuInputPort)
     pipeline.s0_dispatch(EU_INPUT_PAYLOAD) := getEuInputPort.payload
     when(pipeline.s0_dispatch.isFiring) {
-      report(L"[BranchEU-S0] DISPATCH: PC=0x${pipeline.s0_dispatch(EU_INPUT_PAYLOAD).pc}")
+      if(enableLog) report(L"[BranchEU-S0] DISPATCH: PC=0x${pipeline.s0_dispatch(EU_INPUT_PAYLOAD).pc}")
     }
     
     // +++ NEW: Stage S1: Calculate Branch Condition and Potential Target +++
     val uopAtS1 = pipeline.s1_calc(EU_INPUT_PAYLOAD)
     when(pipeline.s1_calc.isFiring) {
-      report(L"[BranchEU-S1-Calc] CALC START: PC=0x${uopAtS1.pc}")
+      if(enableLog) report(L"[BranchEU-S1-Calc] CALC START: PC=0x${uopAtS1.pc}")
     }
     
     // 1. 获取操作数数据
@@ -148,7 +148,7 @@ class BranchEuPlugin(
     val branchTarget_s2 = pipeline.s2_select(BRANCH_TARGET)
     
     when(pipeline.s2_select.isFiring) {
-      report(L"[BranchEU-S2-Select] SELECT START: PC=0x${uopAtS2.pc}, branchTaken(from S1)=${branchTaken_s2} isIndirect=${uopAtS2.branchCtrl.isIndirect}, imm=${uopAtS2.imm}")
+      if(enableLog) report(L"[BranchEU-S2-Select] SELECT START: PC=0x${uopAtS2.pc}, branchTaken(from S1)=${branchTaken_s2} isIndirect=${uopAtS2.branchCtrl.isIndirect}, imm=${uopAtS2.imm}")
     }
 
     // 4. 决定最终跳转地址和链接寄存器值 (Lighter logic)
@@ -188,7 +188,7 @@ class BranchEuPlugin(
     }
     
     when(pipeline.s2_select.isFiring) {
-      report(L"[BranchEU-S2-Select] PREDICTION: wasPredicted(valid)=${wasPredicted}: predictedTaken=${predictedTaken}, actuallyTaken=${actuallyTaken}, finalTarget=0x${finalTarget}, mispredicted=${!predictionCorrect}")
+      if(enableLog) report(L"[BranchEU-S2-Select] PREDICTION: wasPredicted(valid)=${wasPredicted}: predictedTaken=${predictedTaken}, actuallyTaken=${actuallyTaken}, finalTarget=0x${finalTarget}, mispredicted=${!predictionCorrect}")
     }
 
     val isDirectJump = uopAtS2.branchCtrl.isJump && !uopAtS2.branchCtrl.isIndirect
@@ -226,7 +226,7 @@ class BranchEuPlugin(
       euResult.hasException := False
       euResult.exceptionCode := 0
       euResult.destIsFpr := False
-      report(L"[BranchEU-S3-Result] RESULT: for uop@${uopAtS3.pc}euResult.valid=1, writesToPreg=${euResult.writesToPreg}, data=0x${euResult.data}, mispredicted=${euResult.isMispredictedBranch}")
+      if(enableLog) report(L"[BranchEU-S3-Result] RESULT: for uop@${uopAtS3.pc}euResult.valid=1, writesToPreg=${euResult.writesToPreg}, data=0x${euResult.data}, mispredicted=${euResult.isMispredictedBranch}")
     }
 
     pipeline.build()

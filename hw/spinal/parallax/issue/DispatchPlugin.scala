@@ -10,7 +10,7 @@ import parallax.components.rename.BusyTableService
 import parallax.utilities.ParallaxSim.notice
 
 class DispatchPlugin(pCfg: PipelineConfig) extends Plugin with LockedImpl {
-  
+  val enableLog = false
   assert(pCfg.renameWidth == 1, "This DispatchPlugin is designed for a dispatch width of 1.")
 
   val setup = create early new Area {
@@ -99,7 +99,7 @@ class DispatchPlugin(pCfg: PipelineConfig) extends Plugin with LockedImpl {
     
     // --- 日志和收尾 ---
     when(s3_dispatch.isFiring && uopIn.decoded.isValid) {
-      ParallaxSim.log(
+      if(enableLog) ParallaxSim.log(
         L"DispatchPlugin: Firing uop@${uopIn.decoded.pc} robPtr=${uopIn.robPtr} (UopCode=${uopIn.decoded.uopCode}), " :+
         L"s1_ready(initial)=${src1InitialReady}, s2_ready(initial)=${src2InitialReady}"
       )
@@ -107,7 +107,7 @@ class DispatchPlugin(pCfg: PipelineConfig) extends Plugin with LockedImpl {
 
     when(s3_dispatch.isValid) {
       when(!uopIn.decoded.isValid) {
-        notice( L"Got invalid uop in dispatch stage. ${uopIn.decoded.format()}")
+        if(enableLog) notice( L"Got invalid uop in dispatch stage. ${uopIn.decoded.format()}")
       }
     }
 
@@ -116,7 +116,7 @@ class DispatchPlugin(pCfg: PipelineConfig) extends Plugin with LockedImpl {
         val doHardRedirect = hr.doHardRedirect()
         when(doHardRedirect) {
           s3_dispatch.flushIt()
-          report(L"DispatchPlugin: (s3): Flushing pipeline due to hard redirect")
+          if(enableLog) report(L"DispatchPlugin: (s3): Flushing pipeline due to hard redirect")
         }
       })
     }

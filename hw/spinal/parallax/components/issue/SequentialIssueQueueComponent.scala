@@ -41,7 +41,7 @@ class SequentialIssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
 ) extends Component
     with IssueQueueLike[T_IQEntry] {
 
-  val enableLog = true
+  val enableLog = false
   override val io = slave(IssueQueueComponentIo(iqConfig, numWakeupPorts))
   override val idStr = s"${iqConfig.name}-SEQ_RING-${id.toString()}"
 

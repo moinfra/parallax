@@ -93,7 +93,7 @@ class DecodePlugin(val issueConfig: PipelineConfig) extends Plugin with LockedIm
     s0_decode(signals.DECODED_UOPS) := decodedUopsOutputVec
 
     when(s0_decode.isFiring) {
-      report(L"DecodePlugin (s0_decode): Firing. Input PC_Group=${groupPcIn}, Input GroupFault=${isGroupFaultIn}")
+      if(enableLog) report(L"DecodePlugin (s0_decode): Firing. Input PC_Group=${groupPcIn}, Input GroupFault=${isGroupFaultIn}")
       for (i <- 0 until issueConfig.renameWidth) {
         val pc = groupPcIn + U(i * issueConfig.bytesPerInstruction)
         if(enableLog) report(
@@ -118,9 +118,9 @@ class DecodePlugin(val issueConfig: PipelineConfig) extends Plugin with LockedIm
     if(enableLog) report(L"DEBUG: decodedUopsOutputVec(0).isValid=${decodedUopsOutputVec(0).isValid}, decodedUopsOutputVec(0).uopCode=${decodedUopsOutputVec(0).uopCode}")
     when(s0_decode.isFiring && decodedUopsOutputVec(0).isValid) {
       when(decodedUopsOutputVec(0).isValid) {
-        report(L"DecodePlugin (s0_decode): Firing. Output DecodedUops=${decodedUopsOutputVec(0).format()}")
+        if(enableLog) report(L"DecodePlugin (s0_decode): Firing. Output DecodedUops=${decodedUopsOutputVec(0).format()}")
       } otherwise {
-        ParallaxSim.notice(L"DecodePlugin (s0_decode): Firing. Output DecodedUops=${decodedUopsOutputVec(0).format()}")
+        if(enableLog) ParallaxSim.notice(L"DecodePlugin (s0_decode): Firing. Output DecodedUops=${decodedUopsOutputVec(0).format()}")
       }      
     }
     setup.issuePpl.release()

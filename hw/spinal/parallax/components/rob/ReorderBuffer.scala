@@ -197,7 +197,7 @@ case class ROBIo[RU <: Data with Formattable with HasRobPtr](config: ROBConfig[R
 }
 
 class ReorderBuffer[RU <: Data with Formattable with HasRobPtr](config: ROBConfig[RU]) extends Component {
-  val enableLog = true
+  val enableLog = false
   ParallaxLogger.log(
     s"Creating ReorderBuffer with config: ${config.format().mkString("")}"
   )
@@ -328,7 +328,7 @@ class ReorderBuffer[RU <: Data with Formattable with HasRobPtr](config: ROBConfi
   }
   val numToCommit = CountOne(actualCommittedMask)
   when(numToCommit > 0) {
-    report(L"[ROB] COMMIT_SUMMARY: Committing ${numToCommit} entries, total entries=${count_reg}, capacity=${config.robDepth}, first commit ${io.commit(0).entry.payload.uop.robPtr}")
+    if(enableLog) report(L"[ROB] COMMIT_SUMMARY: Committing ${numToCommit} entries, total entries=${count_reg}, capacity=${config.robDepth}, first commit ${io.commit(0).entry.payload.uop.robPtr}")
   }
   if(enableLog) when(numToCommit > 0) { report(L"[ROB] COMMIT_SUMMARY: Committing ${numToCommit} entries.") }
 
@@ -498,7 +498,7 @@ class ReorderBuffer[RU <: Data with Formattable with HasRobPtr](config: ROBConfi
     report(L"[ROB] IO_OUTPUT: empty=${io.empty}, headPtrOut=${io.headPtrOut}, tailPtrOut=${io.tailPtrOut}, countOut=${io.countOut}")
   }
 
-  val debg =  new Area {
+  val debg = enableLog generate new Area {
     val robPtrToMonitor: Int = 1 // 我们要监控的robPtr
     val physIdxToMonitor = robPtrToMonitor % config.robDepth
     val statusToMonitor = statuses(physIdxToMonitor)
@@ -532,17 +532,15 @@ class ReorderBuffer[RU <: Data with Formattable with HasRobPtr](config: ROBConfi
       severity  = FAILURE
     )
 
-    report(L"[ROB] COUNTER_UPDATE: count=${count_reg}, allocs=${numActuallyAllocatedThisCycle}, commits=${numToCommit} => nextCount=${nextCount}")
+    if(enableLog) report(L"[ROB] COUNTER_UPDATE: count=${count_reg}, allocs=${numActuallyAllocatedThisCycle}, commits=${numToCommit} => nextCount=${nextCount}")
 
   }
 
     val perfCounter = Reg(UInt(32 bits)) init(0)
   perfCounter := perfCounter + 1
 
-  // ... (所有逻辑) ...
-
   // --- 8. (新增) 全面的状态转储区域 ---
-  val full_state_dump = new Area {
+  val full_state_dump = enableLog generate new Area {
       // 打印最核心的指针和计数器状态 (在周期开始时)
       report(
         L"[ROB_SNAPSHOT] Cycle=${perfCounter} | " :+
