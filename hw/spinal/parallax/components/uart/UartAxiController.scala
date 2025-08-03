@@ -114,7 +114,7 @@ case class UartAxiControllerConfig(
 }
 
 class UartAxiController(val config: UartAxiControllerConfig) extends Component {
-  val enableLog = false
+  val enableLog = true
   val io = new Bundle {
     // AXI4-Lite Slave接口，SpinalHDL会自动处理信号的拆分和命名
     val axi = slave(Axi4(config.axiConfig))
@@ -137,7 +137,7 @@ class UartAxiController(val config: UartAxiControllerConfig) extends Component {
 
 
   // --- 接收路径 (RX Path) ---
-  val rxFifo = StreamFifo(dataType = Bits(8 bits), depth = config.fifoDepth)
+  val rxFifo = StreamFifo(dataType = Bits(8 bits), depth = config.fifoDepth).setDefinitionName("StreamFifo_UartRx")
 
   // ++++++++++++++++ 双重保险修复方案 ++++++++++++++++
   
