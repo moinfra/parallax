@@ -365,9 +365,11 @@ class StoreRingBufferPlugin(
         when(ioResponsePort.payload.error) {
           matchedSlot.hasEarlyException := True
           matchedSlot.earlyExceptionCode := ExceptionCode.STORE_ACCESS_FAULT
-          if(enableLog) debug(L"[SQ-Ring] IO RSP_ERROR for txid=${ioResponsePort.payload.id} matched to slotIdx=${matchingSlotIndex}.")
+          if(enableLog) 
+            debug(L"[SQ-Ring] IO RSP_ERROR for txid=${ioResponsePort.payload.id} matched to slotIdx=${matchingSlotIndex}.")
         }.otherwise {
-          if(enableLog) debug(L"[SQ-Ring] IO RSP_SUCCESS for txid=${ioResponsePort.payload.id} matched to slotIdx=${matchingSlotIndex} (robPtr=${storage.slotsReg(matchingSlotIndex).robPtr})")
+          if(enableLog) 
+            debug(L"[SQ-Ring] IO RSP_SUCCESS for txid=${ioResponsePort.payload.id} matched to slotIdx=${matchingSlotIndex} (robPtr=${storage.slotsReg(matchingSlotIndex).robPtr})")
         }
       }
       

@@ -127,7 +127,7 @@ class LoadRingBufferPlugin(
   require(isPow2(lqDepth), s"LoadRingBufferPlugin depth must be a power of two. Got $lqDepth.")
 
   val enableLog = false // 控制关键事件日志
-  val verbose = false // 控制高频/每周期日志
+  val verbose = true // 控制高频/每周期日志
 
   // --- Service Interface Implementation ---
   private val pushPorts = ArrayBuffer[Stream[LoadQueuePushCmd]]()
@@ -266,76 +266,129 @@ class LoadRingBufferPlugin(
       }
     }
 
+
     // =================================================================
-    //  Flush Logic
+    //  Flush Logic (Pointer Rollback with Drain Support)
     // =================================================================
     val flush_logic = new Area {
-      val doFlush = hw.robServiceInst.doRobFlush().valid
+      val robFlushPort = hw.robServiceInst.doRobFlush()
+      val doFlush = robFlushPort.valid
 
       when(doFlush) {
         if (enableLog)
-          notice(L"[LQ-Ring] FULL_FLUSH received. Processing all in-flight entries.")
+          notice(L"[LQ-Ring] FLUSH received. Reason: ${robFlushPort.payload.reason}, targetRobPtr=${robFlushPort.payload.targetRobPtr}")
 
-        // On a full flush, we iterate through ALL slots.
-        // Any valid entry is uncommitted and thus a candidate for flushing.
+        // --- Step 1: Determine the fate of each slot (purely combinational) ---
+        val isKept = Vec(Bool(), lqDepth) // A slot is "kept" if it's a survivor or needs draining.
+        
         for (i <- 0 until lqDepth) {
           val slot = storage.slotsReg(i)
+          val isInFlight = storage.isIndexInFlight(U(i))
+          
+          isKept(i) := False // Default to not kept
 
-          // We only care about valid slots. Invalid slots are already free.
-          when(slot.valid) {
-
-            // Differentiated handling based on whether a memory request is outstanding.
-            when(slot.isWaitingForMemRsp) {
-              // Case 1: Request is in-flight. It must be drained.
-              // Mark it as flushed, but keep it valid until the response arrives.
-              slotsNext(i).isFlushed := True
-              if (enableLog)
-                debug(
-                  L"[LQ-Ring] FLUSH_DRAIN: Slot[${i}] (robPtr=${slot.robPtr}) has in-flight request. Marked for drain."
-                )
-            } otherwise {
-              // Case 2: No request sent. Can be invalidated immediately.
-              slotsNext(i).valid := False
-              if (enableLog)
-                debug(L"[LQ-Ring] FLUSH_INVALIDATE: Slot[${i}] (robPtr=${slot.robPtr}) invalidated immediately.")
+          when(isInFlight && slot.valid) {
+            val shouldFlushThisSlot = Bool()
+            switch(robFlushPort.payload.reason) {
+              is(FlushReason.FULL_FLUSH) {
+                shouldFlushThisSlot := True
+              }
+              is(FlushReason.ROLLBACK_TO_ROB_IDX) {
+                shouldFlushThisSlot := helper_functions.isNewerOrSame(slot.robPtr, robFlushPort.payload.targetRobPtr)
+              }
+              default {
+                shouldFlushThisSlot := False
+              }
             }
+
+            // A slot is kept if it should NOT be flushed, OR if it must be drained.
+            isKept(i) := !shouldFlushThisSlot || slot.isWaitingForMemRsp
           }
         }
 
-        // CRITICAL CHANGE: We no longer manipulate allocPtr/freePtr/wrapMode during a flush.
-        // The flush logic's job is to update the *state* of the slots.
-        // The pointers will naturally catch up as drained items are popped and
-        // new items are pushed after the flush.
-        // This avoids complex pointer rollback logic and is more robust.
+        // --- Step 2: Find the last "kept" slot using a combinational foldLeft ---
+        val initialAccumulator = (False, storage.freePtrReg) // (found: Bool, ptr: UInt)
+                                                              // If not found, ptr defaults to freePtr for an empty queue.
+        val (anyKept, lastKeptSlotPtr) = (0 until lqDepth).foldLeft(initialAccumulator) { (acc, i) =>
+          val (foundSoFar, ptrSoFar) = acc
+          val readPtr = storage.allocPtrReg - 1 - i // Search backwards from the newest entry
+
+          // Mux is used to create a combinational selection chain
+          val newFound = foundSoFar || isKept(readPtr)
+          val newPtr   = Mux(isKept(readPtr) && !foundSoFar, readPtr, ptrSoFar)
+
+          (newFound, newPtr)
+        }
+
+        // --- Step 3: Update pointers and slot states combinationally ---
+        
+        // Update pointers based on the combinational search result
+        when(anyKept) {
+          allocPtrNext := lastKeptSlotPtr + 1
+        } otherwise {
+          // Nothing is kept, the queue becomes empty.
+          allocPtrNext := storage.freePtrReg
+        }
+        
+        // The wrap mode must be re-calculated based on the new allocPtr and OLD freePtr.
+        // This logic is now safe and combinational.
+        val newAllocPtr = Mux(anyKept, lastKeptSlotPtr + 1, storage.freePtrReg)
+        
+        when (newAllocPtr === storage.freePtrReg) {
+          wrapModeRegNext := False // Became empty
+        } .elsewhen (storage.allocPtrReg > storage.freePtrReg) { // Was not wrapped
+          wrapModeRegNext := newAllocPtr < storage.freePtrReg
+        } .otherwise { // Was wrapped or full
+          wrapModeRegNext := newAllocPtr < storage.freePtrReg || (newAllocPtr === storage.freePtrReg && anyKept)
+        }
+
+        // Update the state of individual slots
+        for (i <- 0 until lqDepth) {
+          val slot = storage.slotsReg(i)
+          val isInFlight = storage.isIndexInFlight(U(i))
+          when(isInFlight && slot.valid) {
+            val shouldFlushThisSlot = // Re-calculate condition for clarity, synthesizer will optimize
+              Mux(
+                robFlushPort.payload.reason === FlushReason.FULL_FLUSH,
+                True,
+                helper_functions.isNewerOrSame(slot.robPtr, robFlushPort.payload.targetRobPtr)
+              )
+
+            when(shouldFlushThisSlot) {
+              when(slot.isWaitingForMemRsp) {
+                // Mark for draining
+                slotsNext(i).isFlushed := True
+                if(enableLog) debug(L"[LQ-Ring] FLUSH_DRAIN: slotIdx=${i} (robPtr=${slot.robPtr}) marked for draining.")
+              } otherwise {
+                // Invalidate immediately
+                slotsNext(i).valid := False
+                if(enableLog) debug(L"[LQ-Ring] FLUSH_INVALIDATE: slotIdx=${i} (robPtr=${slot.robPtr}) invalidated.")
+              }
+            }
+          }
+        }
+        
         if (enableLog)
-          notice(L"[LQ-Ring] FLUSH_POINTERS_UNCHANGED: Pointers are not modified by flush. Pop/Push will manage them.")
+          notice(
+            L"[LQ-Ring] FLUSH_POINTER_ROLLBACK: anyKept=${anyKept}, lastKeptSlotPtr=${lastKeptSlotPtr}. New allocPtr=${allocPtrNext}"
+          )
       }
     }
-
     // =================================================================
     //  Head-of-Queue Processing & Memory Disambiguation
     // =================================================================
     val head_processing_logic = new Area {
-      // The head of the queue is the entry pointed to by freePtrReg
       val headSlot = storage.slotsReg(storage.freePtrReg)
       val headSlotNext = slotsNext(storage.freePtrReg)
-
-      // An entry can only be processed if it's the head, valid, and not being flushed.
       val canProcessHead = !storage.isEmpty && headSlot.valid && !doFlush
 
-      // We need a register to hold the SB query response, as it arrives one cycle after the request.
-      val sbQueryRspReg = Reg(SqQueryRsp(lsuConfig))
-      val sbQueryRspValid = RegNext(hw.sbQueryPort.cmd.fire, init = False)
+      // =========================================================
+      //  重写查询和响应逻辑，以匹配 Flow 接口
+      // =========================================================
 
-      when(hw.sbQueryPort.cmd.fire) {
-        sbQueryRspReg := hw.sbQueryPort.rsp
-      }
-
-      // --- Stage 1: Check for Early Exceptions ---
-      // If an instruction has an early exception (e.g., misaligned address), it doesn't need to query SB.
-      // It can be marked as 'loaded' immediately to be processed by the exception handling logic.
+      // --- Stage 1: Check for Early Exceptions (No change here) ---
       val hasEarlyEx = headSlot.hasEarlyException
-      when(canProcessHead && hasEarlyEx && !headSlot.isLoaded && !headSlot.isWritingBack) { // Added !isWritingBack
+      when(canProcessHead && hasEarlyEx && !headSlot.isLoaded && !headSlot.isWritingBack) {
         headSlotNext.isLoaded := True
         headSlotNext.hasFault := True
         headSlotNext.exceptionCode := headSlot.earlyExceptionCode
@@ -343,68 +396,66 @@ class LoadRingBufferPlugin(
           debug(L"[LQ-Ring] HEAD_EARLY_EX: robPtr=${headSlot.robPtr} marked as loaded due to early exception.")
       }
 
-      // --- Stage 2: Query Store Buffer for Disambiguation ---
+      // --- Stage 2 & 3 Combined: Combinational Query and Response Handling ---
+      
       // An instruction is ready to query the SB if it's the head, has no exception, and is in its initial state.
-      // And importantly, it's not flushed. A flushed entry should not query SB, it should wait for drain.
       val isReadyForSbQuery = canProcessHead && !headSlot.isFlushed && !headSlot.hasEarlyException &&
-        !headSlot.isQueryingSB && !headSlot.isStalledBySB &&
+        !headSlot.isQueryingSB && !headSlot.isStalledBySB && // isQueryingSB/isStalledBySB might be removable
         !headSlot.isReadyForMem && !headSlot.isWaitingForMemRsp &&
         !headSlot.isLoaded && !headSlot.isWritingBack
+      if(enableLog) debug(L"[LQ-Ring] HEAD_READY_FOR_SB_QUERY: robPtr=${headSlot.robPtr} is ${isReadyForSbQuery}" :+
+      L" due to canProcessHead=${canProcessHead}, hasEarlyEx=${hasEarlyEx}, isFlushed=${headSlot.isFlushed}, " :+
+      L"isQueryingSB=${headSlot.isQueryingSB}, isStalledBySB=${headSlot.isStalledBySB}, isReadyForMem=${headSlot.isReadyForMem}, " :+
+      L"isWaitingForMemRsp=${headSlot.isWaitingForMemRsp}, isLoaded=${headSlot.isLoaded}, isWritingBack=${headSlot.isWritingBack}")
 
+      // Drive the query Flow
       hw.sbQueryPort.cmd.valid := isReadyForSbQuery
-      hw.sbQueryPort.cmd.address := headSlot.address
-      hw.sbQueryPort.cmd.size := headSlot.size
-      hw.sbQueryPort.cmd.robPtr := headSlot.robPtr
-      hw.sbQueryPort.cmd.isCoherent := headSlot.isCoherent
-      hw.sbQueryPort.cmd.isIO := headSlot.isIO
+      hw.sbQueryPort.cmd.payload.address := headSlot.address
+      hw.sbQueryPort.cmd.payload.size := headSlot.size
+      hw.sbQueryPort.cmd.payload.robPtr := headSlot.robPtr
+      hw.sbQueryPort.cmd.payload.isCoherent := headSlot.isCoherent
+      hw.sbQueryPort.cmd.payload.isIO := headSlot.isIO
+      
+      // Get the response combinationally
+      val sbRsp = hw.sbQueryPort.rsp
 
-      when(hw.sbQueryPort.cmd.fire) {
-        headSlotNext.isQueryingSB := True
+      // Process the response in the SAME cycle when the query is valid
+      when(isReadyForSbQuery) {
         if (enableLog && verbose)
           debug(L"[LQ-Ring] HEAD_QUERY_SB: Sending query for robPtr=${headSlot.robPtr}, addr=${headSlot.address}")
-      }
-
-      // --- Stage 3: Process Store Buffer Response ---
-      // This happens one cycle after the query was sent.
-      val isWaitingForSbRsp = canProcessHead && headSlot.isQueryingSB && sbQueryRspValid
-
-      when(isWaitingForSbRsp) {
-        headSlotNext.isQueryingSB := False // Consume the state
-        val fwdRsp = sbQueryRspReg
 
         if (enableLog)
           debug(
-            L"[LQ-Ring] HEAD_SB_RSP: Received SB response for robPtr=${headSlot.robPtr}. Hit=${fwdRsp.hit}, Stall=${fwdRsp.olderStoreDataNotReady}, UnkAddr=${fwdRsp.olderStoreHasUnknownAddress}"
+            L"[LQ-Ring] HEAD_SB_RSP: Received SB response for robPtr=${headSlot.robPtr}. Hit=${sbRsp.hit}, Stall=${sbRsp.olderStoreDataNotReady}, UnkAddr=${sbRsp.olderStoreHasUnknownAddress}"
           )
 
-        when(fwdRsp.hit) {
+        when(sbRsp.hit) {
           // HIT: Data was forwarded from the Store Buffer. The load is complete.
           headSlotNext.isLoaded := True
-          headSlotNext.data := fwdRsp.data
-          headSlotNext.hasFault := False // Forwarding implies success
+          headSlotNext.data := sbRsp.data
+          headSlotNext.hasFault := False
           if (enableLog)
-            debug(L"[LQ-Ring] HEAD_SB_HIT: robPtr=${headSlot.robPtr} completed via forwarding. Data=${fwdRsp.data}")
+            debug(L"[LQ-Ring] HEAD_SB_HIT: robPtr=${headSlot.robPtr} completed via forwarding. Data=${sbRsp.data}")
 
-        }.elsewhen(fwdRsp.olderStoreDataNotReady || fwdRsp.olderStoreHasUnknownAddress) {
-          // STALL: An older store exists but its address or data is not ready. We must wait.
+        }.elsewhen(sbRsp.olderStoreDataNotReady || sbRsp.olderStoreHasUnknownAddress) {
+          // STALL: We must wait. To prevent re-querying every cycle, we set a stall flag.
+          // This is one of the few state changes needed.
           headSlotNext.isStalledBySB := True
           if (enableLog)
             debug(L"[LQ-Ring] HEAD_SB_STALL: robPtr=${headSlot.robPtr} is stalled by SB dependency.")
 
         }.otherwise { // MISS
-          // MISS: No conflicting older stores. The load is clear to access the memory system.
+          // MISS: Clear to access the memory system.
           headSlotNext.isReadyForMem := True
           if (enableLog)
             debug(L"[LQ-Ring] HEAD_SB_MISS: robPtr=${headSlot.robPtr} is now ready for memory access.")
         }
       }
 
-      // --- Stage 4: Handle Stall Recovery ---
-      // If a load was stalled, it needs to be "woken up" to retry the SB query.
-      // In this simple model, we just clear the stall flag to make it retry on the next cycle.
-      // A more advanced design might have a specific wakeup signal from the SB.
+      // --- Stage 4: Handle Stall Recovery (No change, but now it's more important) ---
+      // This logic will clear the stall flag, allowing a re-query on the next cycle.
       when(canProcessHead && headSlot.isStalledBySB) {
-        headSlotNext.isStalledBySB := False // This will cause it to re-query the SB on the next cycle
+        headSlotNext.isStalledBySB := False
         if (enableLog && verbose)
           debug(L"[LQ-Ring] HEAD_STALL_RECOVER: robPtr=${headSlot.robPtr} will retry SB query.")
       }
@@ -464,9 +515,11 @@ class LoadRingBufferPlugin(
         for (i <- 0 until lqDepth) {
           val slot = storage.slotsReg(i)
           // Match criteria: in flight, valid, is IO, waiting for response, and matching txid
-          matchOH(i) := storage.isIndexInFlight(
-            U(i)
-          ) && slot.valid && slot.isIO && slot.isWaitingForMemRsp && slot.txid === ioRsp.payload.id
+          matchOH(i) := storage.isIndexInFlight(U(i)) && 
+                        slot.valid && 
+                        slot.isIO && 
+                        slot.isWaitingForMemRsp && // <<-- 必须有这一行！
+                        slot.txid === ioRsp.payload.id
         }
         val responseMatchesSlot = CountOne(matchOH) === 1
         val matchingSlotIndex = OHToUInt(matchOH)

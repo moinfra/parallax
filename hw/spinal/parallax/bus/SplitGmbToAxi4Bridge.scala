@@ -42,7 +42,12 @@ class SplitGmbToAxi4Bridge(
 
   // --- 读请求 ---
   val gmbReadCmdBuffered = gmbReadCmdIn.queue(2)
-  
+  if(enableLog) {
+    report(
+      L"Bridge $instanceId Read Queue Status\n" :+
+      L"  Queue Out: v=${gmbReadCmdBuffered.valid} r=${gmbReadCmdBuffered.ready} payload.addr=${gmbReadCmdBuffered.payload.address} payload.id=${gmbReadCmdBuffered.payload.id}\n"
+    )
+  }
   // +++ CORRECTED: 使用不带参数的 translateWith lambda 语法 +++
   axiArOut << gmbReadCmdBuffered.translateWith {
     val ar = Axi4Ar(axiConfig)
@@ -60,7 +65,18 @@ class SplitGmbToAxi4Bridge(
 
   // --- 读响应 ---
   val axiR_buffered = axiRIn.queue(2)
-  
+  if(enableReadLog) {
+    report(
+      L"Bridge $instanceId : AXI R Queue Status\n" :+
+      L"  AXI R Queue Out: v=${axiR_buffered.valid} payload.data=${axiR_buffered.payload.data} payload.id=${axiR_buffered.payload.id}\n"
+    )
+  }
+  if(enableReadLog) {
+    report(
+      L"Bridge $instanceId : GMB Read Rsp Out\n" :+
+      L"  GMB Read Rsp Out: v=${gmbReadRspOut.valid} r=${gmbReadRspOut.ready} fire=${gmbReadRspOut.fire} data=${gmbReadRspOut.payload.data} id=${gmbReadRspOut.payload.id} error=${gmbReadRspOut.payload.error}\n"
+    )
+  }
   // +++ CORRECTED: 使用不带参数的 translateWith lambda 语法 +++
   gmbReadRspOut << axiR_buffered.translateWith {
     val rsp = SplitGmbReadRsp(gmbConfig)

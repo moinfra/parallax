@@ -168,7 +168,7 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
               when(redirecting) {
                 redirectingReg := True
                 redirectingTargetReg := firstJumpTarget
-                report(L"DISPATCHER-IDLE: First instruction is a direct jump. Soft redirect scheduled to 0x${firstJumpTarget}.")
+                if(enableLog) report(L"DISPATCHER-IDLE: First instruction is a direct jump. Soft redirect scheduled to 0x${firstJumpTarget}.")
                 dispatchIndexReg := 0
                 isBusyReg := False
                 goto(IDLE)
@@ -261,7 +261,7 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
               when(redirecting) {
                 redirectingReg := redirecting
                 redirectingTargetReg := currentPotentialJumpTarget
-                report(L"Soft redirect scheduled to 0x${currentPotentialJumpTarget} at PC=0x${currentPcReg}.")
+                if(enableLog) report(L"Soft redirect scheduled to 0x${currentPotentialJumpTarget} at PC=0x${currentPcReg}.")
               }
               
 

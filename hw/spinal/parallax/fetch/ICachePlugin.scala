@@ -285,12 +285,13 @@ class ICachePlugin(
         SEND_REQ.whenIsActive {
           axi.ar.valid := True
           axi.ar.payload.addr := refillCmdReg.address
+          axi.ar.payload.id := refillCmdReg.transactionId.resized
           axi.ar.payload.len := iCacheCfg.lineWords - 1
           axi.ar.payload.size := log2Up(32 / 8)
           axi.ar.payload.burst := Axi4.burst.INCR
 
           when(axi.ar.fire) {
-            if (enableLog) report(L"[RefillFSM] AXI AR Sent.")
+            if (enableLog) report(L"[RefillFSM] AXI AR Sent to ${axi.ar.payload.addr} with ID=${axi.ar.payload.id}.")
             goto(RECEIVE_DATA)
           }
         }
@@ -299,7 +300,7 @@ class ICachePlugin(
           axi.r.ready := True
 
           when(axi.r.fire) {
-            if (enableLog) report(L"[RefillFSM] AXI R Received. Word ${refillCounter.value}, Data=0x${axi.r.payload.data}")
+            if (enableLog) report(L"[RefillFSM] AXI R Received. Word ${refillCounter.value}, Data=0x${axi.r.payload.data}, ID=${axi.r.payload.id}.")
             storage.lineBuffer(refillCounter) := axi.r.payload.data
             refillCounter.increment()
 

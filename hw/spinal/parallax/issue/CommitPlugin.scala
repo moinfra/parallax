@@ -181,8 +181,11 @@ class CommitPlugin(
     // ====================================================================
     val mispredictedBranchCanCommit = Bool()
     val scheduedFlush = RegNext(mispredictedBranchCanCommit, init = False)
-    val hardRedirectTarget = RegNext(commitSlots(0).entry.status.targetPc)
-
+    val hardRedirectTarget = Reg(UInt(pipelineConfig.pcWidth))
+    val potentialFlushTargetPc = commitSlots(0).entry.status.targetPc
+    when(mispredictedBranchCanCommit) {
+      hardRedirectTarget := potentialFlushTargetPc
+    }
     // ====================================================================
     // 阶段 T+1: 冲刷执行
     // 如果上个周期（T）标记了需要冲刷，则在这个周期（T+1）执行

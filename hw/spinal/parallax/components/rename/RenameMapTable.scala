@@ -140,7 +140,7 @@ class RenameMapTable(val config: RenameMapTableConfig) extends Component {
 
   when(io.checkpointRestore.valid) {
     nextRratMapRegMapping := io.checkpointRestore.payload.mapping // 恢复到CheckpointManager提供的ARAT状态
-    ParallaxSim.notice(L"[RegRes|RAT] Restore to ARAT")
+    if(enableLog) ParallaxSim.notice(L"[RegRes|RAT] Restore to ARAT")
   } otherwise {
     // 应用来自 RenameUnit 的写入（更新 RRAT）
     for (i <- 0 until config.numWritePorts) {

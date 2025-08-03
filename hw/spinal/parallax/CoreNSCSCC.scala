@@ -297,7 +297,7 @@ class CoreMemSysPlugin(axiConfig: Axi4Config, mmioConfig: GenericMemoryBusConfig
     def getExtRamIo = hw.extramCtrl.io.ram
 
     // 暴露方法以获取UART连接 - 将UART添加到主crossbar作为MMIO slave
-    def connectUartAxi(uartAxi: Axi4): Unit = {
+    def connectUartAxiAndBuild(uartAxi: Axi4): Unit = {
       // UART MMIO: 0xbfd00000～0xbfd003FF (1KB UART registers)
       crossbar.addSlave(uartAxi, SizeMapping(0xbfd00000L, BigInt("400", 16)))
 
@@ -643,7 +643,7 @@ class CoreNSCSCC(simDebug: Boolean = false, injectAxi: Boolean = false) extends 
   io.uart_b_ready := uartAxi.b.ready
 
   // 连接UART AXI到LSU的MMIO路径
-  memSysPlugin.logic.connectUartAxi(uartAxi)
+  memSysPlugin.logic.connectUartAxiAndBuild(uartAxi)
 
   /*Commit Info Getter for Simulation*/
   var commitLog = Vec(CommitSlotLog(pCfg), pCfg.commitWidth)

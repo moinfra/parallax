@@ -233,7 +233,7 @@ class ICachePluginSpec extends CustomSpinalSimFunSuite {
     ways = 2,
     bytesPerLine = 32,
     fetchWidth = 2,
-    enableLog = true
+    enableLog = false
   )
 
   val axiCfg = Axi4Config(

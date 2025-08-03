@@ -109,7 +109,7 @@ class DecodePlugin(val issueConfig: PipelineConfig) extends Plugin with LockedIm
         val doHardRedirect = hr.doHardRedirect()
         when(doHardRedirect) {
           s0_decode.flushIt()
-          report(L"DecodePlugin (s0_decode): Flushing pipeline due to hard redirect")
+          if(enableLog) report(L"DecodePlugin (s0_decode): Flushing pipeline due to hard redirect")
         }
       })
     }

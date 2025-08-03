@@ -12,7 +12,8 @@ import _root_.test.scala.LA32RInstrBuilder._
 import java.io.BufferedOutputStream
 import java.io.FileOutputStream
 import parallax.issue.CommitSlotLog
-import parallax.components.uart.UartWrapperBlackbox
+import parallax.components.uart.UartAxiController
+import parallax.components.uart.UartAxiControllerConfig
 
 /** Testbench for LabSpec.
   * This component wraps the CoreNSCSCC DUT and connects it to two SimulatedSRAM instances,
@@ -23,20 +24,30 @@ import parallax.components.uart.UartWrapperBlackbox
   */
 class LabTestBench(
     val iDataWords: Seq[BigInt],
-    val dDataWords: Seq[BigInt] = Seq.empty, 
-    val maxCommitPc: BigInt = 0, 
+    val dDataWords: Seq[BigInt] = Seq.empty,
+    val maxCommitPc: BigInt = 0,
     val enablePcCheck: Boolean = false
-  ) extends Component {
+) extends Component {
 
   val dut = new CoreNSCSCC(simDebug = true)
-  val uartWrapper = new UartWrapperBlackbox(
-    clk_freq = 100000000L, // 必须与CPU时钟匹配
-    uart_baud = 9600
+  // 1. 创建一个匹配DUT UART IO接口的Axi4Config
+  // 我们直接从DUT的IO信号获取正确的位宽，这是最健壮的做法
+  val uartInterfaceAxiConfig = dut.axiConfig.copy(
+    idWidth = dut.io.uart_ar_bits_id.getWidth // getWidth会返回8
+  )
+  
+  // 2. 使用这个新的、正确的配置来实例化 UartAxiController
+  val uartCtrl = new UartAxiController(
+    UartAxiControllerConfig(
+      axiConfig = uartInterfaceAxiConfig, // <--- 使用修正后的配置
+      clk_freq = 100 * 1000 * 1000,
+      uart_baud = 9600
+    )
   )
   val io = new Bundle {
     val commitStats = out(CommitStats())
-    val rxd = in Bool () default (False)
-    val txd = out Bool ()
+    val txd = out(Bool())
+    val rxd = in(Bool())
   }
 
   // --- Instantiate the CPU DUT ---
@@ -98,75 +109,54 @@ class LabTestBench(
   // The uartAxi in CoreNSCSCC (which connects to memSysPlugin) has idWidth `axiConfig.idWidth + log2Up(6)`
   val uartAxiConfig = dut.axiConfig.copy(idWidth = dut.axiConfig.idWidth + log2Up(6))
 
-  // Instantiate the LabUartSim (our simulated UART device)
-  val labUartSim = new LabUartSim(
-    axiConfig = uartAxiConfig,
-    baseAddress = 0xbfd00000L, // Matches CoreMemSysPlugin mapping
-    dataRegOffset = 0x3f8, // Matches uart_wrapper
-    statusRegOffset = 0x3fc, // Matches uart_wrapper
-    baudRate = 9600, // Matches uart_wrapper
-    clockHz = 100000000L // Matches clk_cpu frequency
-  )
   // --- Connect CoreNSCSCC's UART AXI Master to LabUartSim's AXI Slave ---
-    // 连接 uart_wrapper 的物理串口线到顶层IO
-  uartWrapper.io.rxd := io.rxd
-  io.txd := uartWrapper.io.txd
-  
-  // --- 4. 连接CPU的AXI接口到uart_wrapper的扁平化AXI接口 ---
-  // 这是最关键也是最繁琐的一步，但必须精确匹配
-  uartWrapper.io.io_uart_ar_valid := dut.io.uart_ar_valid
-  uartWrapper.io.io_uart_ar_id    := dut.io.uart_ar_bits_id
-  uartWrapper.io.io_uart_ar_addr  := dut.io.uart_ar_bits_addr
-  uartWrapper.io.io_uart_ar_len   := dut.io.uart_ar_bits_len
-  uartWrapper.io.io_uart_ar_size  := dut.io.uart_ar_bits_size
-  uartWrapper.io.io_uart_ar_burst := dut.io.uart_ar_bits_burst
-  dut.io.uart_ar_ready            := uartWrapper.io.io_uart_ar_ready
+  // AR Channel (dut -> uartCtrl)
+  // dut的Bits需要转换为uartCtrl的UInt
+  uartCtrl.io.axi.ar.valid          := dut.io.uart_ar_valid
+  uartCtrl.io.axi.ar.payload.id     := dut.io.uart_ar_bits_id.asUInt
+  uartCtrl.io.axi.ar.payload.addr   := dut.io.uart_ar_bits_addr.asUInt
+  uartCtrl.io.axi.ar.payload.len    := dut.io.uart_ar_bits_len.asUInt
+  uartCtrl.io.axi.ar.payload.size   := dut.io.uart_ar_bits_size.asUInt
+  uartCtrl.io.axi.ar.payload.burst  := dut.io.uart_ar_bits_burst // burst是Bits类型，通常不需要转换
+  dut.io.uart_ar_ready              := uartCtrl.io.axi.ar.ready
 
-  dut.io.uart_r_valid             := uartWrapper.io.io_uart_r_valid
-  dut.io.uart_r_bits_id           := uartWrapper.io.io_uart_r_id
-  dut.io.uart_r_bits_data         := uartWrapper.io.io_uart_r_data
-  dut.io.uart_r_bits_resp         := uartWrapper.io.io_uart_r_resp
-  dut.io.uart_r_bits_last         := uartWrapper.io.io_uart_r_last
-  uartWrapper.io.io_uart_r_ready  := dut.io.uart_r_ready
+  // R Channel (uartCtrl -> dut)
+  // uartCtrl的数值类型(UInt/Bits)需要转换为dut的Bits
+  dut.io.uart_r_valid               := uartCtrl.io.axi.r.valid
+  dut.io.uart_r_bits_id             := uartCtrl.io.axi.r.payload.id.asBits
+  dut.io.uart_r_bits_data           := uartCtrl.io.axi.r.payload.data // data是Bits，无需转换
+  dut.io.uart_r_bits_resp           := uartCtrl.io.axi.r.payload.resp // resp是Bits，无需转换
+  dut.io.uart_r_bits_last           := uartCtrl.io.axi.r.payload.last
+  uartCtrl.io.axi.r.ready           := dut.io.uart_r_ready
 
-  uartWrapper.io.io_uart_aw_valid := dut.io.uart_aw_valid
-  uartWrapper.io.io_uart_aw_id    := dut.io.uart_aw_bits_id
-  uartWrapper.io.io_uart_aw_addr  := dut.io.uart_aw_bits_addr
-  uartWrapper.io.io_uart_aw_len   := dut.io.uart_aw_bits_len
-  uartWrapper.io.io_uart_aw_size  := dut.io.uart_aw_bits_size
-  uartWrapper.io.io_uart_aw_burst := dut.io.uart_aw_bits_burst
-  dut.io.uart_aw_ready            := uartWrapper.io.io_uart_aw_ready
+  // AW Channel (dut -> uartCtrl)
+  // dut的Bits需要转换为uartCtrl的UInt
+  uartCtrl.io.axi.aw.valid          := dut.io.uart_aw_valid
+  uartCtrl.io.axi.aw.payload.id     := dut.io.uart_aw_bits_id.asUInt
+  uartCtrl.io.axi.aw.payload.addr   := dut.io.uart_aw_bits_addr.asUInt
+  uartCtrl.io.axi.aw.payload.len    := dut.io.uart_aw_bits_len.asUInt
+  uartCtrl.io.axi.aw.payload.size   := dut.io.uart_aw_bits_size.asUInt
+  uartCtrl.io.axi.aw.payload.burst  := dut.io.uart_aw_bits_burst // burst是Bits类型，通常不需要转换
+  dut.io.uart_aw_ready              := uartCtrl.io.axi.aw.ready
 
-  uartWrapper.io.io_uart_w_valid  := dut.io.uart_w_valid
-  uartWrapper.io.io_uart_w_data   := dut.io.uart_w_bits_data
-  uartWrapper.io.io_uart_w_strb   := dut.io.uart_w_bits_strb
-  uartWrapper.io.io_uart_w_last   := dut.io.uart_w_bits_last
-  dut.io.uart_w_ready             := uartWrapper.io.io_uart_w_ready
+  // W Channel (dut -> uartCtrl)
+  // W通道大部分是Bits，通常无需转换
+  uartCtrl.io.axi.w.valid           := dut.io.uart_w_valid
+  uartCtrl.io.axi.w.payload.data    := dut.io.uart_w_bits_data
+  uartCtrl.io.axi.w.payload.strb    := dut.io.uart_w_bits_strb
+  uartCtrl.io.axi.w.payload.last    := dut.io.uart_w_bits_last
+  dut.io.uart_w_ready               := uartCtrl.io.axi.w.ready
 
-  dut.io.uart_b_valid             := uartWrapper.io.io_uart_b_valid
-  dut.io.uart_b_bits_id           := uartWrapper.io.io_uart_b_id
-  dut.io.uart_b_bits_resp         := uartWrapper.io.io_uart_b_resp
-  uartWrapper.io.io_uart_b_ready  := dut.io.uart_b_ready
+  // B Channel (uartCtrl -> dut)
+  // uartCtrl的UInt需要转换为dut的Bits
+  dut.io.uart_b_valid               := uartCtrl.io.axi.b.valid
+  dut.io.uart_b_bits_id             := uartCtrl.io.axi.b.payload.id.asBits
+  dut.io.uart_b_bits_resp           := uartCtrl.io.axi.b.payload.resp // resp是Bits，无需转换
+  uartCtrl.io.axi.b.ready           := dut.io.uart_b_ready
 
-  // --- Connect Physical Serial Lines (txd/rxd) ---
-  // CoreNSCSCC's txd/rxd are not part of its `io` bundle directly,
-  // but are top-level `thinpad_top` ports that uart_wrapper connects to.
-  // Here, we simulate that connection by making them internal to LabTestBench.
-  // If CoreNSCSCC had these as its own `io` ports, then `dut.io.txd` and `dut.io.rxd` would be used.
-  // Based on thinpad_top.v, CoreNSCSCC uses AXI, and uart_wrapper has txd/rxd.
-  // So we connect labUartSim's txd/rxd to the dummy CoreNSCSCC's txd/rxd.
-  // In `thinpad_top.v`, CoreNSCSCC does NOT have txd/rxd ports.
-  // So we need to connect `LabUartSim`'s `txd` to where `uart_wrapper`'s `txd` would be,
-  // and `LabUartSim`'s `rxd` from where `uart_wrapper`'s `rxd` would be.
-  // Given that `dut` is `CoreNSCSCC`, it doesn't have `txd` or `rxd` directly.
-  // The original `thinpad_top` connects `CoreNSCSCC`'s AXI to `uart_wrapper`,
-  // and `uart_wrapper` has the `txd`/`rxd` ports.
-  // Here, `labUartSim` is taking the place of `uart_wrapper`.
-  // So, `labUartSim.io.txd` is the output from `LabUartSim` to the external world,
-  // and `labUartSim.io.rxd` is the input to `LabUartSim` from the external world.
-  // If you want to view these signals in waves, you can `simPublic()` them.
-  labUartSim.io.txd.simPublic()
-  labUartSim.io.rxd.simPublic()
+  // 连接 uart_wrapper 的物理串口线到顶层IO
+  io.txd := uartCtrl.io.txd
+  uartCtrl.io.rxd := io.rxd
 
 }
 
@@ -1085,31 +1075,47 @@ class LabSpec extends CustomSpinalSimFunSuite {
     }
   }
 
-  test("Run kernel from file") {
-    val kernelPath = "supervisor_la/kernel/kernel.bin"
+  test("xKernel and automate interaction") {
+    val kernelPath = "bin/kernel.bin" // 替换为你的路径
     val instructions = LabHelper.readBinary(kernelPath)
+    assert(instructions.nonEmpty, s"No instructions read from $kernelPath.")
 
-    // Ensure instructions were actually read before proceeding
-    assert(instructions.nonEmpty, s"No instructions read from $kernelPath. Test cannot proceed.")
-
-    val compiled = SimConfig.withFstWave.compile(
-      new LabTestBench(
-        iDataWords = instructions
-      )
-    )
+    val compiled = SimConfig.withFstWave
+      .addSimulatorFlag("+define+SIMULATION")
+      .withConfig(SpinalConfig(defaultClockDomainFrequency = FixedFrequency(100 MHz)))
+      .compile(new LabTestBench(iDataWords = instructions))
 
     compiled.doSim { dut =>
       val cd = dut.clockDomain.get
-      cd.forkStimulus(period = 10)
+      cd.forkStimulus(frequency = 100 MHz)
 
-      println(s"--- Starting CPU with kernel from $kernelPath ---")
+      println("--- Starting CPU with kernel and Automated UART Driver ---")
 
-      // Run for a significant amount of time. The user can check the waveform.
-      // The kernel might not have a natural end point for simulation.
-      cd.waitSampling(500000)
+      // 1. Instantiate and start the driver
+      val uartDriver = new AutomatedUartDriver(dut.io.txd, dut.io.rxd, cd, interactive = false)
+      uartDriver.start() // This forks the background TX/RX processes
 
-      println(s"Simulation finished. Final PC: 0x${dut.io.commitStats.maxCommitPc.toBigInt.toString(16)}")
-    // No specific assertion, as requested, just running the kernel.
+      // 2. Wait for the Kernel's welcome message.
+      //    This also implicitly waits for the CPU to boot and initialize the UART.
+      println("[TEST] Waiting for welcome message...")
+      uartDriver.expectString("Welcome to LoongArch", timeoutCycles = 500000) // 调整超时和期望字符串
+
+      // // 3. Send the 'R' command to read registers.
+      // //    The monitor program likely expects a newline character.
+      // println("[TEST] Sending 'R' command...")
+      // uartDriver.sendString("R\n")
+
+      // // 4. Wait for the response to the 'R' command.
+      // //    The response format depends on your monitor program. Let's assume it prints "a0:".
+      // println("[TEST] Waiting for register dump...")
+      // uartDriver.expectString("a0: ", timeoutCycles = 100000)
+
+      // // You can add more interactions here, e.g., loading a user program with 'A'
+      // // uartDriver.sendString("A ...\n")
+      // // uartDriver.expectString(...)
+
+      // println("[TEST] Automated interaction successful. Finishing simulation.")
+      cd.waitSampling(1000) // Wait a bit more to ensure all logs are flushed.
     }
   }
 

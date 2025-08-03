@@ -572,7 +572,7 @@ class ReorderBuffer[RU <: Data with Formattable with HasRobPtr](config: ROBConfi
           when(i < count_reg) { // 一个更简单的检查
             val physIdx = current_ptr.resize(config.robPhysIdxWidth)
             val status = statuses(physIdx)
-            val payload = payloads.readAsync(physIdx) // 注意: readAsync用于仿真/调试
+            val payload = payloads.readAsync(physIdx)
 
             report(
               L"  -> Entry[robPtr=${current_ptr}]: pc=${payload.pc}, " :+

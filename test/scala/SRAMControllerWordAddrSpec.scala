@@ -994,7 +994,7 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
     // 这个测试专门用于复现连续写操作之间的数据/地址保持问题。
     // 它写入一个序列，然后立即读回并检查。
     // 如果存在时序竞争，读回的数据会出错。
-    withTestBench(createWordAddrRamConfig(readWaitCycles = 1, writeWaitCycles = 1, enableLog = true)) {
+    withTestBench(createWordAddrRamConfig(readWaitCycles = 1, writeWaitCycles = 1, enableLog = false)) {
       (dut, axiMaster, clockDomain) =>
         val baseAddr = 0x80004000L
         val testData = Seq(

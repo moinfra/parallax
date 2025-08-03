@@ -19,7 +19,7 @@ import parallax.components.ifu._
 import parallax.components.memory._
 import parallax.components.dcache2._
 import spinal.lib.bus.amba4.axi.Axi4Config
-import test.scala.LA32RInstrBuilder._
+import LA32RInstrBuilder._
 import scala.collection.mutable
 import scala.util.Random
 
