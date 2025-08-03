@@ -105,7 +105,7 @@ case class UartAxiControllerConfig(
     axiConfig: Axi4Config,
     clk_freq: BigInt,
     uart_baud: Int,
-    fifoDepth: Int = 16 // 接收FIFO深度
+    fifoDepth: Int = 8 // 接收FIFO深度
 ) {
   require(isPow2(fifoDepth), "fifoDepth must be a power of 2")
   // 只支持AXI4-Lite，所以一些AXI4的特性需要禁用

@@ -47,7 +47,12 @@ class AutomatedUartDriver(txd: Bool, rxd: Bool, cd: ClockDomain, interactive: Bo
         val char = byte.toChar
         receivedBuffer.append(char)
         if (interactive) {
-          println(s"Got character: '$char'")
+          // println(s"Got character: '$char'")
+          val ANSI_GREEN = "\u001B[32m";
+          val ANSI_RESET = "\u001B[0m";
+          def wrapIfASCII(c: Char) = if (c.toInt < 128) c else s"$ANSI_GREEN$c$ANSI_RESET"
+
+          print(wrapIfASCII(char))
         }
       }
 
@@ -104,7 +109,7 @@ class AutomatedUartDriver(txd: Bool, rxd: Bool, cd: ClockDomain, interactive: Bo
           } else { // Stop bit
             if(enableLog) println(s"[DRIVER-RX] Expecting stop bit...")
             if (currentTxd) { // Valid stop bit
-                println(f"[DRIVER-RX] Stop bit OK. Byte received: 0x${currentRxByte.toHexString} ('${currentRxByte.toChar}')")
+                if(enableLog) println(f"[DRIVER-RX] Stop bit OK. Byte received: 0x${currentRxByte.toHexString} ('${currentRxByte.toChar}')")
                 if(interactive) {
                     print(currentRxByte.toChar)
                 } else {

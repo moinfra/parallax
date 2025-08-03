@@ -14,6 +14,8 @@ import java.io.FileOutputStream
 import parallax.issue.CommitSlotLog
 import parallax.components.uart.UartAxiController
 import parallax.components.uart.UartAxiControllerConfig
+import java.nio.{ByteBuffer, ByteOrder}
+import scala.collection.mutable
 
 /** Testbench for LabSpec.
   * This component wraps the CoreNSCSCC DUT and connects it to two SimulatedSRAM instances,
@@ -32,14 +34,14 @@ class LabTestBench(
   val dut = new CoreNSCSCC(simDebug = true)
   // 1. 创建一个匹配DUT UART IO接口的Axi4Config
   // 我们直接从DUT的IO信号获取正确的位宽，这是最健壮的做法
-  val uartInterfaceAxiConfig = dut.axiConfig.copy(
+  val uartAxiConfig = dut.axiConfig.copy(
     idWidth = dut.io.uart_ar_bits_id.getWidth // getWidth会返回8
   )
   
   // 2. 使用这个新的、正确的配置来实例化 UartAxiController
   val uartCtrl = new UartAxiController(
     UartAxiControllerConfig(
-      axiConfig = uartInterfaceAxiConfig, // <--- 使用修正后的配置
+      axiConfig = uartAxiConfig, // <--- 使用修正后的配置
       clk_freq = 100 * 1000 * 1000,
       uart_baud = 9600
     )
@@ -103,13 +105,7 @@ class LabTestBench(
   dSram.io.ram.we_n := !dut.io.dsram_we
   dSram.io.ram.be_n := ~dut.io.dsram_wmask
 
-  // --- Simulated UART (LabUartSim) ---
-  // UART AXI config must match what CoreNSCSCC generates for its UART AXI master.
-  // CoreNSCSCC's axiConfig has idWidth `pCfg.memOpIdWidth.value`
-  // The uartAxi in CoreNSCSCC (which connects to memSysPlugin) has idWidth `axiConfig.idWidth + log2Up(6)`
-  val uartAxiConfig = dut.axiConfig.copy(idWidth = dut.axiConfig.idWidth + log2Up(6))
-
-  // --- Connect CoreNSCSCC's UART AXI Master to LabUartSim's AXI Slave ---
+    // --- Connect CoreNSCSCC's UART AXI Master to LabUartSim's AXI Slave ---
   // AR Channel (dut -> uartCtrl)
   // dut的Bits需要转换为uartCtrl的UInt
   uartCtrl.io.axi.ar.valid          := dut.io.uart_ar_valid
@@ -1076,48 +1072,78 @@ class LabSpec extends CustomSpinalSimFunSuite {
   }
 
   test("xKernel and automate interaction") {
-    val kernelPath = "bin/kernel.bin" // 替换为你的路径
-    val instructions = LabHelper.readBinary(kernelPath)
-    assert(instructions.nonEmpty, s"No instructions read from $kernelPath.")
+    val kernelPath = "bin/kernel.bin" // 确保这是正确的内核路径
+    val kernelInstructions = LabHelper.readBinary(kernelPath)
+    assert(kernelInstructions.nonEmpty, s"Kernel binary not found or is empty at: $kernelPath")
 
     val compiled = SimConfig.withFstWave
       .addSimulatorFlag("+define+SIMULATION")
       .withConfig(SpinalConfig(defaultClockDomainFrequency = FixedFrequency(100 MHz)))
-      .compile(new LabTestBench(iDataWords = instructions))
+      .compile(new LabTestBench(iDataWords = kernelInstructions))
 
     compiled.doSim { dut =>
       val cd = dut.clockDomain.get
       cd.forkStimulus(frequency = 100 MHz)
 
-      println("--- Starting CPU with kernel and Automated UART Driver ---")
+      val uartDriver = new BinaryProtocolDriver(dut.io.txd, dut.io.rxd, cd)
+      uartDriver.start()
 
-      // 1. Instantiate and start the driver
-      val uartDriver = new AutomatedUartDriver(dut.io.txd, dut.io.rxd, cd, interactive = false)
-      uartDriver.start() // This forks the background TX/RX processes
+      // 与内核同步
+      uartDriver.expectString("MONITOR for Loongarch32 - initialized.", timeoutCycles = 2000000)
+      val baselineRegs = uartDriver.readRegisters()
+      println("[INFO] Baseline register state captured after kernel initialization.")
+      (0 to 31).foreach { i =>
+        println(f"[INFO] Baseline r$i = 0x${baselineRegs(i-2)}%08x")
+      }
+      def createUserProgram(): Array[Byte] = {
+        import _root_.test.scala.LA32RInstrBuilder._
+        val instructions = mutable.ArrayBuffer[BigInt]()
+        val value1: Long = 0x12345678L
+        instructions += lu12i_w(rd = 4, imm = (value1 >>> 12).toInt)
+        instructions += ori(rd = 4, rj = 4, imm = (value1 & 0xFFF).toInt)
+        val value2: Long = 0xABCDEF01L
+        instructions += lu12i_w(rd = 5, imm = (value2 >>> 12).toInt)
+        instructions += ori(rd = 5, rj = 5, imm = (value2 & 0xFFF).toInt)
+        instructions += jirl(rd = 0, rj = 1, offset = 0) // jr $ra
+        val byteBuffer = ByteBuffer.allocate(instructions.length * 4).order(ByteOrder.LITTLE_ENDIAN)
+        instructions.foreach(inst => byteBuffer.putInt(inst.toInt))
+        byteBuffer.array()
+      }
 
-      // 2. Wait for the Kernel's welcome message.
-      //    This also implicitly waits for the CPU to boot and initialize the UART.
-      println("[TEST] Waiting for welcome message...")
-      uartDriver.expectString("Welcome to LoongArch", timeoutCycles = 500000) // 调整超时和期望字符串
+      val userProgram = createUserProgram()
+      val userProgramLoadAddr = 0x80100000L
 
-      // // 3. Send the 'R' command to read registers.
-      // //    The monitor program likely expects a newline character.
-      // println("[TEST] Sending 'R' command...")
-      // uartDriver.sendString("R\n")
+      println("\n--- Test Phase: Load and Run User Program ---")
 
-      // // 4. Wait for the response to the 'R' command.
-      // //    The response format depends on your monitor program. Let's assume it prints "a0:".
-      // println("[TEST] Waiting for register dump...")
-      // uartDriver.expectString("a0: ", timeoutCycles = 100000)
+      uartDriver.writeMemory(userProgramLoadAddr, userProgram)
+      cd.waitSampling(1000) 
+      
+      // 现在可以安全地调用完整的go()函数，因为它会正常结束
+      val userUartOutput = uartDriver.go(userProgramLoadAddr)
+      
+      assert(userUartOutput.isEmpty, s"User program produced unexpected UART output: $userUartOutput")
+      println("[PASS] User program executed and returned control to kernel.")
 
-      // // You can add more interactions here, e.g., loading a user program with 'A'
-      // // uartDriver.sendString("A ...\n")
-      // // uartDriver.expectString(...)
+      cd.waitSampling(100)
 
-      // println("[TEST] Automated interaction successful. Finishing simulation.")
-      cd.waitSampling(1000) // Wait a bit more to ensure all logs are flushed.
+      println("\n--- Test Phase: Verify Execution Result ---")
+      
+      val finalRegs = uartDriver.readRegisters()
+
+      val r4_index = 4 - 2 
+      val r5_index = 5 - 2
+
+      assert(finalRegs(r4_index) == 0x12345678, f"Verification failed: Register r4 should be 0x12345678, but was 0x${finalRegs(r4_index)}%x")
+      println(f"[PASS] Register r4 correctly set to 0x12345678.")
+      
+      assert(finalRegs(r5_index) == 0xABCDEF01, f"Verification failed: Register r5 should be 0xABCDEF01, but was 0x${finalRegs(r5_index)}%x")
+      println(f"[PASS] Register r5 correctly set to 0xABCDEF01.")
+
+      println("\n[SUCCESS] Full test case completed successfully!")
+      cd.waitSampling(1000)
     }
   }
+
 
   test("BL, PCADDU12I, XORI, MUL.W Comprehensive Test") {
     // --- 1. Register and Constant Definitions ---

@@ -1,31 +1,10 @@
 // Generator : SpinalHDL dev    git head : 49a99dae7b6ed938ae50042417514f24dcaeaaa8
 // Component : CoreNSCSCC
-// Git hash  : 22feb6aa6c78f9eb1fe27610fd9e071b9ff1372b
+// Git hash  : e9607dcf6a4e7d652f3265996574e68e77bfd620
 
 `timescale 1ns/1ps
 
 module CoreNSCSCC (
-  input  wire          clk,
-  output wire          StoreRingBufferPlugin_logic_pop_write_logic_popMonitor_valid,
-  output wire [3:0]    StoreRingBufferPlugin_logic_pop_write_logic_popMonitor_payload_txid,
-  output wire          StoreRingBufferPlugin_logic_pop_write_logic_popMonitor_payload_isFlush,
-  output wire [31:0]   StoreRingBufferPlugin_logic_pop_write_logic_popMonitor_payload_pc,
-  output wire [31:0]   StoreRingBufferPlugin_logic_pop_write_logic_popMonitor_payload_addr,
-  output wire [31:0]   StoreRingBufferPlugin_logic_pop_write_logic_popMonitor_payload_data,
-  output wire [3:0]    StoreRingBufferPlugin_logic_pop_write_logic_popMonitor_payload_be,
-  output wire [3:0]    StoreRingBufferPlugin_logic_pop_write_logic_popMonitor_payload_robPtr,
-  output wire [1:0]    StoreRingBufferPlugin_logic_pop_write_logic_popMonitor_payload_accessSize,
-  output wire          StoreRingBufferPlugin_logic_pop_write_logic_popMonitor_payload_isIO,
-  output wire          StoreRingBufferPlugin_logic_pop_write_logic_popMonitor_payload_isCoherent,
-  output wire          StoreRingBufferPlugin_logic_pop_write_logic_popMonitor_payload_valid,
-  output wire          StoreRingBufferPlugin_logic_pop_write_logic_popMonitor_payload_hasEarlyException,
-  output wire [7:0]    StoreRingBufferPlugin_logic_pop_write_logic_popMonitor_payload_earlyExceptionCode,
-  output wire          StoreRingBufferPlugin_logic_pop_write_logic_popMonitor_payload_isCommitted,
-  output wire          StoreRingBufferPlugin_logic_pop_write_logic_popMonitor_payload_sentCmd,
-  output wire          StoreRingBufferPlugin_logic_pop_write_logic_popMonitor_payload_waitRsp,
-  output wire          StoreRingBufferPlugin_logic_pop_write_logic_popMonitor_payload_isWaitingForRefill,
-  output wire          StoreRingBufferPlugin_logic_pop_write_logic_popMonitor_payload_isWaitingForWb,
-  output wire [7:0]    StoreRingBufferPlugin_logic_pop_write_logic_popMonitor_payload_refillSlotToWatch,
   output wire [7:0]    io_dpy0,
   output wire [7:0]    io_dpy1,
   output wire [15:0]   io_leds,
@@ -73,6 +52,27 @@ module CoreNSCSCC (
   output wire          io_uart_w_bits_last,
   output wire          io_uart_w_valid,
   output wire          io_uart_b_ready,
+  input  wire          clk,
+  output wire          StoreRingBufferPlugin_logic_pop_write_logic_popMonitor_valid,
+  output wire [3:0]    StoreRingBufferPlugin_logic_pop_write_logic_popMonitor_payload_txid,
+  output wire          StoreRingBufferPlugin_logic_pop_write_logic_popMonitor_payload_isFlush,
+  output wire [31:0]   StoreRingBufferPlugin_logic_pop_write_logic_popMonitor_payload_pc,
+  output wire [31:0]   StoreRingBufferPlugin_logic_pop_write_logic_popMonitor_payload_addr,
+  output wire [31:0]   StoreRingBufferPlugin_logic_pop_write_logic_popMonitor_payload_data,
+  output wire [3:0]    StoreRingBufferPlugin_logic_pop_write_logic_popMonitor_payload_be,
+  output wire [3:0]    StoreRingBufferPlugin_logic_pop_write_logic_popMonitor_payload_robPtr,
+  output wire [1:0]    StoreRingBufferPlugin_logic_pop_write_logic_popMonitor_payload_accessSize,
+  output wire          StoreRingBufferPlugin_logic_pop_write_logic_popMonitor_payload_isIO,
+  output wire          StoreRingBufferPlugin_logic_pop_write_logic_popMonitor_payload_isCoherent,
+  output wire          StoreRingBufferPlugin_logic_pop_write_logic_popMonitor_payload_valid,
+  output wire          StoreRingBufferPlugin_logic_pop_write_logic_popMonitor_payload_hasEarlyException,
+  output wire [7:0]    StoreRingBufferPlugin_logic_pop_write_logic_popMonitor_payload_earlyExceptionCode,
+  output wire          StoreRingBufferPlugin_logic_pop_write_logic_popMonitor_payload_isCommitted,
+  output wire          StoreRingBufferPlugin_logic_pop_write_logic_popMonitor_payload_sentCmd,
+  output wire          StoreRingBufferPlugin_logic_pop_write_logic_popMonitor_payload_waitRsp,
+  output wire          StoreRingBufferPlugin_logic_pop_write_logic_popMonitor_payload_isWaitingForRefill,
+  output wire          StoreRingBufferPlugin_logic_pop_write_logic_popMonitor_payload_isWaitingForWb,
+  output wire [7:0]    StoreRingBufferPlugin_logic_pop_write_logic_popMonitor_payload_refillSlotToWatch,
   input  wire          reset
 );
   localparam BranchCondition_NUL = 5'd0;
@@ -3274,7 +3274,7 @@ module CoreNSCSCC (
   reg        [31:0]   CommitPlugin_logic_s1_s1_maxCommitPcThisCycle;
   reg                 CommitPlugin_logic_s1_s1_anyCommitOOB;
   wire                CommitPlugin_logic_s1_s1_hasCommitsThisCycle;
-  wire                when_CommitPlugin_l352;
+  wire                when_CommitPlugin_l355;
   wire       [4:0]    _zz_when_Debug_l71_5;
   wire                when_Debug_l71_4;
   wire       [7:0]    _zz_28;
@@ -6258,9 +6258,9 @@ module CoreNSCSCC (
   wire       [5:0]    commitLog_0_oldPhysDest;
   wire                commitLog_0_allocatesPhysDest;
   reg                 _zz_io_leds;
-  wire                _zz_when_CoreNSCSCC_l677;
-  reg                 _zz_when_CoreNSCSCC_l677_1;
-  wire                when_CoreNSCSCC_l677;
+  wire                _zz_when_CoreNSCSCC_l687;
+  reg                 _zz_when_CoreNSCSCC_l687_1;
+  wire                when_CoreNSCSCC_l687;
   `ifndef SYNTHESIS
   reg [87:0] _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_string;
   reg [39:0] _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_string;
@@ -16919,7 +16919,7 @@ module CoreNSCSCC (
   assign CommitPlugin_commitSlotLogs_0_oldPhysDest = ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_oldPhysDest_idx;
   assign CommitPlugin_commitSlotLogs_0_allocatesPhysDest = ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_allocatesPhysDest;
   assign CommitPlugin_logic_s1_s1_hasCommitsThisCycle = (1'b0 < CommitPlugin_logic_s1_s1_committedThisCycle);
-  assign when_CommitPlugin_l352 = (CommitPlugin_logic_s1_s1_hasCommitsThisCycle && (CommitPlugin_maxCommitPcReg < CommitPlugin_logic_s1_s1_maxCommitPcThisCycle));
+  assign when_CommitPlugin_l355 = (CommitPlugin_logic_s1_s1_hasCommitsThisCycle && (CommitPlugin_maxCommitPcReg < CommitPlugin_logic_s1_s1_maxCommitPcThisCycle));
   assign oneShot_15_io_triggerIn = (CommitPlugin_logic_s0_committedThisCycle_comb[0] && (_zz_when_Debug_l71 < _zz_io_triggerIn_8));
   assign _zz_when_Debug_l71_5 = 5'h19;
   assign when_Debug_l71_4 = (_zz_when_Debug_l71 < _zz_when_Debug_l71_4_1);
@@ -28531,8 +28531,8 @@ module CoreNSCSCC (
   assign axi4WriteOnlyArbiter_5_io_inputs_2_aw_payload_id = {1'd0, io_outputs_2_aw_validPipe_payload_id_2};
   assign io_dpy0 = DebugDisplayPlugin_hw_dpyController_io_dpy0_out;
   assign io_dpy1 = DebugDisplayPlugin_hw_dpyController_io_dpy1_out;
-  assign _zz_when_CoreNSCSCC_l677 = io_switch_btn_buffercc_io_dataOut;
-  assign when_CoreNSCSCC_l677 = (_zz_when_CoreNSCSCC_l677 && (! _zz_when_CoreNSCSCC_l677_1));
+  assign _zz_when_CoreNSCSCC_l687 = io_switch_btn_buffercc_io_dataOut;
+  assign when_CoreNSCSCC_l687 = (_zz_when_CoreNSCSCC_l687 && (! _zz_when_CoreNSCSCC_l687_1));
   assign io_leds = _zz_io_leds_1[15:0];
   always @(posedge clk) begin
     if(reset) begin
@@ -29258,26 +29258,13 @@ module CoreNSCSCC (
         CheckpointManagerPlugin_logic_hasValidCheckpoint <= 1'b1;
       end
       CommitPlugin_logic_scheduedFlush <= CommitPlugin_logic_mispredictedBranchCanCommit;
-      if(when_CommitPlugin_l279) begin
-        if(CommitPlugin_logic_mispredictedBranchCanCommit) begin
-          `ifndef SYNTHESIS
-            `ifdef FORMAL
-              assert(1'b0); // CommitPlugin.scala:L285
-            `else
-              if(!1'b0) begin
-                $display("NOTE(CommitPlugin.scala:285):  [notice ] %x     [33mMISPREDICT MARK (T): Marking for flush in next cycle. PC=0x%x, Target=0x%x. This branch instruction itself is being committed.[0m", PerfCounter_cycles, ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_pc, ROBPlugin_robComponent_io_commit_0_entry_status_targetPc); // CommitPlugin.scala:L285
-              end
-            `endif
-          `endif
-        end
-      end
       if(CommitPlugin_logic_s0_commitAckMasks_0) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert((! CommitPlugin_logic_scheduedFlush)); // CommitPlugin.scala:L298
+            assert((! CommitPlugin_logic_scheduedFlush)); // CommitPlugin.scala:L301
           `else
             if(!(! CommitPlugin_logic_scheduedFlush)) begin
-              $display("FAILURE Cannot commit this cycle when a mispredicted branch caused a flush."); // CommitPlugin.scala:L298
+              $display("FAILURE Cannot commit this cycle when a mispredicted branch caused a flush."); // CommitPlugin.scala:L301
               $finish;
             end
           `endif
@@ -29288,7 +29275,7 @@ module CoreNSCSCC (
       CommitPlugin_logic_s1_s1_flushedThisCycle <= CommitPlugin_logic_scheduedFlush;
       CommitPlugin_logic_s1_s1_maxCommitPcThisCycle <= CommitPlugin_logic_s0_maxCommitPcThisCycle;
       CommitPlugin_logic_s1_s1_anyCommitOOB <= CommitPlugin_logic_s0_anyCommitOOB;
-      if(when_CommitPlugin_l352) begin
+      if(when_CommitPlugin_l355) begin
         CommitPlugin_maxCommitPcReg <= CommitPlugin_logic_s1_s1_maxCommitPcThisCycle;
       end
       if(CommitPlugin_logic_s1_s1_anyCommitOOB) begin
@@ -32059,7 +32046,7 @@ module CoreNSCSCC (
       if(io_outputs_2_aw_validPipe_fire_2) begin
         io_outputs_2_aw_rValid_2 <= 1'b0;
       end
-      if(when_CoreNSCSCC_l677) begin
+      if(when_CoreNSCSCC_l687) begin
         _zz_io_leds <= (! _zz_io_leds);
       end
     end
@@ -32641,7 +32628,7 @@ module CoreNSCSCC (
     end
     _zz_io_push_payload_address <= LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp;
     _zz_io_push_payload_storeData <= LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp;
-    _zz_when_CoreNSCSCC_l677_1 <= _zz_when_CoreNSCSCC_l677;
+    _zz_when_CoreNSCSCC_l687_1 <= _zz_when_CoreNSCSCC_l687;
   end
 
   always @(posedge clk) begin
@@ -48156,17 +48143,7 @@ module SmartDispatcher (
           end
         end
         (fsm_stateReg[fsm_1_DISPATCHING_OH_ID]) : begin
-          if(io_flush) begin
-            `ifndef SYNTHESIS
-              `ifdef FORMAL
-                assert(1'b0); // SmartDispatcher.scala:L227
-              `else
-                if(!1'b0) begin
-                  $display("NOTE(SmartDispatcher.scala:227):  [notice ] <null>     [33mDISPATCHER: Flush received in DISPATCHING. -> DRAINING_BPU[0m"); // SmartDispatcher.scala:L227
-                end
-              `endif
-            `endif
-          end else begin
+          if(!io_flush) begin
             if(isBusyReg) begin
               if(fetchGroupReg_fault) begin
                 isBusyReg <= 1'b0;
@@ -48199,17 +48176,7 @@ module SmartDispatcher (
           end
         end
         (fsm_stateReg[fsm_1_WAITING_FOR_BPU_OH_ID]) : begin
-          if(io_flush) begin
-            `ifndef SYNTHESIS
-              `ifdef FORMAL
-                assert(1'b0); // SmartDispatcher.scala:L296
-              `else
-                if(!1'b0) begin
-                  $display("NOTE(SmartDispatcher.scala:296):  [notice ] <null>     [33mDISPATCHER: Flushing while WAITING_FOR_BPU. -> DRAINING_BPU[0m"); // SmartDispatcher.scala:L296
-                end
-              `endif
-            `endif
-          end else begin
+          if(!io_flush) begin
             if(when_SmartDispatcher_l302) begin
               `ifndef SYNTHESIS
                 `ifdef FORMAL
@@ -48227,17 +48194,7 @@ module SmartDispatcher (
           end
         end
         (fsm_stateReg[fsm_1_SEND_BRANCH_OH_ID]) : begin
-          if(io_flush) begin
-            `ifndef SYNTHESIS
-              `ifdef FORMAL
-                assert(1'b0); // SmartDispatcher.scala:L339
-              `else
-                if(!1'b0) begin
-                  $display("NOTE(SmartDispatcher.scala:339):  [notice ] <null>     [33mDISPATCHER: Flush received in SEND_BRANCH. -> DRAINING_BPU[0m"); // SmartDispatcher.scala:L339
-                end
-              `endif
-            `endif
-          end else begin
+          if(!io_flush) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
                 assert(outputRegValid); // SmartDispatcher.scala:L343

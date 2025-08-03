@@ -282,10 +282,13 @@ class CommitPlugin(
         saveCheckpointTrigger := True
         if(enableLog) debug(L"CHECKPOINT: Save checkpoint triggered on successful commit. PC=0x${headUop.decoded.pc}")
         when(mispredictedBranchCanCommit) {
-          ParallaxSim.notice(
-            L"MISPREDICT MARK (T): Marking for flush in next cycle. PC=0x${headUop.decoded.pc}, " :+
-              L"Target=0x${headSlot.entry.status.targetPc}. This branch instruction itself is being committed."
-          )
+          if(enableLog) report(L".")
+          if (enableLog) {
+            ParallaxSim.notice(
+              L"MISPREDICT MARK (T): Marking for flush in next cycle. PC=0x${headUop.decoded.pc}, " :+
+                L"Target=0x${headSlot.entry.status.targetPc}. This branch instruction itself is being committed."
+            )
+          }
         }
       }
 

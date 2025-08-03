@@ -31,6 +31,8 @@ import parallax.fetch.icache.ICacheConfig
 import parallax.fetch2.FetchService
 import parallax.pass.EnforceSyncRamPhase
 import spinal.core.sim.SimDataPimper
+import parallax.components.uart.UartAxiController
+import parallax.components.uart.UartAxiControllerConfig
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // 1. 定义新的 Service 和 Connector Plugin
@@ -353,6 +355,14 @@ class CoreNSCSCC(simDebug: Boolean = false, injectAxi: Boolean = false) extends 
   )
 
   val axiConfig = createAxi4Config(pCfg)
+  val uartAxiConfig = axiConfig.copy(
+    idWidth = io.uart_ar_bits_id.getWidth // getWidth会返回8
+  )
+  val uartCtrlConfig = UartAxiControllerConfig(
+      axiConfig = uartAxiConfig, // <--- 使用修正后的配置
+      clk_freq = 100 * 1000 * 1000,
+      uart_baud = 9600
+  )
 
   // 实际不启用，但是为了彻底禁用要大改，没时间了
   val dCfg = DataCachePluginConfig(
@@ -691,7 +701,9 @@ object CoreNSCSCCGen extends App {
     targetDirectory = "soc"
   )
   spinalConfig.addTransformationPhase(new EnforceSyncRamPhase)
-  spinalConfig.generateVerilog(new CoreNSCSCC)
+  lazy val core = new CoreNSCSCC()
+  spinalConfig.generateVerilog(core)
+  spinalConfig.generateVerilog(new UartAxiController(core.uartCtrlConfig))
   println("CoreNSCSCC Verilog Generation DONE")
 
   // Copy generated verilog to target directory if it exists

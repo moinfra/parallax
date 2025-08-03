@@ -224,7 +224,7 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
 
     DISPATCHING.whenIsActive {
       when(io.flush) {
-        ParallaxSim.notice(L"DISPATCHER: Flush received in DISPATCHING. -> DRAINING_BPU")
+        if(enableLog) ParallaxSim.notice(L"DISPATCHER: Flush received in DISPATCHING. -> DRAINING_BPU")
         // isBusyReg 保持为 True，由 DRAINING_BPU 状态清理
         goto(DRAINING_BPU)
       }.elsewhen(isBusyReg) { // 确保只有当处于 Busy 状态时才尝试分发
@@ -293,7 +293,7 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
     WAITING_FOR_BPU.whenIsActive {
       if(enableLog) report(L"DISPATCH-WAIT-DEBUG: Current State (BEFORE flush check): io.flush=${io.flush}, io.bpuRsp.valid=${io.bpuRsp.valid}, io.bpuRsp.payload.transactionId=${io.bpuRsp.payload.transactionId}, pendingTID=${pendingBpuQueryReg.bpuTransactionId}")
       when(io.flush) {
-        ParallaxSim.notice(L"DISPATCHER: Flushing while WAITING_FOR_BPU. -> DRAINING_BPU")
+        if(enableLog) ParallaxSim.notice(L"DISPATCHER: Flushing while WAITING_FOR_BPU. -> DRAINING_BPU")
         // isBusyReg 保持为 True，由 DRAINING_BPU 状态清理
         goto(DRAINING_BPU)
       }.otherwise {
@@ -336,7 +336,7 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
 
     SEND_BRANCH.whenIsActive {
       when(io.flush) {
-        ParallaxSim.notice(L"DISPATCHER: Flush received in SEND_BRANCH. -> DRAINING_BPU")
+        if (enableLog) ParallaxSim.notice(L"DISPATCHER: Flush received in SEND_BRANCH. -> DRAINING_BPU")
         // isBusyReg 保持为 True，由 DRAINING_BPU 状态清理
         goto(DRAINING_BPU)
       } otherwise {
