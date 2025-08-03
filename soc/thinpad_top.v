@@ -13,7 +13,7 @@ module thinpad_top(
     output wire[7:0]  dpy0,       //数码管低位信号，包括小数点，输出1点亮
     output wire[7:0]  dpy1,       //数码管高位信号，包括小数点，输出1点亮
 
-    //CPLD串口控制器信号
+    //CPLD串口控制器信号 (未使用，保持悬空)
     output wire uart_rdn,         //读串口信号，低有效
     output wire uart_wrn,         //写串口信号，低有效
     input wire uart_dataready,    //串口数据准备好
@@ -60,7 +60,12 @@ module thinpad_top(
     output wire video_de           //行数据有效信号，用于区分消隐区
 );
 
-//assign leds = dip_sw[15:0];
+// assign leds = dip_sw[15:0];
+
+// CPLD串口信号未使用，根据开发板手册要求设置为高阻态或者默认值
+assign uart_rdn = 1'b1;
+assign uart_wrn = 1'b1;
+
 
 wire [31:0] io_isram_dout;
 wire [19:0] io_isram_addr;
@@ -110,9 +115,9 @@ ram_wrapper dwrapper(
     .io_sram_re     (io_dsram_re),
     .io_sram_we     (io_dsram_we),
     .io_sram_wmask  (io_dsram_wmask)
-
 );
 
+// 为Core和UART控制器之间的AXI接口定义wire
 wire         io_uart_ar_ready;
 wire  [7:0]  io_uart_r_id;
 wire  [1:0]  io_uart_r_resp;
@@ -124,9 +129,7 @@ wire         io_uart_w_ready;
 wire  [7:0]  io_uart_b_id;
 wire  [1:0]  io_uart_b_resp;
 wire         io_uart_b_valid;
-
-
-wire [7:0]  io_uart_ar_id;
+wire  [7:0]  io_uart_ar_id;
 wire [31:0] io_uart_ar_addr;
 wire [7:0]  io_uart_ar_len;
 wire [2:0]  io_uart_ar_size;
@@ -141,9 +144,9 @@ wire [1:0]  io_uart_aw_burst;
 wire        io_uart_aw_valid;
 wire [31:0] io_uart_w_data;
 wire [3:0]  io_uart_w_strb;
-wire        io_uart_w_last,
-            io_uart_w_valid,
-            io_uart_b_ready;
+wire        io_uart_w_last;
+wire        io_uart_w_valid;
+wire        io_uart_b_ready;
 
 
 wire clk_cpu;
@@ -153,7 +156,7 @@ reg rst_cpu;
 clk_wiz_0 clk_wiz_0_inst(
     .reset(reset_btn),
     .clk_50M(clk_50M),
-    .clk_cpu(clk_cpu),
+    .clk_cpu(clk_cpu), // 假设此输出为100MHz
     .locked(clk_locked)
 );
 
@@ -180,6 +183,7 @@ CoreNSCSCC core(
     .io_dsram_we(io_dsram_we),
     .io_dsram_wmask(io_dsram_wmask),
 
+    // 连接Core的UART AXI总线
     .io_uart_ar_ready(io_uart_ar_ready),
     .io_uart_r_bits_id(io_uart_r_id),
     .io_uart_r_bits_resp(io_uart_r_resp),
@@ -191,7 +195,6 @@ CoreNSCSCC core(
     .io_uart_b_bits_id(io_uart_b_id),
     .io_uart_b_bits_resp(io_uart_b_resp),
     .io_uart_b_valid(io_uart_b_valid),
-
     .io_uart_ar_bits_id(io_uart_ar_id),
     .io_uart_ar_bits_addr(io_uart_ar_addr),
     .io_uart_ar_bits_len(io_uart_ar_len),
@@ -210,6 +213,7 @@ CoreNSCSCC core(
     .io_uart_w_bits_last(io_uart_w_last),
     .io_uart_w_valid(io_uart_w_valid),
     .io_uart_b_ready(io_uart_b_ready),
+    
     // 连接新增的数码管端口
     .io_dpy0(dpy0),
     .io_dpy1(dpy1),
@@ -217,46 +221,53 @@ CoreNSCSCC core(
     .io_switch_btn(touch_btn[0])
 );
 
-uart_wrapper#(
-    .clk_freq(100000000),
-    .uart_baud(9600)
-) uart(
-    .clk(clk_cpu),
-    .rst(reset_btn),
+// 实例化新的 UartAxiController
+UartAxiController uart_controller(
+  .clk(clk_cpu),
+  .reset(rst_cpu),
 
-    .txd(txd),
-    .rxd(rxd),
+  // UART 物理引脚
+  .io_txd(txd),
+  .io_rxd(rxd),
 
-    .io_uart_ar_ready(io_uart_ar_ready),
-    .io_uart_r_id(io_uart_r_id),
-    .io_uart_r_resp(io_uart_r_resp),
-    .io_uart_r_data(io_uart_r_data),
-    .io_uart_r_last(io_uart_r_last),
-    .io_uart_r_valid(io_uart_r_valid),
-    .io_uart_aw_ready(io_uart_aw_ready),
-    .io_uart_w_ready(io_uart_w_ready),
-    .io_uart_b_id(io_uart_b_id),
-    .io_uart_b_resp(io_uart_b_resp),
-    .io_uart_b_valid(io_uart_b_valid),
+  // AXI Write Address Channel
+  .io_axi_aw_valid(io_uart_aw_valid),
+  .io_axi_aw_ready(io_uart_aw_ready),
+  .io_axi_aw_payload_addr(io_uart_aw_addr),
+  .io_axi_aw_payload_id(io_uart_aw_id),
+  .io_axi_aw_payload_len(io_uart_aw_len),
+  .io_axi_aw_payload_size(io_uart_aw_size),
+  .io_axi_aw_payload_burst(io_uart_aw_burst),
 
-    .io_uart_ar_id(io_uart_ar_id),
-    .io_uart_ar_addr(io_uart_ar_addr),
-    .io_uart_ar_len(io_uart_ar_len),
-    .io_uart_ar_size(io_uart_ar_size),
-    .io_uart_ar_burst(io_uart_ar_burst),
-    .io_uart_ar_valid(io_uart_ar_valid),
-    .io_uart_r_ready(io_uart_r_ready),
-    .io_uart_aw_id(io_uart_aw_id),
-    .io_uart_aw_addr(io_uart_aw_addr),
-    .io_uart_aw_len(io_uart_aw_len),
-    .io_uart_aw_size(io_uart_aw_size),
-    .io_uart_aw_burst(io_uart_aw_burst),
-    .io_uart_aw_valid(io_uart_aw_valid),
-    .io_uart_w_data(io_uart_w_data),
-    .io_uart_w_strb(io_uart_w_strb),
-    .io_uart_w_last(io_uart_w_last),
-    .io_uart_w_valid(io_uart_w_valid),
-    .io_uart_b_ready(io_uart_b_ready)
+  // AXI Write Data Channel
+  .io_axi_w_valid(io_uart_w_valid),
+  .io_axi_w_ready(io_uart_w_ready),
+  .io_axi_w_payload_data(io_uart_w_data),
+  .io_axi_w_payload_strb(io_uart_w_strb),
+  .io_axi_w_payload_last(io_uart_w_last),
+
+  // AXI Write Response Channel
+  .io_axi_b_valid(io_uart_b_valid),
+  .io_axi_b_ready(io_uart_b_ready),
+  .io_axi_b_payload_id(io_uart_b_id),
+  .io_axi_b_payload_resp(io_uart_b_resp),
+
+  // AXI Read Address Channel
+  .io_axi_ar_valid(io_uart_ar_valid),
+  .io_axi_ar_ready(io_uart_ar_ready),
+  .io_axi_ar_payload_addr(io_uart_ar_addr),
+  .io_axi_ar_payload_id(io_uart_ar_id),
+  .io_axi_ar_payload_len(io_uart_ar_len),
+  .io_axi_ar_payload_size(io_uart_ar_size),
+  .io_axi_ar_payload_burst(io_uart_ar_burst),
+
+  // AXI Read Data Channel
+  .io_axi_r_valid(io_uart_r_valid),
+  .io_axi_r_ready(io_uart_r_ready),
+  .io_axi_r_payload_data(io_uart_r_data),
+  .io_axi_r_payload_id(io_uart_r_id),
+  .io_axi_r_payload_resp(io_uart_r_resp),
+  .io_axi_r_payload_last(io_uart_r_last)
 );
 
 // assign leds = dip_sw[15:0];
