@@ -411,7 +411,10 @@ class StoreRingBufferPlugin(
         ch.cmd.data := headSlot.data
         ch.cmd.byteEnables := headSlot.be
         ch.cmd.last := True
-        if (ioConfig.get.useId) ch.cmd.id := headSlot.txid
+        if (ioConfig.get.useId) {
+          require(headSlot.txid.getWidth <= ch.cmd.id.getWidth, "TXID is too large for IO channel ID field.")
+          ch.cmd.id := headSlot.txid.resized
+        }
         
         // --- FIX: The response ready signal is now driven by the search result ---
         ch.rsp.ready := ioResponsePort.valid && responseMatchesSlot
@@ -498,72 +501,85 @@ class StoreRingBufferPlugin(
 
       // --- Store-to-Load Forwarding Logic (SqQueryPort) ---
       val fwd = new Area {
-        val query = hw.sqQueryPort.cmd
-        val rsp = hw.sqQueryPort.rsp
+      val query = hw.sqQueryPort.cmd
+      val rsp = hw.sqQueryPort.rsp
 
-        when(query.valid) {
+      when(query.valid) {
           val loadMask = MemAccessSize.toByteEnable(
-            query.payload.size,
-            query.payload.address(byteOffsetRange),
-            dataWidthBytes
+              query.payload.size,
+              query.payload.address(byteOffsetRange),
+              dataWidthBytes
           )
 
-          val bypassInitial = BypassAccumulator(pipelineConfig).setDefault()
+          // ======================= 使用 reduceBalancedTree 的新实现方式 =======================
 
-          // ======================= BUG FIX: 重构暂停信号 =======================
-          // olderStoreIsUncoherent: 用于记录是否遇到了任何一个不可转发的(MMIO)Store
-          var olderStoreIsUncoherent = False
+          // 1. 为每个槽位生成一个初始的BypassAccumulator结果
+          //    这个 Vec[BypassAccumulator] 就是我们要规约的输入序列。
+          //    同时，我们并行地计算出所有暂停相关的信号。
+          val slotBypassResults = Vec(BypassAccumulator(pipelineConfig), sbDepth)
+          var olderStoreIsUncoherent = False // 注意：这里必须用 var
           var hasOlderOverlappingStore = False
-          // =================================================================
 
-          if (enableLog && verbose) debug(L"[SQ-Ring-Fwd] Query: ${query.payload.format}, loadMask=${loadMask}")
+          for (i <- 0 until sbDepth) {
+              val slot = query_view.slotsCurrentCycleView(i)
+              val acc = BypassAccumulator(pipelineConfig).setDefault()
 
-          val finalResult = (0 until sbDepth).foldLeft(bypassInitial) { (acc, i) =>
-            val nextAcc = CombInit(acc)
-            val readPtr = query_view.queryTraversalStartPtr - i
-            val slot = query_view.slotsCurrentCycleView(readPtr)
+              val isRelevant = query_view.isIndexInFlightForQuery(U(i)) && slot.valid &&
+                helper_functions.isOlder(slot.robPtr, query.payload.robPtr)
 
-            val isRelevant = query_view.isIndexInFlightForQuery(readPtr) && slot.valid &&
-              helper_functions.isOlder(slot.robPtr, query.payload.robPtr)
-
-            when(isRelevant) {
               val loadWordAddr = query.payload.address(wordAddrRange)
               val storeWordAddr = slot.addr(wordAddrRange)
+              val addrMatch = loadWordAddr === storeWordAddr
 
-              when(loadWordAddr === storeWordAddr) {
-                hasOlderOverlappingStore := True
-
-                // --- 仅在遍历中判断MMIO ---
+              when(isRelevant && addrMatch) {
+                // 并行计算暂停信号
+                hasOlderOverlappingStore \= True // 使用 \= 进行或聚合
                 when(!slot.isCoherent) {
-                  // 只要遇到一个地址重叠的MMIO，就必须暂停。这个决策是立即且最终的。
-                  olderStoreIsUncoherent := True
-                  if (enableLog && verbose)
-                    debug(
-                      L"[SQ-Ring-Fwd] MMIO Hazard DETECTED from robPtr=${slot.robPtr}, pc=${slot.pc}, addr=${slot.addr}. Load robPtr=${query.payload.robPtr}, addr=${query.payload.address}"
-                    )
+                    olderStoreIsUncoherent \= True
                 }
 
-                // --- 数据转发逻辑: 不再做任何暂停判断！ ---
-                // 只要Load和Store都是Coherent的，就尝试转发数据。
+                // 准备数据转发的 accumulator
                 when(query.payload.isCoherent && slot.isCoherent) {
-                  for (k <- 0 until dataWidthBytes) {
-                    when(slot.be(k) && loadMask(k) && !acc.hitMask(k)) {
-                      nextAcc.data(k * 8, 8 bits) := slot.data(k * 8, 8 bits)
-                      nextAcc.hitMask(k) := True
-                      if (enableLog)
-                        debug(
-                          L"[SQ-Ring-Fwd] Hit byte ${k} from Coherent store robPtr=${slot.robPtr} (slotIdx=${readPtr}) pc=${slot.pc}, addr=${slot.addr}, data=${slot.data}, be=${slot.be}. Load robPtr=${query.payload.robPtr}, addr=${query.payload.address}, size=${query.payload.size}"
-                        )
+                    for (k <- 0 until dataWidthBytes) {
+                        when(slot.be(k) && loadMask(k)) {
+                            acc.data(k * 8, 8 bits) := slot.data(k * 8, 8 bits)
+                            acc.hitMask(k) := True
+                        }
                     }
-                  }
                 }
               }
-            }
-            nextAcc
+              slotBypassResults(i) := acc
+          }
+          
+          // 2. 定义合并函数 (merge operation)
+          def mergeBypassResults(older: BypassAccumulator, newer: BypassAccumulator): BypassAccumulator = {
+              val merged = BypassAccumulator(pipelineConfig)
+              // 合并hitMask
+              merged.hitMask := older.hitMask | newer.hitMask
+
+              // 合并数据：newer（在原始Vec中索引更高）的 store 具有更高优先级
+              for (k <- 0 until dataWidthBytes) {
+                  merged.data(k * 8, 8 bits) := Mux(
+                      newer.hitMask(k),
+                      newer.data(k * 8, 8 bits),
+                      older.data(k * 8, 8 bits)
+                  )
+              }
+              merged
           }
 
-          // ======================= BUG FIX: 在遍历后进行最终的暂停决策 =======================
+          // 3. 直接调用 reduceBalancedTree 进行规约！
+          //    注意：reduceBalancedTree是从索引0开始两两合并，这符合我们的优先级：
+          //    索引更高的store代表更晚进入流水线，优先级也更高。
+          //    因此，我们应该从新到旧遍历，但合并时让新的覆盖旧的。
+          //    Spinal的reduceBalancedTree是从左到右合并，我们需要确保顺序正确。
+          //    (older, newer) => op(older, newer)
+          //    slotBypassResults(0) 和 slotBypassResults(1) 合并时，1是newer
+          //    为了让最新的store有最高优先级，我们需要反转输入Vec。
+          val finalResult = slotBypassResults.reverse.reduceBalancedTree(mergeBypassResults)
 
+
+          // ======================= 之后的所有逻辑保持不变 =======================
           // 1. 数据是否凑齐?
           val allRequiredBytesHit = (finalResult.hitMask & loadMask) === loadMask
 
