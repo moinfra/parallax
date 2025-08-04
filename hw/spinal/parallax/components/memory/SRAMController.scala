@@ -24,6 +24,7 @@ case class SRAMConfig(
     useWordAddressing: Boolean = false,
     enableLog: Boolean = false,
     enableValidation: Boolean = false,
+    // enableNoBurstOpt: Boolean = true, // REMOVED: 动态优化取代此静态选项
 ) {
   require(isPow2(dataWidth / 8), "dataWidth must be a power of 2 bytes")
   require(sizeBytes > 0 && sizeBytes % (dataWidth / 8) == 0, "sramSize must be a multiple of data bus width")
@@ -476,7 +477,12 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
         val waitCond = if (hasWriteWaitCycles) write_wait_counter === config.writeWaitCycles else True
         when(waitCond) {
             burst_count_remaining := burst_count_remaining - 1
-            goto(WRITE_DEASSERT) 
+            // MODIFIED: 根据aw_cmd_reg.len动态选择跳转路径
+            when(aw_cmd_reg.len === 0) {
+                goto(WRITE_DEASSERT_AND_RESPOND) // 快速路径
+            } otherwise {
+                goto(WRITE_DEASSERT) // 完整路径
+            }
         } otherwise {
             hasWriteWaitCycles generate { write_wait_counter := write_wait_counter + 1 }
         }
@@ -494,18 +500,20 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
       whenIsActive {
         val waitCond = if (hasWriteDeassertCycles) write_deassert_counter === (config.writeDeassertCycles - 1) else True
         when(waitCond) {
-            goto(WRITE_FINALIZE)
+            // MODIFIED: 移除对enableNoBurstOpt的检查，无条件跳转到WRITE_BURST_FINALIZE
+            goto(WRITE_BURST_FINALIZE)
         } otherwise {
             hasWriteDeassertCycles generate { write_deassert_counter := write_deassert_counter + 1 }
         }
       }
     }
     
-    // WRITE_FINALIZE 状态
-    val WRITE_FINALIZE: State = new State {
+    // RENAMED: WRITE_FINALIZE -> WRITE_BURST_FINALIZE
+    // WRITE_BURST_FINALIZE 状态：判断是否还有剩余的突发传输
+    val WRITE_BURST_FINALIZE: State = new State {
         onEntry {
             // 释放总线
-            reportRegAssignment("sram_ce_n_out_reg", sram_ce_n_out_reg, True, "WRITE_FINALIZE", "onEntry")
+            reportRegAssignment("sram_ce_n_out_reg", sram_ce_n_out_reg, True, "WRITE_BURST_FINALIZE", "onEntry")
             sram_ce_n_out_reg := True
             sram_data_writeEnable_out_reg := False
         }
@@ -519,6 +527,67 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
         }
     }
 
+    // =================================================================
+    // == FAST PATH for WRITE (len=0)
+    // =================================================================
+    val WRITE_DEASSERT_AND_RESPOND: State = new State {
+      onEntry {
+        // --- Stage 1: De-assert WE_n ---
+        // Per SRAM timing, WE_n must go high while CE_n is still low.
+        // Address and Data must be held stable during this transition.
+        reportRegAssignment("sram_we_n_out_reg", sram_we_n_out_reg, True, "WRITE_DEASSERT_AND_RESPOND", "onEntry")
+        sram_we_n_out_reg := True
+
+        // Keep other signals stable from WRITE_EXECUTE
+        // sram_ce_n_out_reg remains False
+        // sram_addr_out_reg remains at the write address
+        // sram_data_out_reg remains at the write data
+        // sram_data_writeEnable_out_reg remains True
+        
+        // Initialize the de-assert counter
+        hasWriteDeassertCycles generate { write_deassert_counter := 0 }
+      }
+
+      whenIsActive {
+        // --- Stage 2: Wait for de-assert cycles ---
+        // This wait satisfies the SRAM's Write Cycle Time (tWC) and ensures WE_n is high for a minimum duration.
+        val waitCond = if (hasWriteDeassertCycles) write_deassert_counter === (config.writeDeassertCycles - 1) else True
+
+        // During the wait, the AXI response channel is not yet valid.
+        io.axi.b.valid := False
+
+        when(waitCond) {
+          // --- Stage 3: Finalize SRAM cycle and send AXI response ---
+          // The de-assert wait is over. We can now fully release the SRAM and send the AXI response.
+          
+          // Release the SRAM chip and data bus
+          reportRegAssignment("sram_ce_n_out_reg", sram_ce_n_out_reg, True, "WRITE_DEASSERT_AND_RESPOND", "whenIsActive.waitCond")
+          sram_ce_n_out_reg := True
+          sram_data_writeEnable_out_reg := False
+          sram_be_n_out_reg := sram_be_n_inactive_value // Return to inactive state
+          // sram_addr_out_reg can be reset later or left as is, as CE_n is high.
+
+          // Prepare and send the AXI write response
+          val resp_status = transaction_error_occurred ? Axi4.resp.SLVERR | Axi4.resp.OKAY
+          io.axi.b.valid := True
+          io.axi.b.payload.id := aw_cmd_reg.id
+          io.axi.b.payload.resp := resp_status
+
+          if (enableLog) {
+            report(L"$instanceId FAST_WRITE_RESPONSE. ID=${aw_cmd_reg.id}, Resp=${resp_status}")
+          }
+
+          // Wait for the master to accept the response, then we are done.
+          when(io.axi.b.ready) {
+            goto(IDLE)
+          }
+
+        } otherwise {
+          // Continue waiting
+          hasWriteDeassertCycles generate { write_deassert_counter := write_deassert_counter + 1 }
+        }
+      }
+    }
 
 
     val WRITE_DATA_ERROR_CONSUME: State = new State {
@@ -656,10 +725,56 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
         val waitCond = if (hasReadWaitCycles) read_wait_counter === config.readWaitCycles else True
         when(waitCond) {
           read_data_buffer := io.ram.data.read // 在等待周期结束后，锁存SRAM数据
-
-          goto(READ_RESPONSE)
+          // MODIFIED: 根据ar_cmd_reg.len动态选择跳转路径
+          when(ar_cmd_reg.len === 0) {
+              goto(READ_RESPOND_AND_FINISH) // 快速路径
+          } otherwise {
+              goto(READ_RESPONSE) // 完整路径
+          }
         } otherwise {
           hasReadWaitCycles generate { read_wait_counter := read_wait_counter + 1 }
+        }
+      }
+    }
+
+    // =================================================================
+    // == FAST PATH for READ (len=0)
+    // =================================================================
+    val READ_RESPOND_AND_FINISH: State = new State {
+      onEntry {
+        // --- Stage 1: Immediately release SRAM control signals ---
+        // Since this is a single read (len=0), we know we won't need the bus for a subsequent beat.
+        // Releasing the bus now is safe and efficient.
+        // The read data was already latched into `read_data_buffer` in the previous READ_WAIT state.
+        reportRegAssignment("sram_ce_n_out_reg", sram_ce_n_out_reg, True, "READ_RESPOND_AND_FINISH", "onEntry")
+        sram_ce_n_out_reg := True
+        sram_oe_n_out_reg := True
+        sram_we_n_out_reg := True // Should already be true, but set for safety
+        sram_be_n_out_reg := sram_be_n_inactive_value
+        // sram_addr_out_reg can be reset to 0 or left as is, as CE_n is high.
+        sram_addr_out_reg := 0
+      }
+
+      whenIsActive {
+        // --- Stage 2: Send the single AXI read response ---
+        // The response is prepared using the data latched in the previous state.
+        val resp_status = transaction_error_occurred ? Axi4.resp.SLVERR | Axi4.resp.OKAY
+        val data_payload = transaction_error_occurred ? B(0) | read_data_buffer
+
+        io.axi.r.valid := True
+        io.axi.r.payload.id   := ar_cmd_reg.id
+        io.axi.r.payload.data := data_payload
+        io.axi.r.payload.resp := resp_status
+        io.axi.r.payload.last := True // This is the key for a single-beat transaction
+
+        if (enableLog) {
+          report(L"$instanceId FAST_READ_RESPONSE. ID=${ar_cmd_reg.id}, Data=0x${data_payload}, Last=True")
+        }
+
+        // --- Stage 3: Wait for master to accept and return to IDLE ---
+        // Once the master accepts the data (r.fire), the transaction is complete.
+        when(io.axi.r.fire) {
+          goto(IDLE)
         }
       }
     }
