@@ -270,7 +270,30 @@ class LoadRingBufferPlugin(
     }
 
     // =================================================================
-    //  Next-state Logic (Combinational Views)
+    //  Flush Pipeline Registers
+    // =================================================================
+    val flush_pipeline = new Area {
+        /** 标记一个冲刷正在流水线的“应用阶段” */
+        val isApplying = Reg(Bool()).init(False)
+
+        /** 锁存的冲刷计算结果 */
+        val latched_allocPtrNext = Reg(UInt(addressWidth bits)).init(0)
+        val latched_wrapModeNext = Reg(Bool()).init(False)
+        
+        /** 
+         * 每个槽位在冲刷后的新状态。我们用一个Vec来锁存每个槽位的最终命运。
+         * 这比只锁存指针更强大，可以处理更复杂的逻辑，比如标记 draining。
+         */
+        val latched_slotsNext = Vec.fill(lqDepth)(Reg(LoadRingBufferSlot(pipelineConfig, lsuConfig, dCacheParams)))
+
+        for (i <- 0 until lqDepth) {
+            latched_slotsNext(i).init(LoadRingBufferSlot(pipelineConfig, lsuConfig, dCacheParams).setDefault())
+        }
+    }
+
+
+    // =================================================================
+    //  Next-state Logic (Combinational Views) - Regular Operations
     // =================================================================
     val slotsNext = CombInit(storage.slotsReg)
     val allocPtrNext = CombInit(storage.allocPtrReg)
@@ -279,13 +302,15 @@ class LoadRingBufferPlugin(
 
     val doPush = Bool()
     val doPop = Bool() // Will be driven in Part 3
-    val doFlush = hw.robServiceInst.doRobFlush().valid
+    val doFlush_rob = hw.robServiceInst.doRobFlush().valid // Original ROB flush signal
+
 
     // =================================================================
     //  Push Logic (Allocation)
     // =================================================================
     val push_logic = new Area {
-      val canPush = !storage.isFull && !doFlush
+      // Push is only allowed if not full AND no flush is in progress (either calculation or application)
+      val canPush = !storage.isFull && !doFlush_rob && !flush_pipeline.isApplying
       pushCmd.ready := canPush
       doPush := pushCmd.fire
 
@@ -306,15 +331,28 @@ class LoadRingBufferPlugin(
 
 
     // =================================================================
-    //  Flush Logic (Pointer Rollback with Drain Support)
+    //  Flush Logic - Calculation Stage (Cycle N)
     // =================================================================
-    val flush_logic = new Area {
+    val flush_logic_calc = new Area {
       val robFlushPort = hw.robServiceInst.doRobFlush()
-      val doFlush = robFlushPort.valid
+      val doFlush = robFlushPort.valid // This is the input signal to the flush pipeline
+
+      // Combinational outputs for the flush pipeline registers
+      val flush_allocPtrNext = UInt(addressWidth bits)
+      val flush_wrapModeNext = Bool()
+      val flush_slotsNext = Vec.fill(lqDepth)(LoadRingBufferSlot(pipelineConfig, lsuConfig, dCacheParams))
+
+      // Default assignments when no flush is active (important for synthesis)
+      flush_allocPtrNext := storage.allocPtrReg
+      flush_wrapModeNext := storage.wrapModeReg
+      for (i <- 0 until lqDepth) {
+        flush_slotsNext(i) := storage.slotsReg(i)
+      }
+
 
       when(doFlush) {
         if (enableLog)
-          notice(L"[LQ-Ring] FLUSH received. Reason: ${robFlushPort.payload.reason}, targetRobPtr=${robFlushPort.payload.targetRobPtr}")
+          notice(L"[LQ-Ring] FLUSH_CALC: received. Reason: ${robFlushPort.payload.reason}, targetRobPtr=${robFlushPort.payload.targetRobPtr}")
 
         // --- Step 1: Determine the fate of each slot (purely combinational) ---
         val isKept = Vec(Bool(), lqDepth)
@@ -341,51 +379,26 @@ class LoadRingBufferPlugin(
           }
         }
 
-        // ======================= 新的优化实现 =======================
-
         // 1. 定义规约操作所需的数据结构
         case class FindLastResult() extends Bundle {
           val found = Bool()
           val ptr = UInt(addressWidth bits)
         }
 
-        // 2. 准备初始输入向量
-        val initialResults = Vec.tabulate(lqDepth) { i =>
-          val result = FindLastResult()
-          result.found := isKept(i)
-          result.ptr   := U(i)
-          result
-        }
-
-        // 3. 定义合并操作 (older, newer) => merged
-        //    这里的优先级是：如果 newer.found 为真，就取 newer.ptr
-        def mergeFindLast(older: FindLastResult, newer: FindLastResult): FindLastResult = {
-          val merged = FindLastResult()
-          merged.found := older.found || newer.found
-          merged.ptr   := Mux(newer.found, newer.ptr, older.ptr)
-          merged
-        }
-
-        // 4. 使用 reduceBalancedTree 进行规约
-        //    我们想找索引最新的（最大的）那个，但 reduceBalancedTree 是从索引0开始合并。
-        //    所以我们需要反转原始的 isKept 顺序来思考。
-        //    或者更简单的，我们让合并操作优先选择索引更大的指针。
-        //    让我们重新定义合并函数，使其更健壮。
-        def mergeFindLastRobust(left: FindLastResult, right: FindLastResult): FindLastResult = {
-          val merged = FindLastResult()
-          merged.found := left.found || right.found
-          // 关键：总是选择右边（索引更大）的指针，如果它有效的话。否则，如果左边有效，选左边的。
-          merged.ptr := Mux(right.found, right.ptr, left.ptr)
-          merged
-        }
-
-        // 为了找到最新的幸存者，我们需要从 allocPtr-1 倒着找。
-        // 一个更清晰的方式是创建一个 Vec，其顺序就是遍历的顺序，然后规约它。
+        // 2. 为了找到最新的幸存者，我们需要从 allocPtr-1 倒着找。
+        //    创建一个 Vec，其顺序就是遍历的顺序，然后规约它。
         val searchOrderResults = Vec.tabulate(lqDepth) { i =>
-            val readPtr = storage.allocPtrReg - 1 - i // 从新到旧
+            // 计算当前循环迭代对应的逻辑索引
+            val readPtr = (storage.allocPtrReg - 1 - i).resized // 从新到旧
             val result = FindLastResult()
-            result.found := isKept(readPtr)
-            result.ptr   := readPtr
+            // 确保只考虑在飞行中的有效槽位
+            when(storage.isIndexInFlight(readPtr) && storage.slotsReg(readPtr).valid) {
+                result.found := isKept(readPtr)
+                result.ptr   := readPtr
+            }.otherwise {
+                result.found := False
+                result.ptr   := readPtr // 默认值，不重要
+            }
             result
         }
 
@@ -401,14 +414,14 @@ class LoadRingBufferPlugin(
         val lastKeptSlotPtr = finalResult.ptr
 
 
-        // --- Step 3: Update pointers and slot states combinationally ---
+        // --- Step 3: Calculate new pointers and slot states combinationally ---
 
-        // Update pointers based on the combinational search result
+        // Update allocPtr based on the combinational search result
         when(anyKept) {
-          allocPtrNext := lastKeptSlotPtr + 1
+          flush_allocPtrNext := lastKeptSlotPtr + 1
         } otherwise {
           // Nothing is kept, the queue becomes empty.
-          allocPtrNext := storage.freePtrReg
+          flush_allocPtrNext := storage.freePtrReg // Use current freePtr for empty state
         }
 
         // The wrap mode must be re-calculated based on the new allocPtr and OLD freePtr.
@@ -416,11 +429,11 @@ class LoadRingBufferPlugin(
         val newAllocPtr = Mux(anyKept, lastKeptSlotPtr + 1, storage.freePtrReg)
 
         when (newAllocPtr === storage.freePtrReg) {
-          wrapModeRegNext := False // Became empty
+          flush_wrapModeNext := anyKept // If something is kept and pointers meet, it's full. Otherwise, empty.
         } .elsewhen (storage.allocPtrReg > storage.freePtrReg) { // Was not wrapped
-          wrapModeRegNext := newAllocPtr < storage.freePtrReg
+          flush_wrapModeNext := newAllocPtr < storage.freePtrReg
         } .otherwise { // Was wrapped or full
-          wrapModeRegNext := newAllocPtr < storage.freePtrReg || (newAllocPtr === storage.freePtrReg && anyKept)
+          flush_wrapModeNext := newAllocPtr < storage.freePtrReg || (newAllocPtr === storage.freePtrReg && anyKept)
         }
 
         // Update the state of individual slots
@@ -438,11 +451,11 @@ class LoadRingBufferPlugin(
             when(shouldFlushThisSlot) {
               when(slot.isWaitingForMemRsp) {
                 // Mark for draining
-                slotsNext(i).isFlushed := True
+                flush_slotsNext(i).isFlushed := True
                 if(enableLog) debug(L"[LQ-Ring] FLUSH_DRAIN: slotIdx=${i} (robPtr=${slot.robPtr}) marked for draining.")
               } otherwise {
                 // Invalidate immediately
-                slotsNext(i).valid := False
+                flush_slotsNext(i).valid := False
                 if(enableLog) debug(L"[LQ-Ring] FLUSH_INVALIDATE: slotIdx=${i} (robPtr=${slot.robPtr}) invalidated.")
               }
             }
@@ -451,18 +464,30 @@ class LoadRingBufferPlugin(
 
         if (enableLog)
           notice(
-            L"[LQ-Ring] FLUSH_POINTER_ROLLBACK: anyKept=${anyKept}, lastKeptSlotPtr=${lastKeptSlotPtr}. New allocPtr=${allocPtrNext}"
+            L"[LQ-Ring] FLUSH_CALC_RESULT: anyKept=${anyKept}, lastKeptSlotPtr=${lastKeptSlotPtr}. Calculated allocPtr=${flush_allocPtrNext}, wrapMode=${flush_wrapModeNext}"
           )
       }
     }
+
+
     // =================================================================
     //  Head-of-Queue Processing & Memory Disambiguation
     // =================================================================
+    val head_proc_pipe = new Area {
+        val valid = Reg(Bool()).init(False) // 标记流水线第二级是否有效
+        val index = Reg(UInt(addressWidth bits)) // 锁存队头索引
+        
+        // 锁存SQ查询结果
+        val latchedSbHit = Reg(Bool())
+        val latchedSbData = Reg(Bits(32 bits))
+        val latchedSbStall = Reg(Bool())
+    }
     val head_processing_logic = new Area {
       val headSlot = storage.slotsReg(storage.freePtrReg)
       val headSlotNext = slotsNext(storage.freePtrReg)
       // Added !headSlot.isFlushed to canProcessHead for robustness
-      val canProcessHead = !storage.isEmpty && headSlot.valid && !doFlush && !headSlot.isFlushed
+      // Also, block if flush is applying, as storage.slotsReg might be in a transient state
+      val canProcessHead = !storage.isEmpty && headSlot.valid && !doFlush_rob && !headSlot.isFlushed && !flush_pipeline.isApplying
 
       // =========================================================
       // === 微流水线 阶段1: 发起查询 (在 isReadyForCheck 状态) ===
@@ -566,7 +591,8 @@ class LoadRingBufferPlugin(
       // A more complex design could arbitrate among all ready entries.
       val headSlot = storage.slotsReg(storage.freePtrReg)
       val headSlotNext = slotsNext(storage.freePtrReg)
-      val canProcessHead = !storage.isEmpty && headSlot.valid && !doFlush
+      // Block if flush is applying
+      val canProcessHead = !storage.isEmpty && headSlot.valid && !doFlush_rob && !flush_pipeline.isApplying
 
       // Only send to memory if not flushed and ready
       val canSendToMem = canProcessHead && !headSlot.isFlushed && headSlot.isReadyForMem && !headSlot.isWaitingForMemRsp
@@ -648,7 +674,8 @@ class LoadRingBufferPlugin(
         val matchingSlotIndex = OHToUInt(matchOH)
 
         // Drive ready signal based on whether we found a unique match AND the pipe is not already full
-        ioRsp.ready := responseMatchesSlot && !responsePipe.valid
+        // Also, block if flush is applying, to prevent writing to slots that are being flushed
+        ioRsp.ready := responseMatchesSlot && !responsePipe.valid && !flush_pipeline.isApplying
 
         // Assert that we don't have multiple matches (critical bug if it happens)
         when(ioRsp.valid) {
@@ -685,7 +712,8 @@ class LoadRingBufferPlugin(
       // =================================================================
       //  第二级：验证锁存的响应并写入 `slotsNext`
       // =================================================================
-      when(responsePipe.valid) {
+      // This stage should also be blocked if a flush is applying, to avoid conflicts
+      when(responsePipe.valid && !flush_pipeline.isApplying) {
         val slotIdx = responsePipe.matchingSlotIndex
         val currentSlotState = storage.slotsReg(slotIdx) // 读取当前状态用于验证
 
@@ -766,6 +794,7 @@ class LoadRingBufferPlugin(
 
       // --- Stage 7: Start Write-back / Drain Logic ---
       // Condition: Head instruction has loaded data, but has not yet entered the writeback stage.
+      // Block if flush is applying
       val canStartWriteback = canProcessHead && headSlot.isLoaded && !headSlot.isWritingBack
 
       when(canStartWriteback) {
@@ -809,6 +838,7 @@ class LoadRingBufferPlugin(
 
       // --- Stage 8: Complete Write-back (Drive ROB) and Pop ---
       // Condition: Head instruction is currently in the writeback stage (set by previous cycle).
+      // Block if flush is applying
       val isCurrentlyWritingBack = canProcessHead && headSlot.isWritingBack
       when(isCurrentlyWritingBack) {
         // This logic should only be reached by non-flushed instructions that started writeback in Stage 7.
@@ -832,30 +862,57 @@ class LoadRingBufferPlugin(
       }
     }
 
-    // =================================================================
-    //  Final State Update
-    // =================================================================
+    // =========================================================================
+    // === 主状态更新 (带优先级的最终赋值) ===
+    // =========================================================================
     val state_update = new Area {
-      // Regular wrapModeReg Update (when no flush)
-      when(!doFlush) {
-        when(doPush =/= doPop) {
-          when(doPush) { // Queue grows
-            when(allocPtrNext === storage.freePtrReg) { // Use old freePtr for comparison
-              wrapModeRegNext := True
-            }
-          }.otherwise { // Queue shrinks (doPop is true)
-            when(freePtrNext === storage.allocPtrReg) { // Use old allocPtr for comparison
-              wrapModeRegNext := False
+      // --- 锁存计算阶段的结果 (周期 N 的结束) ---
+      // If a flush request is active, latch the calculated next state for the next cycle.
+      flush_pipeline.isApplying := flush_logic_calc.doFlush
+
+      when(flush_logic_calc.doFlush) {
+          flush_pipeline.latched_allocPtrNext := flush_logic_calc.flush_allocPtrNext
+          flush_pipeline.latched_wrapModeNext := flush_logic_calc.flush_wrapModeNext
+          flush_pipeline.latched_slotsNext    := flush_logic_calc.flush_slotsNext
+          if (enableLog) notice(L"[LQ-FLUSH-LATCH] Latching flush results for next cycle.")
+      }
+      
+      // --- 根据优先级选择最终的下一状态 ---
+      when(flush_pipeline.isApplying) {
+          // ---- 应用阶段 (周期 N+1): 冲刷逻辑具有最高优先级 ----
+          // 使用上一周期锁存的结果，无条件地更新所有状态寄存器
+          storage.allocPtrReg := flush_pipeline.latched_allocPtrNext
+          storage.wrapModeReg := flush_pipeline.latched_wrapModeNext
+          storage.slotsReg    := flush_pipeline.latched_slotsNext
+          
+          // 关键点：当冲刷正在应用时，freePtrReg不能改变！
+          // 因为冲刷逻辑是基于冲刷发生那一刻的freePtr计算的。
+          // 所以我们冻结freePtr。
+          storage.freePtrReg  := storage.freePtrReg
+
+          if (enableLog) notice(L"[LQ-FLUSH-APPLY] Applying flushed state. New allocPtr=${storage.allocPtrReg}, wrapMode=${storage.wrapModeReg}")
+          
+      } .otherwise {
+          // ---- 常规操作: Push/Pop ----
+          // 只有在没有冲刷应用时，才执行常规的指针和状态更新
+          // Regular wrapModeReg Update (when no flush)
+          when(doPush =/= doPop) {
+            when(doPush) { // Queue grows
+              when(allocPtrNext === storage.freePtrReg) { // Use old freePtr for comparison
+                wrapModeRegNext := True
+              }
+            }.otherwise { // Queue shrinks (doPop is true)
+              when(freePtrNext === storage.allocPtrReg) { // Use old allocPtr for comparison
+                wrapModeRegNext := False
+              }
             }
           }
-        }
-      }
 
-      // Latch all 'Next' signals into the registers
-      storage.allocPtrReg := allocPtrNext
-      storage.freePtrReg := freePtrNext
-      storage.wrapModeReg := wrapModeRegNext
-      storage.slotsReg := slotsNext
+          storage.allocPtrReg := allocPtrNext // 来自常规push逻辑
+          storage.freePtrReg  := freePtrNext  // 来自常规pop逻辑
+          storage.wrapModeReg := wrapModeRegNext// 来自常规逻辑
+          storage.slotsReg    := slotsNext    // 来自常规逻辑
+      }
 
       if (enableLog && verbose) {
         debug(
@@ -863,29 +920,31 @@ class LoadRingBufferPlugin(
         )
         for (i <- 0 until lqDepth) {
           // 只打印有效或即将有效的槽位，避免刷屏
-          when(storage.slotsReg(i).valid || slotsNext(i).valid) {
+          when(storage.slotsReg(i).valid || slotsNext(i).valid || flush_pipeline.latched_slotsNext(i).valid) {
             val slot = slotsNext(i) // 打印下一周期的状态，因为它反映了本周期的所有决策
+            // If flush is applying, print the latched state as the "next" state
+            val effectiveSlot = Mux(flush_pipeline.isApplying, flush_pipeline.latched_slotsNext(i), slotsNext(i))
             debug(
               L"[LQ-Ring-Debug] Slot[${i}]: " :+
-                L"valid=${slot.valid}, " :+
-                L"robPtr=${slot.robPtr}, " :+
-                L"pc=${slot.pc}, " :+
-                L"addr=${slot.address}, " :+
-                L"pdest=${slot.pdest}, " :+
-                L"txid=${slot.txid}, " :+
-                L"isFlushed=${slot.isFlushed}, " :+ // NEW: Log isFlushed
-                L"isReadyForCheck=${slot.isReadyForCheck}, " :+
-                L"isQueryingDeps=${slot.isQueryingDeps}, " :+
-                L"isCheckCompleted=${slot.isCheckCompleted}, " :+
-                L"latchedSbHit=${slot.latchedSbHit}, " :+
-                L"latchedSbStall=${slot.latchedSbStall}, " :+
-                L"isLoaded=${slot.isLoaded}, " :+
-                L"isWritingBack=${slot.isWritingBack}, " :+
-                L"isStalledBySB=${slot.isStalledBySB}, " :+
-                L"isReadyForMem=${slot.isReadyForMem}, " :+
-                L"isWaitingForMemRsp=${slot.isWaitingForMemRsp}, " :+
-                L"hasEarlyEx=${slot.hasEarlyException}, " :+
-                L"hasFault=${slot.hasFault}"
+                L"valid=${effectiveSlot.valid}, " :+
+                L"robPtr=${effectiveSlot.robPtr}, " :+
+                L"pc=${effectiveSlot.pc}, " :+
+                L"addr=${effectiveSlot.address}, " :+
+                L"pdest=${effectiveSlot.pdest}, " :+
+                L"txid=${effectiveSlot.txid}, " :+
+                L"isFlushed=${effectiveSlot.isFlushed}, " :+ // NEW: Log isFlushed
+                L"isReadyForCheck=${effectiveSlot.isReadyForCheck}, " :+
+                L"isQueryingDeps=${effectiveSlot.isQueryingDeps}, " :+
+                L"isCheckCompleted=${effectiveSlot.isCheckCompleted}, " :+
+                L"latchedSbHit=${effectiveSlot.latchedSbHit}, " :+
+                L"latchedSbStall=${effectiveSlot.latchedSbStall}, " :+
+                L"isLoaded=${effectiveSlot.isLoaded}, " :+
+                L"isWritingBack=${effectiveSlot.isWritingBack}, " :+
+                L"isStalledBySB=${effectiveSlot.isStalledBySB}, " :+
+                L"isReadyForMem=${effectiveSlot.isReadyForMem}, " :+
+                L"isWaitingForMemRsp=${effectiveSlot.isWaitingForMemRsp}, " :+
+                L"hasEarlyEx=${effectiveSlot.hasEarlyException}, " :+
+                L"hasFault=${effectiveSlot.hasFault}"
             )
           }
         }

@@ -476,167 +476,179 @@ class StoreRingBufferPlugin(
       val wordAddrRange = pipelineConfig.pcWidth.value - 1 downto wordAddrBits
       val byteOffsetRange = wordAddrBits - 1 downto 0
 
-      val query_view = new Area {
-        // NOTE: 这个写法错误，会偶尔导致查询逻辑错误地读取了被同一周期pop操作无效化后的状态。 查询逻辑应该看到pop发生之前的状态。
-        // val slotsCurrentCycleView = CombInit(slotsNext) <-- 引以为鉴
-        val slotsCurrentCycleView = CombInit(storage.slotsReg) 
-        when(doPush) {
-          val newSlotData = StoreBufferSlot(pipelineConfig, lsuConfig, dCacheParams)
-          newSlotData.initFromCommand(pushPortIn.payload, nextTxid)
-          slotsCurrentCycleView(storage.allocPtrReg) := newSlotData
-          if (enableLog && verbose)
-            debug(
-              L"[SQ-Ring-FwdBypass] QueryView: Overriding slot ${storage.allocPtrReg} with new push data (robPtr=${pushPortIn.payload.robPtr})"
-            )
-        }
-
-        def isIndexInFlightForQuery(idx: UInt): Bool = {
-          storage.isIndexInFlight(idx) || (doPush && (idx === storage.allocPtrReg))
-        }
-
-        val queryTraversalStartPtr = storage.allocPtrReg
-        if (enableLog && verbose)
-          debug(L"[SQ-Ring-FwdBypass] QueryView: queryTraversalStartPtr=${queryTraversalStartPtr}")
-      }
-
       // --- Store-to-Load Forwarding Logic (SqQueryPort) ---
       val fwd = new Area {
-      val query = hw.sqQueryPort.cmd
-      val rsp = hw.sqQueryPort.rsp
+        val query = hw.sqQueryPort.cmd
+        val rsp = hw.sqQueryPort.rsp
 
-      when(query.valid) {
+        // 默认响应值
+        rsp.setDefault()
+
+        when(query.valid) {
           val loadMask = MemAccessSize.toByteEnable(
-              query.payload.size,
-              query.payload.address(byteOffsetRange),
-              dataWidthBytes
+            query.payload.size,
+            query.payload.address(byteOffsetRange),
+            dataWidthBytes
           )
 
-          // ======================= 使用 reduceBalancedTree 的新实现方式 =======================
-
-          // 1. 为每个槽位生成一个初始的BypassAccumulator结果
-          //    这个 Vec[BypassAccumulator] 就是我们要规约的输入序列。
-          //    同时，我们并行地计算出所有暂停相关的信号。
-          val slotBypassResults = Vec(BypassAccumulator(pipelineConfig), sbDepth)
-          var olderStoreIsUncoherent = False // 注意：这里必须用 var
-          var hasOlderOverlappingStore = False
-
-          for (i <- 0 until sbDepth) {
-              val slot = query_view.slotsCurrentCycleView(i)
+          // =========================================================================
+          // === 路径 A: 对已稳定在寄存器中的槽位进行查询 (并行树形规约) ===
+          // =========================================================================
+          val path_a = new Area {
+            // 1.A 为每个已稳定的槽位生成一个独立的BypassAccumulator
+            val slotResults = Vec.tabulate(sbDepth) { i =>
+              val slot = storage.slotsReg(i)
               val acc = BypassAccumulator(pipelineConfig).setDefault()
 
-              val isRelevant = query_view.isIndexInFlightForQuery(U(i)) && slot.valid &&
+              val isRelevant = storage.isIndexInFlight(U(i)) && slot.valid &&
                 helper_functions.isOlder(slot.robPtr, query.payload.robPtr)
 
-              val loadWordAddr = query.payload.address(wordAddrRange)
-              val storeWordAddr = slot.addr(wordAddrRange)
-              val addrMatch = loadWordAddr === storeWordAddr
+              val addrMatch = slot.addr(wordAddrRange) === query.payload.address(wordAddrRange)
 
               when(isRelevant && addrMatch) {
-                // 并行计算暂停信号
-                hasOlderOverlappingStore \= True // 使用 \= 进行或聚合
-                when(!slot.isCoherent) {
-                    olderStoreIsUncoherent \= True
-                }
-
-                // 准备数据转发的 accumulator
+                // 只准备数据，暂停信号在外面统一处理
                 when(query.payload.isCoherent && slot.isCoherent) {
-                    for (k <- 0 until dataWidthBytes) {
-                        when(slot.be(k) && loadMask(k)) {
-                            acc.data(k * 8, 8 bits) := slot.data(k * 8, 8 bits)
-                            acc.hitMask(k) := True
-                        }
+                  for (k <- 0 until dataWidthBytes) {
+                    when(slot.be(k) && loadMask(k)) {
+                      acc.data(k * 8, 8 bits) := slot.data(k * 8, 8 bits)
+                      acc.hitMask(k) := True
                     }
+                  }
                 }
               }
-              slotBypassResults(i) := acc
-          }
-          
-          // 2. 定义合并函数 (merge operation)
-          def mergeBypassResults(older: BypassAccumulator, newer: BypassAccumulator): BypassAccumulator = {
-              val merged = BypassAccumulator(pipelineConfig)
-              // 合并hitMask
-              merged.hitMask := older.hitMask | newer.hitMask
+              acc
+            }
 
-              // 合并数据：newer（在原始Vec中索引更高）的 store 具有更高优先级
+            // 2.A 定义合并函数
+            def mergeBypassResults(older: BypassAccumulator, newer: BypassAccumulator): BypassAccumulator = {
+              val merged = cloneOf(older)
+              merged.hitMask := older.hitMask | newer.hitMask
               for (k <- 0 until dataWidthBytes) {
-                  merged.data(k * 8, 8 bits) := Mux(
-                      newer.hitMask(k),
-                      newer.data(k * 8, 8 bits),
-                      older.data(k * 8, 8 bits)
-                  )
+                merged.data(k * 8, 8 bits) := Mux(newer.hitMask(k), newer.data(k * 8, 8 bits), older.data(k * 8, 8 bits))
               }
               merged
+            }
+
+            // 3.A 使用reduceBalancedTree进行高效规约
+            // 反转Vec以确保最新的store（索引值大）具有最高优先级
+            val forwardedFromRegs = slotResults.reverse.reduceBalancedTree(mergeBypassResults)
           }
 
-          // 3. 直接调用 reduceBalancedTree 进行规约！
-          //    注意：reduceBalancedTree是从索引0开始两两合并，这符合我们的优先级：
-          //    索引更高的store代表更晚进入流水线，优先级也更高。
-          //    因此，我们应该从新到旧遍历，但合并时让新的覆盖旧的。
-          //    Spinal的reduceBalancedTree是从左到右合并，我们需要确保顺序正确。
-          //    (older, newer) => op(older, newer)
-          //    slotBypassResults(0) 和 slotBypassResults(1) 合并时，1是newer
-          //    为了让最新的store有最高优先级，我们需要反转输入Vec。
-          val finalResult = slotBypassResults.reverse.reduceBalancedTree(mergeBypassResults)
+
+          // =========================================================================
+          // === 路径 B: 对可能在当周期push的新指令进行查询 (独立逻辑) ===
+          // =========================================================================
+          val path_b = new Area {
+            val forwardedFromPush = BypassAccumulator(pipelineConfig).setDefault()
+
+            // 只有在当周期确实有push时，才需要考虑这条路径
+            when(doPush) { // doPush 来自 push_logic Area
+              val pushedCmd = pushPortIn.payload
+              // 临时创建一个StoreBufferSlot来模拟push后的状态
+              val newSlotData = StoreBufferSlot(pipelineConfig, lsuConfig, dCacheParams)
+              newSlotData.initFromCommand(pushedCmd, nextTxid)
+
+              val isRelevant = helper_functions.isOlder(newSlotData.robPtr, query.payload.robPtr)
+              val addrMatch = newSlotData.addr(wordAddrRange) === query.payload.address(wordAddrRange)
+
+              when(isRelevant && addrMatch) {
+                when(query.payload.isCoherent && newSlotData.isCoherent) {
+                  for (k <- 0 until dataWidthBytes) {
+                    when(newSlotData.be(k) && loadMask(k)) {
+                      forwardedFromPush.data(k * 8, 8 bits) := newSlotData.data(k * 8, 8 bits)
+                      forwardedFromPush.hitMask(k) := True
+                    }
+                  }
+                }
+              }
+            }
+          }
 
 
-          // ======================= 之后的所有逻辑保持不变 =======================
-          // 1. 数据是否凑齐?
-          val allRequiredBytesHit = (finalResult.hitMask & loadMask) === loadMask
+          // =========================================================================
+          // === 最终合并与决策 ===
+          // =========================================================================
+          val final_merge = new Area {
+            // 合并数据：当周期push的指令具有最高优先级
+            val finalResult = path_a.mergeBypassResults(path_a.forwardedFromRegs, path_b.forwardedFromPush)
 
-          // 2. Load是否可以被转发? (Load必须是Coherent的)
-          val canForward = query.payload.isCoherent
+            // --- 统一计算暂停 (Stall) 信号 ---
+            // a) 检查是否有地址重叠但不可转发(MMIO)的老Store
+            var olderStoreIsUncoherent = False
+            // b) 检查是否有地址重叠的老Store（用于判断是否需要等待数据凑齐）
+            var hasOlderOverlappingStore = False
 
-          // 3. 计算暂停原因
-          //   a. 如果有MMIO风险，必须暂停
-          val stallForUncoherent = olderStoreIsUncoherent
+            // 检查已稳定的槽位
+            for (i <- 0 until sbDepth) {
+              val slot = storage.slotsReg(i)
+              val isRelevant = storage.isIndexInFlight(U(i)) && slot.valid && helper_functions.isOlder(slot.robPtr, query.payload.robPtr)
+              val addrMatch = slot.addr(wordAddrRange) === query.payload.address(wordAddrRange)
+              when(isRelevant && addrMatch) {
+                hasOlderOverlappingStore \= True
+                when(!slot.isCoherent) {
+                  olderStoreIsUncoherent \= True
+                }
+              }
+            }
 
-          //   b. 如果Load可以被转发，但数据没凑齐，也必须暂停
-          val stallForInsufficientCoverage = canForward && hasOlderOverlappingStore && !allRequiredBytesHit
+            // 检查当周期push的槽位
+            when(doPush) {
+              val newSlotData = StoreBufferSlot(pipelineConfig, lsuConfig, dCacheParams)
+              newSlotData.initFromCommand(pushPortIn.payload, nextTxid)
+              val isRelevant = helper_functions.isOlder(newSlotData.robPtr, query.payload.robPtr)
+              val addrMatch = newSlotData.addr(wordAddrRange) === query.payload.address(wordAddrRange)
+              when(isRelevant && addrMatch) {
+                hasOlderOverlappingStore \= True
+                when(!newSlotData.isCoherent) {
+                  olderStoreIsUncoherent \= True
+                }
+              }
+            }
 
-          //   c. 如果Load本身是Non-coherent，且有重叠的老Store，也必须暂停
-          val stallForUncoherentLoad = !canForward && hasOlderOverlappingStore
+            // --- 最终决策逻辑 (与之前的代码相同) ---
+            val allRequiredBytesHit = (finalResult.hitMask & loadMask) === loadMask
+            val canForward = query.payload.isCoherent
 
-          val finalStall = stallForUncoherent || stallForInsufficientCoverage || stallForUncoherentLoad
-          if (enableLog && verbose) {
+            val stallForUncoherent = olderStoreIsUncoherent
+            val stallForInsufficientCoverage = canForward && hasOlderOverlappingStore && !allRequiredBytesHit
+            val stallForUncoherentLoad = !canForward && hasOlderOverlappingStore
+
+            val finalStall = stallForUncoherent || stallForInsufficientCoverage || stallForUncoherentLoad
+            val finalHit = canForward && allRequiredBytesHit && !finalStall
+
+            // 驱动最终响应
+            rsp.data := finalResult.data
+            rsp.olderStoreDataNotReady := finalStall
+            rsp.hit := finalHit
+
+            if (enableLog && verbose) {
               debug(
                 L"[SQ-Ring-Fwd] QueryView: finalStall=${finalStall} due to " :+
-                L"(allRequiredBytesHit=${allRequiredBytesHit} due to finalResult.hitMask=${finalResult.hitMask}, loadMask=${loadMask}), " :+
-                L"(canForward=${canForward} due to query.payload.isCoherent=${query.payload.isCoherent}), " :+
-                L"(stallForUncoherent=${stallForUncoherent} due to olderStoreIsUncoherent=${olderStoreIsUncoherent}), " :+
-                L"(stallForInsufficientCoverage=${stallForInsufficientCoverage} due to hasOlderOverlappingStore=${hasOlderOverlappingStore}), " :+
-                L"(stallForUncoherentLoad=${stallForUncoherentLoad} due to !canForward=${!canForward} && hasOlderOverlappingStore=${hasOlderOverlappingStore})"
-              )
-          }
-
-
-          // 4. 计算最终的命中信号
-          //    只有在允许转发、数据完全凑齐且不需要暂停的情况下，才算命中。
-          val finalHit = canForward && allRequiredBytesHit && !finalStall
-          if (enableLog && verbose) debug(L"[SQ-Ring-Fwd] Query: finalHit=${finalHit} due to canForward=${canForward} && allRequiredBytesHit=${allRequiredBytesHit} && !finalStall=${!finalStall}")
-
-          // ===================================================================================
-
-          rsp.data := finalResult.data
-          rsp.olderStoreDataNotReady := finalStall
-          rsp.olderStoreHasUnknownAddress := False
-          rsp.hit := finalHit
-
-          if (enableLog && verbose) {
-            debug(
-              L"[SQ-Ring-Fwd] Result: hitMask=${finalResult.hitMask}, allHit=${allRequiredBytesHit}, canForward=${canForward}, stall=${finalStall}, finalRsp.hit=${finalHit}"
-            )
-            debug(L"[SQ-Ring-Fwd] Rsp: ${rsp.format}")
-          } else if (enableLog) {
-            when(finalHit) {
-              debug(
-                L"[SQ-Ring-Fwd] FORWARDED: Load robPtr=${query.payload.robPtr}, addr=${query.payload.address}, size=${query.payload.size}. Data=${rsp.data}, HitMask=${finalResult.hitMask}"
+                  L"(allRequiredBytesHit=${allRequiredBytesHit} due to finalResult.hitMask=${finalResult.hitMask}, loadMask=${loadMask}), " :+
+                  L"(canForward=${canForward} due to query.payload.isCoherent=${query.payload.isCoherent}), " :+
+                  L"(stallForUncoherent=${stallForUncoherent} due to olderStoreIsUncoherent=${olderStoreIsUncoherent}), " :+
+                  L"(stallForInsufficientCoverage=${stallForInsufficientCoverage} due to hasOlderOverlappingStore=${hasOlderOverlappingStore}), " :+
+                  L"(stallForUncoherentLoad=${stallForUncoherentLoad} due to !canForward=${!canForward} && hasOlderOverlappingStore=${hasOlderOverlappingStore})"
               )
             }
-          } else if (enableLog) {
-            when(finalStall) {
+            if (enableLog && verbose) debug(L"[SQ-Ring-Fwd] Query: finalHit=${finalHit} due to canForward=${canForward} && allRequiredBytesHit=${allRequiredBytesHit} && !finalStall=${!finalStall}")
+            if (enableLog && verbose) {
               debug(
-                L"[SQ-Ring-Fwd] STALL: Load robPtr=${query.payload.robPtr}, addr=${query.payload.address}, size=${query.payload.size}. Reason: olderStoreIsUncoherent=${olderStoreIsUncoherent}, stallForInsufficientCoverage=${stallForInsufficientCoverage}, stallForUncoherentLoad=${stallForUncoherentLoad}"
+                L"[SQ-Ring-Fwd] Result: hitMask=${finalResult.hitMask}, allHit=${allRequiredBytesHit}, canForward=${canForward}, stall=${finalStall}, finalRsp.hit=${finalHit}"
               )
+              debug(L"[SQ-Ring-Fwd] Rsp: ${rsp.format}")
+            } else if (enableLog) {
+              when(finalHit) {
+                debug(
+                  L"[SQ-Ring-Fwd] FORWARDED: Load robPtr=${query.payload.robPtr}, addr=${query.payload.address}, size=${query.payload.size}. Data=${rsp.data}, HitMask=${finalResult.hitMask}"
+                )
+              }
+            } else if (enableLog) {
+              when(finalStall) {
+                debug(
+                  L"[SQ-Ring-Fwd] STALL: Load robPtr=${query.payload.robPtr}, addr=${query.payload.address}, size=${query.payload.size}. Reason: olderStoreIsUncoherent=${olderStoreIsUncoherent}, stallForInsufficientCoverage=${stallForInsufficientCoverage}, stallForUncoherentLoad=${stallForUncoherentLoad}"
+                )
+              }
             }
           }
         } otherwise { // Default values when query is not valid
@@ -646,63 +658,6 @@ class StoreRingBufferPlugin(
             )
           }
           rsp.setDefault()
-        }
-      }
-      // --- Same-cycle Pipeline Bypass Logic ---
-      val bypass = new Area {
-        val loadQueryBe =
-          MemAccessSize.toByteEnable(bypassQuerySz, bypassQueryAddr(byteOffsetRange), dataWidthBytes)
-        val bypassInitial = BypassAccumulator(pipelineConfig).setDefault()
-
-        if (enableLog && verbose)
-          debug(L"[SQ-Ring-Bypass] Query: addr=${bypassQueryAddr}, size=${bypassQuerySz}, loadQueryBe=${loadQueryBe}")
-
-        val finalBypassResult = (0 until sbDepth).foldLeft(bypassInitial) { (acc, i) =>
-          val nextAcc = CombInit(acc)
-          val readPtr = query_view.queryTraversalStartPtr - i
-          val slot = query_view.slotsCurrentCycleView(readPtr)
-
-          when(query_view.isIndexInFlightForQuery(readPtr) && slot.valid) {
-            val loadWordAddr = bypassQueryAddr(wordAddrRange)
-            val storeWordAddr = slot.addr(wordAddrRange)
-
-            when(loadWordAddr === storeWordAddr) {
-              // Bypass 逻辑: 只有 Coherent 的操作才能提供数据
-              when(slot.isCoherent) {
-                for (k <- 0 until dataWidthBytes) {
-                  when(slot.be(k) && loadQueryBe(k) && !acc.hitMask(k)) {
-                    nextAcc.data(k * 8, 8 bits) := slot.data(k * 8, 8 bits)
-                    nextAcc.hitMask(k) := True
-                    if (enableLog)
-                      debug(
-                        L"[SQ-Ring-Bypass] Hit byte ${k} from slot ${readPtr} (robPtr=${slot.robPtr}) pc=${slot.pc}, addr=${slot.addr}, data=${slot.data}, be=${slot.be}. Load addr=${bypassQueryAddr}, size=${bypassQuerySz}"
-                      )
-                  }
-                }
-              }
-            }
-          }
-          nextAcc
-        }
-
-        val finalHitMask = finalBypassResult.hitMask
-        val overallBypassHit = finalHitMask.orR // 只要有任何一个字节命中就算valid
-        bypassDataOut.valid := overallBypassHit
-        bypassDataOut.payload.data := finalBypassResult.data
-        bypassDataOut.payload.hitMask := finalHitMask
-        // 'hit' 信号表示所有请求的字节都被命中了
-        bypassDataOut.payload.hit := overallBypassHit && ((finalHitMask & loadQueryBe) === loadQueryBe)
-
-        if (enableLog && verbose)
-          debug(
-            L"[SQ-Ring-Bypass] bypassDataOut: valid=${bypassDataOut.valid}, data=${bypassDataOut.payload.data}, hit=${bypassDataOut.payload.hit}, hitMask=${bypassDataOut.payload.hitMask}"
-          )
-        else if (enableLog) {
-          when(overallBypassHit) {
-            debug(
-              L"[SQ-Ring-Bypass] BYPASSED: Load addr=${bypassQueryAddr}, size=${bypassQuerySz}. Data=${bypassDataOut.payload.data}, HitMask=${finalHitMask}"
-            )
-          }
         }
       }
     }
