@@ -165,15 +165,24 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
     (is_error, sram_addr_candidate)
   }
 
-    private def calculateSramAddress(axiAddr: UInt): UInt = {
-    // 仅执行地址转换，不进行任何检查
-    val vBaseBitLength = if (config.virtualBaseAddress == 0) 1 else log2Up(config.virtualBaseAddress) + 1
-    val extendedWidth = Math.max(axiConfig.addressWidth, vBaseBitLength) + 1
-    val addr_extended = axiAddr.resize(extendedWidth)
-    val vbase_extended = U(config.virtualBaseAddress, extendedWidth bits)
-    val byte_offset_addr = addr_extended - vbase_extended
-    val sram_addr = (byte_offset_addr(config.addressWidth - 1 downto 0) >> config.addressShift).resized
-    sram_addr
+  private def calculateSramAddress(axiAddr: UInt): UInt = {
+      // 1. 扩展位宽
+      val vBaseBitLength = if (config.virtualBaseAddress == 0) 1 else log2Up(config.virtualBaseAddress) + 1
+      val extendedWidth = Math.max(axiConfig.addressWidth, vBaseBitLength) + 1
+      val addr_extended = axiAddr.resize(extendedWidth)
+      val vbase_extended = U(config.virtualBaseAddress, extendedWidth bits)
+
+      // 2. 计算字节偏移量
+      val byte_offset_addr = addr_extended - vbase_extended
+
+      // 3. 先右移，再截断
+      // 先将字节偏移地址转换为字偏移地址
+      val word_offset_addr = byte_offset_addr >> config.addressShift
+      
+      // 然后从字偏移地址中截取SRAM所需的地址位
+      val sram_addr = word_offset_addr(config.addressWidth - 1 downto 0).resized
+
+      return sram_addr
   }
   
 
