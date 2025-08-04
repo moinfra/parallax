@@ -261,7 +261,7 @@ class LoadRingBufferPlugin(
 
         if (enableLog)
           debug(
-            L"[LQ-Ring] PUSH: robPtr=${pushCmd.payload.robPtr}, addr=${pushCmd.payload.address} to slotIdx=${storage.allocPtrReg}"
+            L"[LQ-Ring] PUSH: robPtr=${pushCmd.payload.robPtr}, pc=${pushCmd.payload.pc} load_addr=${pushCmd.payload.address} to slotIdx=${storage.allocPtrReg}"
           )
       }
     }
@@ -279,14 +279,12 @@ class LoadRingBufferPlugin(
           notice(L"[LQ-Ring] FLUSH received. Reason: ${robFlushPort.payload.reason}, targetRobPtr=${robFlushPort.payload.targetRobPtr}")
 
         // --- Step 1: Determine the fate of each slot (purely combinational) ---
-        val isKept = Vec(Bool(), lqDepth) // A slot is "kept" if it's a survivor or needs draining.
-        
+        val isKept = Vec(Bool(), lqDepth)
         for (i <- 0 until lqDepth) {
           val slot = storage.slotsReg(i)
           val isInFlight = storage.isIndexInFlight(U(i))
           
-          isKept(i) := False // Default to not kept
-
+          isKept(i) := False
           when(isInFlight && slot.valid) {
             val shouldFlushThisSlot = Bool()
             switch(robFlushPort.payload.reason) {
@@ -300,25 +298,70 @@ class LoadRingBufferPlugin(
                 shouldFlushThisSlot := False
               }
             }
-
-            // A slot is kept if it should NOT be flushed, OR if it must be drained.
+            // 一个槽位被保留，如果它不应被冲刷，或者它需要等待内存响应（drain）
             isKept(i) := !shouldFlushThisSlot || slot.isWaitingForMemRsp
           }
         }
 
-        // --- Step 2: Find the last "kept" slot using a combinational foldLeft ---
-        val initialAccumulator = (False, storage.freePtrReg) // (found: Bool, ptr: UInt)
-                                                              // If not found, ptr defaults to freePtr for an empty queue.
-        val (anyKept, lastKeptSlotPtr) = (0 until lqDepth).foldLeft(initialAccumulator) { (acc, i) =>
-          val (foundSoFar, ptrSoFar) = acc
-          val readPtr = storage.allocPtrReg - 1 - i // Search backwards from the newest entry
-
-          // Mux is used to create a combinational selection chain
-          val newFound = foundSoFar || isKept(readPtr)
-          val newPtr   = Mux(isKept(readPtr) && !foundSoFar, readPtr, ptrSoFar)
-
-          (newFound, newPtr)
+        // ======================= 新的优化实现 =======================
+        
+        // 1. 定义规约操作所需的数据结构
+        case class FindLastResult() extends Bundle {
+          val found = Bool()
+          val ptr = UInt(addressWidth bits)
         }
+
+        // 2. 准备初始输入向量
+        val initialResults = Vec.tabulate(lqDepth) { i =>
+          val result = FindLastResult()
+          result.found := isKept(i)
+          result.ptr   := U(i)
+          result
+        }
+
+        // 3. 定义合并操作 (older, newer) => merged
+        //    这里的优先级是：如果 newer.found 为真，就取 newer.ptr
+        def mergeFindLast(older: FindLastResult, newer: FindLastResult): FindLastResult = {
+          val merged = FindLastResult()
+          merged.found := older.found || newer.found
+          merged.ptr   := Mux(newer.found, newer.ptr, older.ptr)
+          merged
+        }
+
+        // 4. 使用 reduceBalancedTree 进行规约
+        //    我们想找索引最新的（最大的）那个，但 reduceBalancedTree 是从索引0开始合并。
+        //    所以我们需要反转原始的 isKept 顺序来思考。
+        //    或者更简单的，我们让合并操作优先选择索引更大的指针。
+        //    让我们重新定义合并函数，使其更健壮。
+        def mergeFindLastRobust(left: FindLastResult, right: FindLastResult): FindLastResult = {
+          val merged = FindLastResult()
+          merged.found := left.found || right.found
+          // 关键：总是选择右边（索引更大）的指针，如果它有效的话。否则，如果左边有效，选左边的。
+          merged.ptr := Mux(right.found, right.ptr, left.ptr)
+          merged
+        }
+        
+        // 为了找到最新的幸存者，我们需要从 allocPtr-1 倒着找。
+        // 一个更清晰的方式是创建一个 Vec，其顺序就是遍历的顺序，然后规约它。
+        val searchOrderResults = Vec.tabulate(lqDepth) { i =>
+            val readPtr = storage.allocPtrReg - 1 - i // 从新到旧
+            val result = FindLastResult()
+            result.found := isKept(readPtr)
+            result.ptr   := readPtr
+            result
+        }
+        
+        // 合并时，我们总是优先保留左边（更“新”）的结果
+        val finalResult = searchOrderResults.reduceBalancedTree((newer, older) => {
+            val merged = FindLastResult()
+            merged.found := newer.found || older.found
+            merged.ptr   := Mux(newer.found, newer.ptr, older.ptr)
+            merged
+        })
+        
+        val anyKept = finalResult.found
+        val lastKeptSlotPtr = finalResult.ptr
+
 
         // --- Step 3: Update pointers and slot states combinationally ---
         
@@ -481,7 +524,10 @@ class LoadRingBufferPlugin(
           ch.cmd.valid := canSendToMem && headSlot.isIO
           ch.cmd.address := headSlot.address
           // Use the slot's unique txid for the bus transaction ID
-          if (ioConfig.get.useId) ch.cmd.id := headSlot.txid.resized
+          if (ioConfig.get.useId) {
+            require(headSlot.txid.getWidth <= ch.cmd.id.getWidth, "txid width exceeds bus ID width")
+            ch.cmd.id := headSlot.txid.resized
+          }
 
           when(ch.cmd.fire) {
             headSlotNext.isReadyForMem := False // Consume the ready signal
@@ -507,6 +553,30 @@ class LoadRingBufferPlugin(
       // This logic must search the entire LQ for a matching transaction ID.
 
       // IO Response Handling
+      // 用于在“查找”和“写入”阶段之间暂存内存响应的流水线寄存器
+      val responsePipe = Reg(new Bundle {
+        val valid = Bool() // 管道中是否有正在处理的响应？
+        val matchingSlotIndex = UInt(addressWidth bits) // 找到的槽位索引
+        val txid = UInt(pipelineConfig.transactionIdWidth bits) // 用于匹配的ID (验证的关键！)
+
+        // 来自响应的实际数据
+        val data = Bits(pipelineConfig.dataWidth)
+        val hasFault = Bool()
+        val exceptionCode = UInt(8 bits)
+      })
+      responsePipe.valid.init(False)
+      responsePipe.matchingSlotIndex.init(0)
+      responsePipe.txid.init(0)
+      responsePipe.data.init(0)
+      responsePipe.hasFault.init(False)
+      responsePipe.exceptionCode.init(0)
+
+      // 默认情况下，在下一周期清空流水线寄存器
+      responsePipe.valid := False // Will be set to true if a new response is captured
+
+      // =================================================================
+      //  第一级：查找内存响应并锁存到 `responsePipe`
+      // =================================================================
       hw.ioReadChannel.foreach { ch =>
         val ioRsp = ch.rsp
 
@@ -515,17 +585,17 @@ class LoadRingBufferPlugin(
         for (i <- 0 until lqDepth) {
           val slot = storage.slotsReg(i)
           // Match criteria: in flight, valid, is IO, waiting for response, and matching txid
-          matchOH(i) := storage.isIndexInFlight(U(i)) && 
-                        slot.valid && 
-                        slot.isIO && 
+          matchOH(i) := storage.isIndexInFlight(U(i)) &&
+                        slot.valid &&
+                        slot.isIO &&
                         slot.isWaitingForMemRsp && // <<-- 必须有这一行！
                         slot.txid === ioRsp.payload.id
         }
         val responseMatchesSlot = CountOne(matchOH) === 1
         val matchingSlotIndex = OHToUInt(matchOH)
 
-        // Drive ready signal based on whether we found a unique match
-        ioRsp.ready := responseMatchesSlot
+        // Drive ready signal based on whether we found a unique match AND the pipe is not already full
+        ioRsp.ready := responseMatchesSlot && !responsePipe.valid
 
         // Assert that we don't have multiple matches (critical bug if it happens)
         when(ioRsp.valid) {
@@ -537,29 +607,69 @@ class LoadRingBufferPlugin(
 
         // 2. Update the state of the matched slot when response is consumed
         when(ioRsp.fire) {
-          val matchedSlotNext = slotsNext(matchingSlotIndex)
-          val matchedSlotReg = storage.slotsReg(matchingSlotIndex)
-
-          matchedSlotNext.isWaitingForMemRsp := False
-          matchedSlotNext.isLoaded := True
-          matchedSlotNext.data := ioRsp.payload.data
-          matchedSlotNext.hasFault := ioRsp.payload.error
-          matchedSlotNext.exceptionCode := ExceptionCode.LOAD_ACCESS_FAULT
-          // Note: isFlushed state is preserved here, it's not cleared.
+          // 将所有必要数据锁存到流水线寄存器中，供第二级使用
+          responsePipe.valid := True
+          responsePipe.matchingSlotIndex := matchingSlotIndex
+          responsePipe.txid := ioRsp.payload.id // 锁存ID用于验证！
+          responsePipe.data := ioRsp.payload.data
+          responsePipe.hasFault := ioRsp.payload.error
+          responsePipe.exceptionCode := ExceptionCode.LOAD_ACCESS_FAULT
 
           if (enableLog) {
             when(ioRsp.payload.error) {
               notice(
-                L"[LQ-Ring] IO_RSP_ERROR: Received IO error for txid=${ioRsp.payload.id}, matched to slotIdx=${matchingSlotIndex} (robPtr=${matchedSlotReg.robPtr})"
+                L"[LQ-Ring] IO_RSP_CAPTURE_ERROR: Captured IO error for txid=${ioRsp.payload.id}, matched to slotIdx=${matchingSlotIndex}"
               )
             }.otherwise {
               debug(
-                L"[LQ-Ring] IO_RSP_SUCCESS: Received IO data for txid=${ioRsp.payload.id}, matched to slotIdx=${matchingSlotIndex} (robPtr=${matchedSlotReg.robPtr}). Data=${ioRsp.payload.data}"
+                L"[LQ-Ring] IO_RSP_CAPTURE_SUCCESS: Captured IO data for txid=${ioRsp.payload.id}, matched to slotIdx=${matchingSlotIndex}. Data=${ioRsp.payload.data}"
               )
             }
           }
         }
       }
+
+      // =================================================================
+      //  第二级：验证锁存的响应并写入 `slotsNext`
+      // =================================================================
+      when(responsePipe.valid) {
+        val slotIdx = responsePipe.matchingSlotIndex
+        val currentSlotState = storage.slotsReg(slotIdx) // 读取当前状态用于验证
+
+        // 关键的验证检查
+        val isValid = currentSlotState.valid &&
+                      currentSlotState.isWaitingForMemRsp &&
+                      currentSlotState.txid === responsePipe.txid
+
+        when(isValid) {
+          // 验证通过：更新 'slotsNext'
+          val matchedSlotNext = slotsNext(slotIdx)
+          matchedSlotNext.isWaitingForMemRsp := False
+          matchedSlotNext.isLoaded := True
+          matchedSlotNext.data := responsePipe.data
+          matchedSlotNext.hasFault := responsePipe.hasFault
+          matchedSlotNext.exceptionCode := responsePipe.exceptionCode
+          // Note: isFlushed state is preserved here, it's not cleared.
+
+          if (enableLog) {
+            when(responsePipe.hasFault) {
+              notice(
+                L"[LQ-Ring] IO_RSP_PROCESS_ERROR: Processed IO error for txid=${responsePipe.txid}, matched to slotIdx=${slotIdx} (robPtr=${currentSlotState.robPtr})"
+              )
+            }.otherwise {
+              debug(
+                L"[LQ-Ring] IO_RSP_PROCESS_SUCCESS: Processed IO data for txid=${responsePipe.txid}, matched to slotIdx=${slotIdx} (robPtr=${currentSlotState.robPtr}). Data=${responsePipe.data}"
+              )
+            }
+          }
+        } otherwise {
+          // 验证失败：指令在上一个周期被冲刷或弹出了。
+          // 我们手里的响应现在是给一个“幽灵”指令的。
+          // 正确的操作是：简单地丢弃这个响应。
+          if(enableLog) notice(L"[LQ-Ring] IO_RSP_DISCARD: 第二阶段丢弃了过期或无效的txid=${responsePipe.txid}的响应")
+        }
+      }
+
 
       // DCache Response Handling (placeholder)
       // dcachedisable when(hw.dCacheLoadPort.rsp.valid) { /* ... similar matching logic ... */ }
@@ -635,7 +745,7 @@ class LoadRingBufferPlugin(
 
             if (enableLog)
               debug(
-                L"[LQ-Ring] WB: robPtr=${headSlot.robPtr} writing pdest=${headSlot.pdest} with data=${extendedData}, waking up dependents."
+                L"[LQ-Ring] WB: robPtr=${headSlot.robPtr} (pc=${headSlot.pc}) writing pdest=${headSlot.pdest} with data=${extendedData}, waking up dependents."
               )
           } otherwise {
             if (enableLog)
