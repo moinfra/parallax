@@ -130,6 +130,60 @@ class StoreRingBufferPlugin(
       }
     }
 
+    // =========================================================================
+    // === 输入锁存级 (S1) 和冲刷流水线 ===
+    // =========================================================================
+
+    // S1: 锁存来自外部慢速路径的信号
+    val s1_inputs = new Area {
+        val robFlushPort = robService.doRobFlush()
+        val commitPort = robService.getCommitSlots(1)(0) // 假设 commitWidth=1
+
+        val info = Reg(new Bundle {
+            // 来自 ROB 的事件
+            val robFlushValid = Bool()
+            val robFlushPayload = ROBFlushPayload(pipelineConfig.robPtrWidth)
+            val commitCanFire = Bool()
+            val commitRobPtr = UInt(pipelineConfig.robPtrWidth)
+
+            // 事件发生时的 SQ 内部状态快照
+            val snapshot_freePtr = UInt(addressWidth bits)
+            val snapshot_allocPtr = UInt(addressWidth bits)
+            val snapshot_wrapMode = Bool()
+        })
+
+        // 组合逻辑：捕捉当前周期的事件和状态
+        info.robFlushValid := robFlushPort.valid
+        info.robFlushPayload := robFlushPort.payload
+        
+        // 完整的 commit fire 条件
+        val canCommit = commitPort.canCommit && (commitPort.entry.payload.uop.decoded.uopCode === BaseUopCode.STORE) && !commitPort.entry.status.hasException
+        info.commitCanFire := canCommit
+        info.commitRobPtr := commitPort.entry.payload.uop.robPtr
+        
+        info.snapshot_freePtr  := storage.freePtrReg
+        info.snapshot_allocPtr := storage.allocPtrReg
+        info.snapshot_wrapMode := storage.wrapModeReg
+    }
+
+    // S2/S3: 冲刷执行流水线
+    val flush_pipeline = new Area {
+        /** S3: 标记一个冲刷正在被应用 */
+        val isApplying = Reg(Bool()).init(False)
+
+        /** S2 -> S3: 锁存的冲刷计算结果 */
+        val latched_allocPtrNext = Reg(UInt(addressWidth bits))
+        val latched_wrapModeNext = Reg(Bool())
+        val latched_slotsNext = Vec.fill(sbDepth)(Reg(StoreBufferSlot(pipelineConfig, lsuConfig, dCacheParams)))
+        
+        // 初始化寄存器
+        latched_allocPtrNext.init(0)
+        latched_wrapModeNext.init(False)
+        for (slot <- latched_slotsNext) {
+            slot.init(StoreBufferSlot(pipelineConfig, lsuConfig, dCacheParams).setDefault())
+        }
+    }
+
     // =================================================================
     //  Next-state Logic (Combinational Views)
     // =================================================================
@@ -142,14 +196,20 @@ class StoreRingBufferPlugin(
     // Control signals for this cycle
     val doPush = Bool()
     val doPop = Bool()
-    val doFlush = hw.robServiceInst.doRobFlush().valid
+    // doFlush_rob: 原始的、来自ROB的冲刷请求 (周期N)
+    val doFlush_rob = s1_inputs.robFlushPort.valid 
+    // doFlush_calc: SQ开始计算冲刷 (周期N+1)
+    val doFlush_calc = s1_inputs.info.robFlushValid 
+
+    // 抑制所有常规状态更新的条件
+    val blockRegularOps = doFlush_rob || doFlush_calc || flush_pipeline.isApplying
 
     // =================================================================
     //  Push Logic (Allocation)
     // =================================================================
     val push_logic = new Area {
-      // Push is suppressed by a flush
-      val canPush = !storage.isFull && !doFlush
+      // Push is suppressed by a flush or when flush is applying
+      val canPush = !storage.isFull && !blockRegularOps
       pushPortIn.ready := canPush
       doPush := pushPortIn.fire
 
@@ -167,134 +227,140 @@ class StoreRingBufferPlugin(
       if (enableLog && verbose) {
         when(pushPortIn.valid) {
           debug(
-            L"[SQ-Ring] PushPort: valid=${pushPortIn.valid}, ready=${pushPortIn.ready}, canPush=${canPush}, isFull=${storage.isFull}, doFlush=${doFlush}"
+            L"[SQ-Ring] PushPort: valid=${pushPortIn.valid}, ready=${pushPortIn.ready}, canPush=${canPush}, isFull=${storage.isFull}, blockRegularOps=${blockRegularOps}"
           )
         }
       }
     }
 
-    val commit_flush_logic = new Area {
-      val commitInfoFromRob = robService.getCommitSlots(pipelineConfig.commitWidth)
-      val commitPort = commitInfoFromRob(0) // Given commitWidth = 1 for now, we can use the first element of the vector
-      val robFlushPort = robService.doRobFlush()
-      val doFlush = robFlushPort.valid
+    // =================================================================
+    //  Flush Logic - Calculation Stage (Cycle N+1 / S2)
+    // =================================================================
+    val flush_logic_calc = new Area {
+        val s1_info = s1_inputs.info
+        val doFlush = s1_info.robFlushValid // 使用锁存的冲刷信号
 
-      // --- Pre-computation to break combinational loops ---
-      // 1. 预计算本周期哪些槽位被提交了。这是一个独立的信号，不依赖于slotsNext。
-      val justCommitted = Vec(Bool(), sbDepth)
-      for (i <- 0 until sbDepth) {
-        val slot = storage.slotsReg(i)
-        justCommitted(i) := storage.isIndexInFlight(U(i)) && slot.valid && !slot.isCommitted &&
-          (slot.robPtr === commitPort.entry.payload.uop.robPtr) &&
-          commitPort.canCommit && (commitPort.entry.payload.uop.decoded.uopCode === BaseUopCode.STORE) &&
-          !commitPort.entry.status.hasException && !doFlush
-      }
+        // 定义组合逻辑输岀，用于驱动 flush_pipeline 中的寄存器
+        val flush_allocPtrNext = UInt(addressWidth bits)
+        val flush_wrapModeNext = Bool()
+        val flush_slotsNext = CombInit(storage.slotsReg) // 从当前状态开始计算
 
-      // --- Flush Logic (Pointer Rollback - The True Ring Buffer Way) ---
-      when(doFlush) {
-        if (enableLog)
-          debug(
-            L"[SQ-Ring] FLUSH received. Reason: ${robFlushPort.payload.reason}, targetRobPtr=${robFlushPort.payload.targetRobPtr}"
-          )
-
-        // 1. 确定哪些槽位是幸存者。幸存者是那些已提交的条目。
-        val isSurvivor = Vec(Bool(), sbDepth)
-        for (i <- 0 until sbDepth) {
-          val slot = storage.slotsReg(i)
-          // NOTE: 判断一个槽位是否应该在冲刷中幸存的唯一标准是它是否已经被提交 (slot.isCommitted)，而不是它是否正在被提交。
-          val isCommitted = slot.isCommitted
-
-          val shouldFlushThisSlot = Bool()
-          switch(robFlushPort.payload.reason) {
-            is(FlushReason.FULL_FLUSH) {
-              shouldFlushThisSlot := !isCommitted
-            }
-            is(FlushReason.ROLLBACK_TO_ROB_IDX) {
-              shouldFlushThisSlot := !isCommitted && helper_functions.isNewerOrSame(
-                slot.robPtr,
-                robFlushPort.payload.targetRobPtr
-              )
-            }
-            default {
-              shouldFlushThisSlot := False
-            }
-          }
-          // 一个槽位是幸存者，当且仅当它当前有效，且不被冲刷
-          isSurvivor(i) := storage.isIndexInFlight(U(i)) && !shouldFlushThisSlot
-        }
-
-        // 2. 使用 foldLeft 安全地反向查找最新的幸存者
-        //    我们构建一个元组 (found: Bool, ptr: UInt) 作为累加器
-        val initialAccumulator = (False, U(0, addressWidth bits))
-
-        val (found, lastSurvivorPtr) = (0 until sbDepth).foldLeft(initialAccumulator) { (acc, i) =>
-          val (foundSoFar, ptrSoFar) = acc
-          val readPtr = storage.allocPtrReg - 1 - i // 从 allocPtr-1, -2, ...
-
-          // 如果我们还没有找到，并且当前的槽位是一个幸存者，那么就更新累加器
-          val newFound = foundSoFar || isSurvivor(readPtr)
-          val newPtr = Mux(isSurvivor(readPtr) && !foundSoFar, readPtr, ptrSoFar)
-
-          (newFound, newPtr)
-        }
-
-        // 3. 根据查找结果更新指针
-        when(found) {
-          // 找到了幸存者，allocPtr 回退到最新幸存者的下一个位置
-          allocPtrNext := lastSurvivorPtr + 1
-
-          val newAllocPtrAfterInc = lastSurvivorPtr + 1
-          // 重新计算 wrapMode，这个逻辑很关键
-          when(storage.allocPtrReg > storage.freePtrReg) { // 原来没有回绕
-            wrapModeRegNext := (newAllocPtrAfterInc < storage.freePtrReg) || (newAllocPtrAfterInc === storage.freePtrReg)
-          } otherwise { // 原来已经回绕或是满的
-            val allocWrapped = storage.allocPtrReg <= storage.freePtrReg && !storage.isEmpty
-            val newAllocWrapped = newAllocPtrAfterInc <= storage.freePtrReg
-            wrapModeRegNext := newAllocWrapped
-          }
-          // The most robust wrapMode calculation:
-          // New wrap is true if new alloc ptr is "behind" or at free ptr, AND the buffer isn't becoming empty.
-          when(newAllocPtrAfterInc === storage.freePtrReg) {
-            // If we rollback and the new alloc ptr is exactly the free ptr, is it full or empty?
-            // It depends on whether we found any survivors. Since `found` is true, it must be full.
-            wrapModeRegNext := True
-          } otherwise {
-            wrapModeRegNext := newAllocPtrAfterInc < storage.freePtrReg
-          }
-
-        } otherwise {
-          // 没有任何幸存者，队列变空
-          allocPtrNext := storage.freePtrReg
-          wrapModeRegNext := False
-        }
-
-        // 4. 将被冲刷的条目无效化 (可选但推荐)
-        for (i <- 0 until sbDepth) {
-          when(!isSurvivor(i) && storage.isIndexInFlight(U(i))) {
-            slotsNext(i).valid := False
+        // 默认值，当 doFlush 为 false 时，这些信号无效
+        flush_allocPtrNext.assignDontCare()
+        flush_wrapModeNext.assignDontCare()
+        
+        when(doFlush) {
             if (enableLog)
-              debug(L"[SQ-Ring] FLUSH_INVALIDATE: slotIdx=${i} (robPtr=${storage.slotsReg(i).robPtr}) invalidated.")
-          }
-        }
+              notice(L"[SQ-Ring] FLUSH_CALC: received. Reason: ${s1_info.robFlushPayload.reason}, targetRobPtr=${s1_info.robFlushPayload.targetRobPtr}")
 
-        if (enableLog)
-          notice(
-            L"[SQ-Ring] FLUSH_POINTER_ROLLBACK: Found=${found}, LastSurvivor=${lastSurvivorPtr}. New state: freePtr=${freePtrNext}, allocPtr=${allocPtrNext}, wrapMode=${wrapModeRegNext}"
-          )
+            // --- 辅助函数，用于基于快照判断 ---
+            def isIndexInFlightOnSnapshot(idx: UInt): Bool = {
+                val result = Bool()
+                val isEmpty = (s1_info.snapshot_allocPtr === s1_info.snapshot_freePtr) && !s1_info.snapshot_wrapMode
+                val isFull = (s1_info.snapshot_allocPtr === s1_info.snapshot_freePtr) && s1_info.snapshot_wrapMode
 
-      } otherwise {
-        for (i <- 0 until sbDepth) {
-          when(justCommitted(i)) {
-            slotsNext(i).isCommitted := True
+                when(isEmpty) {
+                  result := False
+                }.elsewhen(isFull) {
+                  result := True
+                }.elsewhen(s1_info.snapshot_allocPtr > s1_info.snapshot_freePtr) { // Normal case
+                  result := (idx >= s1_info.snapshot_freePtr && idx < s1_info.snapshot_allocPtr)
+                }.otherwise { // Wrapped case
+                  result := (idx >= s1_info.snapshot_freePtr || idx < s1_info.snapshot_allocPtr)
+                }
+                result
+            }
+
+            // 1. 确定哪些槽位是幸存者 (逻辑不变)
+            val isSurvivor = Vec.tabulate(sbDepth) { i =>
+                val slot = storage.slotsReg(i) // 状态（如isCommitted）读取当前值
+                val shouldFlushThisSlot = Bool()
+                switch(s1_info.robFlushPayload.reason) {
+                    is(FlushReason.FULL_FLUSH) { shouldFlushThisSlot := !slot.isCommitted }
+                    is(FlushReason.ROLLBACK_TO_ROB_IDX) {
+                        shouldFlushThisSlot := !slot.isCommitted && helper_functions.isNewerOrSame(slot.robPtr, s1_info.robFlushPayload.targetRobPtr)
+                    }
+                    default { shouldFlushThisSlot := False }
+                }
+                isIndexInFlightOnSnapshot(U(i)) && !shouldFlushThisSlot
+            }
+
+            // 2. 使用 reduceBalancedTree 查找最新的幸存者 (替换 foldLeft)
+            case class FindLastResult() extends Bundle {
+                val found = Bool()
+                val ptr = UInt(addressWidth bits)
+            }
+            val searchOrderResults = Vec.tabulate(sbDepth) { i =>
+                // 基于快照的 allocPtr 进行倒序查找
+                val readPtr = (s1_info.snapshot_allocPtr - 1 - i).resized
+                val result = FindLastResult()
+                result.found := isSurvivor(readPtr)
+                result.ptr   := readPtr
+                result
+            }
+            val finalResult = searchOrderResults.reduceBalancedTree((newer, older) => {
+                val merged = FindLastResult()
+                merged.found := newer.found || older.found
+                merged.ptr   := Mux(newer.found, newer.ptr, older.ptr)
+                merged
+            })
+            val foundSurvivor = finalResult.found
+            val lastSurvivorPtr = finalResult.ptr
+
+            // 3. 计算冲刷后的新指针和新wrapMode (赋值给 flush_* 信号)
+            val newAllocPtr = Mux(foundSurvivor, lastSurvivorPtr + 1, s1_info.snapshot_freePtr) // **使用锁存的freePtr**
+            flush_allocPtrNext := newAllocPtr
+            
+            when(newAllocPtr === s1_info.snapshot_freePtr) {
+                flush_wrapModeNext := foundSurvivor // 如果新allocPtr等于freePtr，则根据是否找到幸存者来决定是否为满
+            }.elsewhen(s1_info.snapshot_allocPtr > s1_info.snapshot_freePtr) { // Normal case on snapshot
+                flush_wrapModeNext := newAllocPtr < s1_info.snapshot_freePtr // 如果新allocPtr小于freePtr，则表示发生了环绕
+            }.otherwise { // Wrapped case on snapshot
+                flush_wrapModeNext := newAllocPtr < s1_info.snapshot_freePtr || (newAllocPtr === s1_info.snapshot_freePtr && foundSurvivor)
+            }
+            
+            // 4. 计算冲刷后每个槽位的新状态 (赋值给 flush_slotsNext)
+            for (i <- 0 until sbDepth) {
+                when(!isSurvivor(i) && isIndexInFlightOnSnapshot(U(i))) {
+                    flush_slotsNext(i).valid := False
+                    if (enableLog)
+                        debug(L"[SQ-Ring] FLUSH_CALC_INVALIDATE: slotIdx=${i} (robPtr=${storage.slotsReg(i).robPtr}) marked for invalidation.")
+                }
+            }
             if (enableLog)
-              debug(
-                L"[SQ-Ring] COMMIT_EXEC: robPtr=${storage.slotsReg(i).robPtr} (slotIdx=${i}) marked as committed. pc=${storage
-                    .slotsReg(i)
-                    .pc}, addr=${storage.slotsReg(i).addr}"
-              )
-          }
+                notice(
+                    L"[SQ-Ring] FLUSH_CALC_RESULT: Found=${foundSurvivor}, LastSurvivor=${lastSurvivorPtr}. Calc state: freePtr=${s1_info.snapshot_freePtr}, allocPtr=${flush_allocPtrNext}, wrapMode=${flush_wrapModeNext}"
+                )
         }
-      }
+    }
+
+    // =================================================================
+    //  Commit Logic (常规操作 - S2的一部分)
+    // =================================================================
+    val commit_logic_calc = new Area {
+        val s1_info = s1_inputs.info
+
+        val justCommitted = Vec.tabulate(sbDepth) { i =>
+            val slot = storage.slotsReg(i) // 读取 S2 周期的当前状态
+            
+            // 关键的验证：必须在 S2 周期仍然在队列中
+            val isInFlightNow = storage.isIndexInFlight(U(i))
+
+            isInFlightNow && slot.valid && !slot.isCommitted &&
+            (slot.robPtr === s1_info.commitRobPtr) && // 使用 S1 锁存的提交信息
+            s1_info.commitCanFire && !blockRegularOps // 提交被冲刷抑制
+        }
+        
+        // 提交逻辑现在只更新常规的 slotsNext
+        for (i <- 0 until sbDepth) {
+            when(justCommitted(i)) {
+                slotsNext(i).isCommitted := True
+                if (enableLog)
+                    debug(
+                        L"[SQ-Ring] COMMIT_EXEC: robPtr=${storage.slotsReg(i).robPtr} (slotIdx=${i}) marked as committed. pc=${storage.slotsReg(i).pc}, addr=${storage.slotsReg(i).addr}"
+                    )
+            }
+        }
     }
 
     // =================================================================
@@ -321,7 +387,7 @@ class StoreRingBufferPlugin(
       // 判定队头是否可以发送到IO总线 (MMIO or RAM I/O)
       val isReadyToSend = !storage.isEmpty && headSlot.valid && headSlotIsCommitted &&
         !headSlot.isFlush && !headSlot.sentCmd && !headSlot.waitRsp && !headSlot.isWaitingForRefill &&
-        !headSlot.isWaitingForWb && !headSlot.hasEarlyException
+        !headSlot.isWaitingForWb && !headSlot.hasEarlyException && !blockRegularOps // 冲刷应用阶段禁止发送新命令
 
       val canSendToIO = isReadyToSend && headSlot.isIO
       when(Bool(!ioConfig.isDefined) && headSlot.isIO) {
@@ -329,7 +395,7 @@ class StoreRingBufferPlugin(
       }
       if (enableLog && verbose)
         debug(
-          L"[SQ-Ring] PopLogic: isReadyToSend=${isReadyToSend}, canSendToIO=${canSendToIO}, headSlot.valid=${headSlot.valid}, headSlotIsCommitted=${headSlotIsCommitted}, headSlot.isFlush=${headSlot.isFlush}, headSlot.sentCmd=${headSlot.sentCmd}, headSlot.waitRsp=${headSlot.waitRsp}, headSlot.isWaitingForRefill=${headSlot.isWaitingForRefill}, headSlot.isWaitingForWb=${headSlot.isWaitingForWb}, headSlot.hasEarlyException=${headSlot.hasEarlyException}, headSlot.isIO=${headSlot.isIO}"
+          L"[SQ-Ring] PopLogic: isReadyToSend=${isReadyToSend}, canSendToIO=${canSendToIO}, headSlot.valid=${headSlot.valid}, headSlotIsCommitted=${headSlotIsCommitted}, headSlot.isFlush=${headSlot.isFlush}, headSlot.sentCmd=${headSlot.sentCmd}, headSlot.waitRsp=${headSlot.waitRsp}, headSlot.isWaitingForRefill=${headSlot.isWaitingForRefill}, headSlot.isWaitingForWb=${headSlot.isWaitingForWb}, headSlot.hasEarlyException=${headSlot.hasEarlyException}, headSlot.isIO=${headSlot.isIO}, blockRegularOps=${blockRegularOps}"
         )
 
       val ioCmdFired = hw.ioWriteChannel.map(ch => ch.cmd.ready && canSendToIO).getOrElse(False)
@@ -392,10 +458,11 @@ class StoreRingBufferPlugin(
         canBePopped := True
       }
 
-      doPop := !storage.isEmpty && headSlot.valid && headSlotIsCommitted && (canBePopped || headSlot.hasEarlyException) && !doFlush
+      // doPop 仅检查当周期是否有 ROB 冲刷，不检查 flush_pipeline.isApplying，因为 freePtr 的最终更新在 state_update 中有优先级处理
+      doPop := !storage.isEmpty && headSlot.valid && headSlotIsCommitted && (canBePopped || headSlot.hasEarlyException) && !blockRegularOps
       if (enableLog && verbose)
         debug(
-          L"[SQ-Ring] PopDecision: doPop=${doPop}, isEmpty=${storage.isEmpty}, headSlot.valid=${headSlot.valid}, headSlotIsCommitted=${headSlotIsCommitted}, canBePopped=${canBePopped}, hasEarlyException=${headSlot.hasEarlyException}, doFlush=${doFlush}"
+          L"[SQ-Ring] PopDecision: doPop=${doPop}, isEmpty=${storage.isEmpty}, headSlot.valid=${headSlot.valid}, headSlotIsCommitted=${headSlotIsCommitted}, canBePopped=${canBePopped}, hasEarlyException=${headSlot.hasEarlyException}, blockRegularOps=${blockRegularOps}"
         )
 
       val popMonitor = master Flow (StoreBufferSlot(pipelineConfig, lsuConfig, dCacheParams))
@@ -663,68 +730,91 @@ class StoreRingBufferPlugin(
     }
 
     // =================================================================
-    //  Final State Update
+    //  Final State Update (S2结束 -> S3应用)
     // =================================================================
     val state_update = new Area {
-      // --- Regular wrapModeReg Update (when no flush) ---
-      // This logic is only active when a flush is not occurring.
-      when(!doFlush) {
-        when(doPush =/= doPop) {
-          when(doPush) { // Queue grows
-            when(allocPtrNext === freePtrNext) {
-              wrapModeRegNext := True // Became full
-              if (enableLog)
-                debug(
-                  L"[SQ-Ring] WrapMode Update: Became Full (allocPtrNext=${allocPtrNext}, freePtrNext=${freePtrNext})"
-                )
-            }
-          }.otherwise { // Queue shrinks
-            when(freePtrNext === allocPtrNext) {
-              wrapModeRegNext := False // Became empty
-              if (enableLog)
-                debug(
-                  L"[SQ-Ring] WrapMode Update: Became Empty (freePtrNext=${freePtrNext}, allocPtrNext=${allocPtrNext})"
-                )
-            }
+      val doFlushCalc = s1_inputs.info.robFlushValid
+
+      // --- S2 -> S3: 锁存冲刷计算结果 ---
+      flush_pipeline.isApplying := doFlushCalc
+
+      when(doFlushCalc) {
+          flush_pipeline.latched_allocPtrNext := flush_logic_calc.flush_allocPtrNext
+          flush_pipeline.latched_wrapModeNext := flush_logic_calc.flush_wrapModeNext
+          flush_pipeline.latched_slotsNext    := flush_logic_calc.flush_slotsNext
+          if (enableLog)
+              debug(L"[SQ-Ring] FLUSH_LATCH: Latching flush results for next cycle.")
+      }
+      
+      // --- 常规 wrapModeReg 更新逻辑 (优化后版本) ---
+      val becomingFull = doPush && !doPop && (storage.allocPtrReg + 1 === storage.freePtrReg)
+      val becomingEmpty = doPop && !doPush && (storage.freePtrReg + 1 === storage.allocPtrReg)
+
+      // 这个逻辑只在没有冲刷请求时才计算，并且结果只送给常规的 wrapModeRegNext
+      when(!doFlushCalc) { // 只有当没有冲刷计算时，才进行常规的 wrapMode 更新
+          when(becomingFull) { // 只有当 push 和 pop 状态不同时才可能改变 wrapMode
+              when(doPush) { // Queue grows
+                      wrapModeRegNext := True
+                      if (enableLog)
+                          debug(
+                              L"[SQ-Ring] WrapMode Update: Became Full (allocPtrNext=${allocPtrNext}, freePtrNext=${freePtrNext})"
+                          )
+              }.otherwise { // Queue shrinks
+                      wrapModeRegNext := False
+                      if (enableLog)
+                          debug(
+                              L"[SQ-Ring] WrapMode Update: Became Empty (freePtrNext=${freePtrNext}, allocPtrNext=${allocPtrNext})"
+                          )
+              }
           }
-        }
-        // If doPush === doPop or neither happens, wrapMode does not change.
+          // If doPush === doPop or neither happens, wrapMode does not change.
       }
 
-      // --- Latch Final Register Values ---
-      // The 'Next' signals, which have been calculated based on priority (Flush > Pop/Push),
-      // are now assigned to the actual registers.
-      val prevAllocPtr = storage.allocPtrReg
-      val prevFreePtr = storage.freePtrReg
-      val prevWrapMode = storage.wrapModeReg
-
-      storage.allocPtrReg := allocPtrNext
-      storage.freePtrReg := freePtrNext
-      storage.wrapModeReg := wrapModeRegNext
-      storage.slotsReg := slotsNext
+      // --- 根据优先级选择最终的下一状态 ---
+      when(flush_pipeline.isApplying) {
+          // ---- S3: 应用冲刷结果 ----
+          storage.allocPtrReg := flush_pipeline.latched_allocPtrNext
+          storage.wrapModeReg := flush_pipeline.latched_wrapModeNext
+          storage.slotsReg    := flush_pipeline.latched_slotsNext
+          
+          // **冻结 freePtr**
+          storage.freePtrReg  := storage.freePtrReg
+          if (enableLog)
+              notice(
+                  L"[SQ-Ring] FLUSH_APPLY: Applying latched flush results. New state: freePtr=${storage.freePtrReg}, allocPtr=${storage.allocPtrReg}, wrapMode=${storage.wrapModeReg}"
+              )
+          
+      } .otherwise {
+          // ---- 常规操作: Push/Pop ----
+          storage.allocPtrReg := allocPtrNext // 来自常规push逻辑
+          storage.freePtrReg  := freePtrNext  // 来自常规pop逻辑
+          storage.wrapModeReg := wrapModeRegNext// 来自常规逻辑 (已优化)
+          storage.slotsReg    := slotsNext    // 来自常规逻辑 (包含commit)
+          if (enableLog && verbose)
+              debug(
+                  L"[SQ-Ring] Regular State Update: allocPtrReg=${storage.allocPtrReg} -> ${allocPtrNext}, freePtrReg=${storage.freePtrReg} -> ${freePtrNext}, wrapModeReg=${storage.wrapModeReg} -> ${wrapModeRegNext}"
+              )
+      }
 
       if (enableLog && verbose) {
-        debug(
-          L"[SQ-Ring] State Update: allocPtrReg=${storage.allocPtrReg} -> ${allocPtrNext}, freePtrReg=${storage.freePtrReg} -> ${freePtrNext}, wrapModeReg=${storage.wrapModeReg} -> ${wrapModeRegNext}"
-        )
         for (i <- 0 until sbDepth) {
           when(storage.slotsReg(i).valid || slotsNext(i).valid) { // Report if was valid or becomes valid
             debug(
               L"[SQ-Ring-Debug] SlotState[${i}]: " :+
-                L"txid=${slotsNext(i).txid}, " :+
-                L"robPtr=${slotsNext(i).robPtr}, " :+
-                L"pc=${slotsNext(i).pc}, " :+
-                L"addr=${slotsNext(i).addr}, " :+
-                L"valid=${slotsNext(i).valid}, " :+
-                L"isCommitted=${slotsNext(i).isCommitted}, " :+
-                L"sentCmd=${slotsNext(i).sentCmd}, " :+
-                L"waitRsp=${slotsNext(i).waitRsp}, " :+
-                L"isWaitingForRefill=${slotsNext(i).isWaitingForRefill}, " :+
-                L"isWaitingForWb=${slotsNext(i).isWaitingForWb}, " :+
-                L"hasEarlyException=${slotsNext(i).hasEarlyException}, " :+
-                L"isIO=${slotsNext(i).isIO}, " :+
-                L"isCoherent=${slotsNext(i).isCoherent}, " :+
-                L"isFlush=${slotsNext(i).isFlush}"
+                L"txid=${storage.slotsReg(i).txid}, " :+ // Use storage.slotsReg for current cycle's state
+                L"robPtr=${storage.slotsReg(i).robPtr}, " :+
+                L"pc=${storage.slotsReg(i).pc}, " :+
+                L"addr=${storage.slotsReg(i).addr}, " :+
+                L"valid=${storage.slotsReg(i).valid}, " :+
+                L"isCommitted=${storage.slotsReg(i).isCommitted}, " :+
+                L"sentCmd=${storage.slotsReg(i).sentCmd}, " :+
+                L"waitRsp=${storage.slotsReg(i).waitRsp}, " :+
+                L"isWaitingForRefill=${storage.slotsReg(i).isWaitingForRefill}, " :+
+                L"isWaitingForWb=${storage.slotsReg(i).isWaitingForWb}, " :+
+                L"hasEarlyException=${storage.slotsReg(i).hasEarlyException}, " :+
+                L"isIO=${storage.slotsReg(i).isIO}, " :+
+                L"isCoherent=${storage.slotsReg(i).isCoherent}, " :+
+                L"isFlush=${storage.slotsReg(i).isFlush}"
             )
           }
         }
