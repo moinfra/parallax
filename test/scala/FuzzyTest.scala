@@ -55,7 +55,7 @@ class CoSimState(dut: LabTestBench, cfg: FuzzCfg) {
   var staleCommitCounter: Long = 0
   
   // --- Stall Detection State ---
-  val stallThresholdCycles: Long = 1000 // Consider DUT stalled if no commit for this many cycles.
+  val stallThresholdCycles: Long = 200 // Consider DUT stalled if no commit for this many cycles.
   var hasCommittedOnce: Boolean = false
 
   // --- Loop Detection State (新增) ---
@@ -366,7 +366,205 @@ class FuzzyTest extends CustomSpinalSimFunSuite {
     memFillValue = BigInt("DEADBEEF", 16)
   )
 
-  test(s"Advanced Fuzz Test (seed=${mainFuzzCfg.seed})") {
+  /**
+   * A generic helper function to run a self-contained benchmark test.
+   * It sets up the DUT and Golden Model with the provided code and data,
+   * runs the co-simulation, and verifies the final memory state.
+   *
+   * @param testName The name of the benchmark (e.g., "UTEST_STREAM").
+   * @param code The machine code instructions for the benchmark.
+   * @param initialData Initial data to be loaded into data memory (dSram).
+   * @param iSramBase The base address for instruction memory.
+   * @param dSramBase The base address for data memory.
+   * @param memCheckBase The starting address for the final memory comparison.
+   * @param memCheckSize The number of bytes to compare in the final memory check.
+   */
+  def runBenchmarkTest(
+      testName: String,
+      code: Seq[BigInt],
+      initialData: Seq[BigInt] = Seq.empty,
+      iSramBase: BigInt = BigInt("80000000", 16),
+      dSramBase: BigInt = BigInt("80400000", 16),
+      memCheckBase: BigInt,
+      memCheckSize: Int,
+      focusMode: Boolean = false
+    ): Unit = {
+
+    // Configuration for this specific benchmark test.
+    // Note: We set ra (r1) to 0. A 'jirl zero, ra, 0' will jump to PC=0,
+    // which is a reliable termination signal for the Golden Model.
+    val benchmarkCfg = FuzzCfg(
+      seed = 0,
+      instCount = 0, // Not used
+      maxCommits = 500000,
+      maxStaleCommits = 500,
+      iSramBase = iSramBase,
+      iSramSize = 4 * 1024 * 1024,
+      dSramBase = dSramBase,
+      dSramSize = 4 * 1024 * 1024, // Keep data memory large
+      pcSafeLimit = BigInt("81000000", 16),
+      memCheckSize = memCheckSize,
+      memFillValue = BigInt("DEADBEEF", 16)
+    )
+
+    val testFn: String => (=> Unit) => Unit = if (focusMode) testOnly else test
+
+    testFn(s"Benchmark Test: $testName") {
+      println(s"--- Test Setup Phase ($testName) ---")
+
+      // Prepare memory contents
+      val iSramContent = Fuzz.prepMemData(code, benchmarkCfg.iSramSize / 4, 0)
+      val dSramContent = Fuzz.prepMemData(initialData, benchmarkCfg.dSramSize / 4, benchmarkCfg.memFillValue)
+
+      // Initialize Golden Model
+      val memoryMap = Seq((benchmarkCfg.iSramBase, benchmarkCfg.iSramSize), (benchmarkCfg.dSramBase, benchmarkCfg.dSramSize))
+      GoldenModel.initialize(benchmarkCfg.iSramBase.toInt, memoryMap)
+
+      def toBytes(words: Seq[BigInt]): Array[Byte] = words.flatMap { w =>
+        Array((w & 0xff).toByte, ((w >> 8) & 0xff).toByte, ((w >> 16) & 0xff).toByte, ((w >> 24) & 0xff).toByte)
+      }.toArray
+
+      GoldenModel.initMemory(benchmarkCfg.iSramBase.toInt, toBytes(iSramContent))
+      GoldenModel.initMemory(benchmarkCfg.dSramBase.toInt, toBytes(dSramContent))
+      println(s"Golden Model initialized for $testName.")
+
+      val compiled = SimConfig.withFstWave.compile(
+        new LabTestBench(iDataWords = iSramContent, dDataWords = dSramContent)
+      )
+
+      compiled.doSim(s"Benchmark_${testName}") { dut =>
+        dut.clockDomain.forkStimulus(10)
+        SimTimeout(20000000)
+
+        println(s"--- $testName Simulation Started ---")
+        
+        // Manually set initial register values in the DUT if needed.
+        // For these tests, we rely on the Golden Model to check GPRs,
+        // and we manually set ra=0 in the Golden Model.
+        // The DUT's ra will start at 0 by default.
+
+        val finalCoSimState = Fuzz.runCoSim(dut, benchmarkCfg)
+
+        // Handle termination conditions
+        if (finalCoSimState.hitTerminationCondition) {
+          val terminationMessage = Await.result(finalCoSimState.terminationPromise.future, 1.second)
+          // A natural halt is expected. Any other termination is an error.
+          if (finalCoSimState.terminationReason != finalCoSimState.TerminationReason.GoldenModelHaltedNatural) {
+            assert(false, terminationMessage)
+          }
+        }
+
+        // Perform the final memory check
+        // We create a new config for checkMemDump to specify the correct base address.
+        val checkCfg = benchmarkCfg.copy(dSramBase = memCheckBase)
+        Fuzz.checkMemDump(dut, checkCfg)
+
+        println(s"\n>>> Benchmark Test PASSED: $testName <<<")
+      }
+      GoldenModel.destroy()
+      println(s"--- $testName Test Finished ---")
+    }
+  }
+
+  // --- UTEST_SIMPLE ---
+  // This test just increments r4 (a0) and returns. We don't need to check memory.
+  val utestSimpleCode = Seq(
+    BigInt("02800484", 16), // addi.w  $r4,$r4,1
+    BigInt("4c000020", 16)  // jirl    $r0,$r1,0
+  )
+  runBenchmarkTest(
+    testName = "UTEST_SIMPLE",
+    code = utestSimpleCode,
+    iSramBase = BigInt("80000000", 16),
+    memCheckBase = BigInt("80400000", 16), // Dummy base
+    memCheckSize = 0 // No memory check needed
+  )
+
+  // --- UTEST_STREAM ---
+  // This test copies 0x300000 bytes from 0x80100000 to 0x80400000.
+  // We need to place some initial data at the source address.
+  // After the test, we will verify the content at the destination address.
+  val utestStreamCode = Seq(
+    BigInt("15002004", 16), // lu12i.w $r4, 0x80100
+    BigInt("15008005", 16), // lu12i.w $r5, 0x80400
+    BigInt("14006006", 16), // lu12i.w $r6, 0x300
+    BigInt("00101886", 16), // add.w   $r6,$r4,$r6
+    BigInt("2880008c", 16), // ld.w    $r12,$r4,0
+    BigInt("298000ac", 16), // st.w    $r12,$r5,0
+    BigInt("02801084", 16), // addi.w  $r4,$r4,4
+    BigInt("028010a5", 16), // addi.w  $r5,$r5,4
+    BigInt("5ffff086", 16), // bne     $r4,$r6, -16
+    BigInt("4c000020", 16)  // jirl    $r0,$r1,0
+  )
+  // Create some random data to be copied
+  val streamSourceData = Seq.fill(1024) {
+    // Treat the 32-bit signed Int from nextInt() as an unsigned bit pattern.
+    // Masking with 0xFFFFFFFFL ensures the resulting BigInt is positive.
+    BigInt(scala.util.Random.nextInt().toLong & 0xFFFFFFFFL)
+  }
+  runBenchmarkTest(
+    testName = "UTEST_STREAM",
+    code = utestStreamCode,
+    initialData = streamSourceData,
+    iSramBase = BigInt("80000000", 16), // Match the address from objdump
+    memCheckBase = BigInt("80400000", 16), // This is the destination to verify
+    memCheckSize = 1024 * 4, // Check the same amount of data we created
+    focusMode = true
+  )
+
+  // --- UTEST_MATRIX ---
+  // This test performs matrix multiplication: C = A * B
+  // We will pre-fill matrices A and B and check the result in C.
+  val utestMatrixCode = Seq(
+    BigInt("15008004", 16), BigInt("15008205", 16), BigInt("15008406", 16), BigInt("03818007", 16),
+    BigInt("00150014", 16), BigInt("58006e87", 16), BigInt("00408a8c", 16), BigInt("0040a68e", 16),
+    BigInt("0010308c", 16), BigInt("001038ae", 16), BigInt("0015000d", 16), BigInt("58004da7", 16),
+    BigInt("28800193", 16), BigInt("0040a5a8", 16), BigInt("001020c8", 16), BigInt("001501d0", 16),
+    BigInt("0015000f", 16), BigInt("580029e7", 16), BigInt("028005ef", 16), BigInt("28800211", 16),
+    BigInt("28800112", 16), BigInt("001c4671", 16), BigInt("02801108", 16), BigInt("02801210", 16),
+    BigInt("00104651", 16), BigInt("29bff111", 16), BigInt("53ffdfff", 16), BigInt("028005ad", 16),
+    BigInt("0288018c", 16), BigInt("53ffbbff", 16), BigInt("02800694", 16), BigInt("53ff9bff", 16),
+    BigInt("4c000020", 16)
+  )
+  // Let's use small 2x2 matrices for a quick test. A is identity, B is {1,2,3,4}
+  // A @ 0x80400000, B @ 0x80410000, C @ 0x80420000
+  // Note: We need to adjust a3 in the code to 2 for a 2x2 matrix.
+  // For simplicity, we'll run the full 96x96 test with zero-filled matrices.
+  runBenchmarkTest(
+    testName = "UTEST_MATRIX",
+    code = utestMatrixCode,
+    iSramBase = BigInt("80000000", 16),
+    // The test itself will write to 0x80420000, which we will check.
+    memCheckBase = BigInt("80420000", 16),
+    memCheckSize = 96 * 96 * 4
+  )
+
+  // --- UTEST_CRYPTONIGHT ---
+  // This test performs a memory-hard loop. We'll just run it and check the final memory state.
+  val utestCryptoNightCode = Seq(
+    BigInt("15008004", 16), BigInt("15bd5b65", 16), BigInt("03bbbca5", 16), BigInt("15f59d66", 16),
+    BigInt("038030c6", 16), BigInt("14002007", 16), BigInt("00151010", 16), BigInt("0015000f", 16),
+    BigInt("1400100c", 16), BigInt("2980020f", 16), BigInt("028005ef", 16), BigInt("02801210", 16),
+    BigInt("5ffff5ec", 16), BigInt("0015000d", 16), BigInt("14000fee", 16), BigInt("03bffdce", 16),
+    BigInt("0014b8ac", 16), BigInt("0040898c", 16), BigInt("0010308c", 16), BigInt("2880018f", 16),
+    BigInt("004484b0", 16), BigInt("004085ef", 16), BigInt("0015c1ef", 16), BigInt("0014b9f0", 16),
+    BigInt("001599e6", 16), BigInt("00408a10", 16), BigInt("29800186", 16), BigInt("00104090", 16),
+    BigInt("2880020c", 16), BigInt("00153c06", 16), BigInt("001c31ef", 16), BigInt("028005ad", 16),
+    BigInt("001015e5", 16), BigInt("29800205", 16), BigInt("00159585", 16), BigInt("5fffb4ed", 16),
+    BigInt("4c000020", 16)
+  )
+  // Test runs for a long time, we reduce iterations for the test by patching a3.
+  // Original a3 = 0x100000. Let's patch it to 0x100 for a faster test run.
+  val patchedCryptoCode = utestCryptoNightCode.updated(5, BigInt("03802007", 16)) // ori r7, r0, 0x100
+  runBenchmarkTest(
+    testName = "UTEST_CRYPTONIGHT (Patched)",
+    code = patchedCryptoCode,
+    iSramBase = BigInt("80000000", 16),
+    memCheckBase = BigInt("80400000", 16),
+    memCheckSize = 8 * 1024 // Check the first 8KB of the scratchpad
+  )
+
+  test(s"xAdvanced Fuzz Test (seed=${mainFuzzCfg.seed})") {
     val rand = new Random(mainFuzzCfg.seed)
     println(s"--- Test Setup Phase (seed=${mainFuzzCfg.seed}) ---")
 
@@ -480,7 +678,7 @@ class FuzzyTest extends CustomSpinalSimFunSuite {
     memFillValue = 0 // Use 0 for data memory padding
   )
 
-  test("xKernel Co-Simulation Test (from bin/kernel.bin)") {
+  test("Kernel Co-Simulation Test (from bin/kernel.bin)") {
     println("--- Test Setup Phase (Kernel) ---")
 
     val kernelPath = "bin/kernel.bin"

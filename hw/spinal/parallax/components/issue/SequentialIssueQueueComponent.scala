@@ -1,5 +1,6 @@
 // filename: parallax/components/issue/SequentialIssueQueueComponent.scala
 // NOTE: This is the final, corrected version intended for direct replacement.
+// This version incorporates a pipelined wakeup mechanism to resolve timing issues.
 package parallax.components.issue
 
 import spinal.core._
@@ -25,10 +26,13 @@ case class IQEntryWrapper[T_IQEntry <: Data with IQEntryLike](entryType: HardTyp
 }
 
 /**
- * SequentialIssueQueueComponent (Final Ring Buffer Remake)
+ * SequentialIssueQueueComponent (Final Ring Buffer Remake with Pipelined Wakeup)
  *
  * This version incorporates corrections for state update logic and removes redundant
- * state representation, resulting in a more robust and maintainable design.
+ * state representation. Crucially, it pipelines the wakeup-match logic to resolve
+ * critical timing paths, at the cost of one additional cycle of wakeup latency for
+ * non-head entries. A bypass path is included for the issue logic to prevent any
+ * increase in issue latency.
  *
  * @param iqConfig       IQ's configuration.
  * @param numWakeupPorts Number of parallel wakeup ports.
@@ -86,37 +90,68 @@ class SequentialIssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
     val doAllocate = io.allocateIn.fire
     val doIssue = io.issueOut.fire
     val doFlush = io.flush
-    io.allocateIn.ready := !storage.isFull && !doFlush 
+    io.allocateIn.ready := !storage.isFull && !doFlush
 
-    // --- Wakeup Logic (remains mostly the same, but its application changes) ---
+    // =========================================================================
+    //               PIPELINED WAKEUP LOGIC
+    // =========================================================================
+
+    // --- Stage 1: Latch Wakeup Input ---
+    // This is the first pipeline stage for incoming wakeup signals.
     val wakeupInReg = RegNext(io.wakeupIn) initZero()
-    when(io.flush) {
+    when(doFlush) {
       wakeupInReg.clearAll()
     }
-    val wokeUpSrc1Mask = Bits(iqConfig.depth bits); wokeUpSrc1Mask.clearAll()
-    val wokeUpSrc2Mask = Bits(iqConfig.depth bits); wokeUpSrc2Mask.clearAll()
-    for (i <- 0 until iqConfig.depth) {
-        val slot = storage.slotsReg(i)
-        when(storage.isIndexInFlight(U(i)) && slot.valid) {
-            val entry = slot.entry
-            val canWakeupSrc1 = !entry.src1Ready && entry.useSrc1
-            val canWakeupSrc2 = !entry.src2Ready && entry.useSrc2
-            for (wakeup <- wakeupInReg) {
-                when(wakeup.valid) {
-                    when(canWakeupSrc1 && (entry.src1Tag === wakeup.payload.physRegIdx)) { wokeUpSrc1Mask(i) := True }
-                    when(canWakeupSrc2 && (entry.src2Tag === wakeup.payload.physRegIdx)) { wokeUpSrc2Mask(i) := True }
+
+    // --- Stage 2: Combinational Wakeup Match ---
+    // This performs the massive tag comparison but does NOT directly drive state.
+    // Its outputs are intermediate signals to be registered in the next stage.
+    val wakeupMatch = new Area {
+        val src1Mask = Bits(iqConfig.depth bits)
+        val src2Mask = Bits(iqConfig.depth bits)
+        src1Mask.clearAll()
+        src2Mask.clearAll()
+
+        for (i <- 0 until iqConfig.depth) {
+            val slot = storage.slotsReg(i) // Read registered state from previous cycle
+            when(storage.isIndexInFlight(U(i)) && slot.valid) {
+                val entry = slot.entry
+                val canWakeupSrc1 = !entry.src1Ready && entry.useSrc1
+                val canWakeupSrc2 = !entry.src2Ready && entry.useSrc2
+                for (wakeup <- wakeupInReg) { // Use registered wakeups from previous cycle
+                    when(wakeup.valid) {
+                        when(canWakeupSrc1 && (entry.src1Tag === wakeup.payload.physRegIdx)) { src1Mask(i) := True }
+                        when(canWakeupSrc2 && (entry.src2Tag === wakeup.payload.physRegIdx)) { src2Mask(i) := True }
+                    }
                 }
             }
         }
     }
+
+    // --- Stage 3: Latch Match Results ---
+    // These registers break the critical path from tag comparison to slot update.
+    val wokeUpSrc1MaskReg = RegNext(wakeupMatch.src1Mask) init(0)
+    val wokeUpSrc2MaskReg = RegNext(wakeupMatch.src2Mask) init(0)
+    when(doFlush) {
+      wokeUpSrc1MaskReg := 0
+      wokeUpSrc2MaskReg := 0
+    }
     
-    // --- Issue Logic (remains the same) ---
+    // --- Issue Logic (with Wakeup Bypass) ---
     val issue = new Area {
         val headIdx = storage.freePtrReg
         val headSlot = storage.slotsReg(headIdx)
         val headEntry = headSlot.entry
-        val headFinalSrc1Ready = headEntry.src1Ready || wokeUpSrc1Mask(headIdx)
-        val headFinalSrc2Ready = headEntry.src2Ready || wokeUpSrc2Mask(headIdx)
+
+        // **BYPASS**: To avoid adding a cycle of issue latency, we use the
+        // combinational match result from *this* cycle for the head entry.
+        // This path is short (wakeupInReg -> one entry compare -> issue valid)
+        // and should not be critical.
+        val immediateWokeUpSrc1 = wakeupMatch.src1Mask(headIdx)
+        val immediateWokeUpSrc2 = wakeupMatch.src2Mask(headIdx)
+
+        val headFinalSrc1Ready = headEntry.src1Ready || immediateWokeUpSrc1
+        val headFinalSrc2Ready = headEntry.src2Ready || immediateWokeUpSrc2
         val headIsReadyToIssue = (!headEntry.useSrc1 || headFinalSrc1Ready) && (!headEntry.useSrc2 || headFinalSrc2Ready)
         val canIssue = !storage.isEmpty && headSlot.valid && headIsReadyToIssue && !doFlush
         io.issueOut.valid := canIssue
@@ -144,10 +179,14 @@ class SequentialIssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
         newEntry.entry.initFrom(allocUop, allocUop.robPtr).allowOverride()
 
         // ** CRITICAL FIX: Allocation-Wakeup Forwarding **
-        val s1WakesUp = wakeupInReg.map(w => w.valid && w.payload.physRegIdx === allocUop.rename.physSrc1.idx).orR
-        val s2WakesUp = wakeupInReg.map(w => w.valid && w.payload.physRegIdx === allocUop.rename.physSrc2.idx).orR
-        newEntry.entry.src1Ready := allocCmd.src1InitialReady || s1WakesUp
-        newEntry.entry.src2Ready := allocCmd.src2InitialReady || s2WakesUp
+        // A new instruction needs to check against wakeups from the previous cycle (in wakeupInReg)
+        // and wakeups from the current cycle (at io.wakeupIn) to be woken up immediately.
+        val s1WakesUpOnReg = wakeupInReg.map(w => w.valid && w.payload.physRegIdx === allocUop.rename.physSrc1.idx).orR
+        val s2WakesUpOnReg = wakeupInReg.map(w => w.valid && w.payload.physRegIdx === allocUop.rename.physSrc2.idx).orR
+        val s1WakesUpOnIo = io.wakeupIn.map(w => w.valid && w.payload.physRegIdx === allocUop.rename.physSrc1.idx).orR
+        val s2WakesUpOnIo = io.wakeupIn.map(w => w.valid && w.payload.physRegIdx === allocUop.rename.physSrc2.idx).orR
+        newEntry.entry.src1Ready := allocCmd.src1InitialReady || s1WakesUpOnReg || s1WakesUpOnIo
+        newEntry.entry.src2Ready := allocCmd.src2InitialReady || s2WakesUpOnReg || s2WakesUpOnIo
 
         // --- 2. Determine next state for each physical slot ---
         for(i <- 0 until iqConfig.depth) {
@@ -165,9 +204,10 @@ class SequentialIssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
                 slotsNext(i).valid := False
             }
             .otherwise {
-                // Otherwise, just apply wakeups to the existing state.
-                when(wokeUpSrc1Mask(i)) { slotsNext(i).entry.src1Ready := True }
-                when(wokeUpSrc2Mask(i)) { slotsNext(i).entry.src2Ready := True }
+                // Otherwise, apply wakeups from the pipelined match results.
+                // This is now a short, register-to-register path.
+                when(wokeUpSrc1MaskReg(i)) { slotsNext(i).entry.src1Ready := True }
+                when(wokeUpSrc2MaskReg(i)) { slotsNext(i).entry.src2Ready := True }
             }
         }
         
@@ -200,7 +240,6 @@ class SequentialIssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
   val debug_signals = new Area {
     if(enableLog) {
       // --- 1. Calculated Valid Count from Pointers ---
-      // This serves as a continuous verification of the pointer logic.
       val validCountFromPointers = UInt(log2Up(iqConfig.depth + 1) bits)
       when(storage.isFull) {
         validCountFromPointers := iqConfig.depth
@@ -213,7 +252,6 @@ class SequentialIssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
       }
 
       // --- 2. High-Level Status Summary ---
-      // This is the primary status line printed each cycle.
       debug(
         L"[${idStr}] STATUS: " :+
         L"Count=${validCountFromPointers}, " :+
@@ -225,7 +263,6 @@ class SequentialIssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
       )
 
       // --- 3. IO Port State ---
-      // Shows the handshake status with Dispatch and the EU.
       debug(
         L"[${idStr}] IO_STATE: " :+
         L"allocateIn(valid=${io.allocateIn.valid}, ready=${io.allocateIn.ready}, fire=${io.allocateIn.fire}), " :+
@@ -233,27 +270,25 @@ class SequentialIssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
       )
 
       // --- 4. Detailed Issue Decision Logic ---
-      // This block provides deep insight into why an issue is happening or not.
       when(!storage.isEmpty) {
         val headIdx = storage.freePtrReg
         val headSlot = storage.slotsReg(headIdx)
         val headEntry = headSlot.entry
-        val wau = logic.issue // Alias for brevity
+        val wau = logic.issue
 
         debug(L"[${idStr}] ISSUE_CHECK (Head@${headIdx}): robPtr=${headEntry.robPtr}, valid=${headSlot.valid}")
         debug(
           L"  - Src1: use=${headEntry.useSrc1}, rdy=${headEntry.src1Ready}, tag=${headEntry.src1Tag}, " :+
-          L"wakeUpThisCycle=${logic.wokeUpSrc1Mask(headIdx)} => finalRdy=${wau.headFinalSrc1Ready}"
+          L"wakeUpThisCycle(bypass)=${wau.immediateWokeUpSrc1} => finalRdy=${wau.headFinalSrc1Ready}"
         )
         debug(
           L"  - Src2: use=${headEntry.useSrc2}, rdy=${headEntry.src2Ready}, tag=${headEntry.src2Tag}, " :+
-          L"wakeUpThisCycle=${logic.wokeUpSrc2Mask(headIdx)} => finalRdy=${wau.headFinalSrc2Ready}"
+          L"wakeUpThisCycle(bypass)=${wau.immediateWokeUpSrc2} => finalRdy=${wau.headFinalSrc2Ready}"
         )
         debug(L"  - Final Decision: headIsReady=${wau.headIsReadyToIssue}, canIssue=${wau.canIssue}")
       }
 
       // --- 5. Key Event Logs ---
-      // Log important events like allocation, issue, and flush.
       when(io.allocateIn.fire) {
           debug(L"  => EVENT: ALLOCATED robPtr=${io.allocateIn.payload.uop.robPtr}")
       }
@@ -265,7 +300,6 @@ class SequentialIssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
       }
 
       // --- 6. Full Queue Content Dump ---
-      // Dumps the state of all valid entries in the queue.
        when(validCountFromPointers > 0) {
         debug(L"  -- [${idStr}] Contents --")
         for (i <- 0 until iqConfig.depth) {
@@ -273,14 +307,10 @@ class SequentialIssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
                 val slot = storage.slotsReg(i)
                 val entry = slot.entry
                 val isHead = !storage.isEmpty && (storage.freePtrReg === i)
-                val isTail = !storage.isEmpty && (storage.allocPtrReg === i) // Tail is allocPtr, not allocPtr - 1
+                val isTail = !storage.isEmpty && (storage.allocPtrReg === i)
                 
-                // <<< 最终修复 v2：分解打印，绝对安全 >>>
-                
-                // 打印基础信息行
                 debug(L"  -> Slot[${i}]: robPtr=${entry.robPtr}, Src1(u=${entry.useSrc1},r=${entry.src1Ready},t=${entry.src1Tag}), Src2(u=${entry.useSrc2},r=${entry.src2Ready},t=${entry.src2Tag})")
                 
-                // 在满足条件时，打印附加的标记行
                 when(isHead) {
                   debug(L"    (is HEAD)")
                 }
@@ -296,6 +326,6 @@ class SequentialIssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
   }
 
   ParallaxLogger.log(
-    s"${idStr} Component (depth ${iqConfig.depth}, wakeup ports ${numWakeupPorts}, type ${iqConfig.uopEntryType().getClass.getSimpleName}) elaborated with Final Ring Buffer implementation."
+    s"${idStr} Component (depth ${iqConfig.depth}, wakeup ports ${numWakeupPorts}, type ${iqConfig.uopEntryType().getClass.getSimpleName}) elaborated with Pipelined Wakeup Ring Buffer implementation."
   )
 }

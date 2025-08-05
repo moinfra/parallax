@@ -11,6 +11,7 @@ import parallax.utilities._
 import parallax.components.issue.IQEntryLsu
 import parallax.components.lsu._
 import scala.collection.mutable.ArrayBuffer
+import parallax.utilities.ParallaxSim.debug
 
 class LsuEuPlugin(
     override val euName: String,
@@ -51,7 +52,7 @@ class LsuEuPlugin(
 
     // 获取到后端队列的推送端口
     val sbPushPort = storeBufferServiceInst.getPushPort()
-    val lqPushPort = loadQueueServiceInst.newPushPort()
+    val lqPushPort = loadQueueServiceInst.getPushPort()
 
     // 保留服务
     robServiceInst.retain() // 保留服务
@@ -65,7 +66,8 @@ class LsuEuPlugin(
   // =========================================================================
   override def buildEuLogic(): Unit = {
     ParallaxLogger.log(s"[LsuEu ${euName}] Logic start definition.")
-    hw.aguPort.flush := robFlushPort.valid
+    val latchedFlush = RegNext(robFlushPort.valid, init=False)
+    hw.aguPort.flush := latchedFlush
     
 
     // --- 1. EU输入处理 & 分流 ---
@@ -100,7 +102,7 @@ class LsuEuPlugin(
     hw.aguPort.input << aguInStream
 
     // --- 3. AGU响应处理 & 分派到后端队列 ---
-    val aguOutStream = hw.aguPort.output
+    val aguOutStream = hw.aguPort.output.queue(2, latency = 1).throwWhen(latchedFlush) // 可能会在冲刷当拍存在流入LSQ的，但是LSQ会处理。
     val aguOutPayload = aguOutStream.payload
 
     // 将AGU输出流分流给Load Queue和Store Buffer
@@ -121,6 +123,15 @@ class LsuEuPlugin(
         cmd.earlyExceptionCode := ExceptionCode.LOAD_ADDR_MISALIGNED
         cmd
     }
+    when(aguOutStream.valid) {
+      debug(L"[LsuEu-DEBUG] AGU_OUT_STREAM_STATUS: valid=${aguOutStream.valid}, ready=${aguOutStream.ready}, fire=${aguOutStream.fire}, robPtr=${aguOutStream.payload.robPtr}, pc=${aguOutStream.payload.pc}")
+    }
+
+    // 新增日志点 E: 观察 lqDispatchStream (StreamDemux 的 Load 输出) 的 ready/valid 和 fire 状态
+    when(lqDispatchStream.valid) {
+      debug(L"[LsuEu-DEBUG] LQ_DISPATCH_STREAM_STATUS: valid=${lqDispatchStream.valid}, ready=${lqDispatchStream.ready}, fire=${lqDispatchStream.fire}, robPtr=${lqDispatchStream.payload.robPtr}, pc=${lqDispatchStream.payload.pc}")
+    }
+
 
     // 连接到Store Buffer
     hw.sbPushPort << sbDispatchStream.translateWith {

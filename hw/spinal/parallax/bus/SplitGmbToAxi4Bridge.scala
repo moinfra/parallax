@@ -19,8 +19,6 @@ object SplitGmbToAxi4Bridge {
 class SplitGmbToAxi4Bridge(
   val gmbConfig: GenericMemoryBusConfig,
   val axiConfig: Axi4Config,
-  val cmdInStage: Boolean = true,
-  val rspInStage: Boolean = true
 ) extends Component {
   val instanceId = SplitGmbToAxi4Bridge.nextInstanceId
   val enableLog = false
@@ -124,7 +122,10 @@ class SplitGmbToAxi4Bridge(
     aw.len := 0
     aw.size := log2Up(gmbConfig.dataWidth.value / 8)
     aw.setBurstINCR()
-    if (gmbConfig.useId) { aw.id := awStream.payload.id.resized } 
+    if (gmbConfig.useId) { 
+      require(aw.id.getWidth >= awStream.payload.id.getWidth, "AXI4 ID width is smaller than GMB ID width")
+      aw.id := awStream.payload.id.resized
+    } 
     else if (axiConfig.useId) { aw.id := 0 }
     aw
   }
@@ -148,7 +149,7 @@ class SplitGmbToAxi4Bridge(
     // 直接引用 axiB_buffered.payload
     rsp.error := !axiB_buffered.payload.isOKAY()
     if(gmbConfig.useId) {
-      require(gmbWriteRspOut.payload.id.getWidth >= axiB_buffered.payload.id.getWidth, "GMB ID width is smaller than AXI4 ID width")
+      require(rsp.id.getWidth >= axiB_buffered.payload.id.getWidth, "GMB ID width is smaller than AXI4 ID width")
       rsp.id := axiB_buffered.payload.id.resized
     }
     rsp

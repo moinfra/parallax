@@ -36,7 +36,7 @@ case class PipelineConfig(
     // val lsuIqDepth: Int = 16
     // val mulIqDepth: Int = 4
     val defaultIsIO: Boolean = true, // Force LS requests to bypass the DCache
-    val memOpIdWidth: BitCount = 6 bits,
+    val busIdWidth: BitCount = 8 bits,
     val mulEuCount: Int = 0,
     val fetchGenIdWidth: BitCount = 4 bits,
 ) {
@@ -62,7 +62,7 @@ case class PipelineConfig(
 
   def robPtrWidth: BitCount = log2Up(robDepth) + 1 bits // extra bit for generation
   
-  require(memOpIdWidth.value >= robPtrWidth.value, "Memory operation ID width must be at least as wide as the ROB pointer width")
+  require(busIdWidth.value >= robPtrWidth.value, "Memory operation ID width must be at least as wide as the ROB pointer width")
   // Helper to check if Floating Point is notionally supported by config
   def hasFpu: Boolean = archFprCount > 0 && physFprCount > 0
 }

@@ -25,7 +25,7 @@
 //     with LoadQueueService
 //     with LockedImpl {
 //   ParallaxLogger.log(s"LQPlugin: Creating LoadQueue with config: $lsuConfig")
-//   val enableLog = true
+//   val enableLog = false
 //   // --- Helper for ROB ID comparison (handles generation bit wrap-around) ---
 //   private def isNewerOrSame(robPtrA: UInt, robPtrB: UInt): Bool = {
 //     val genA = robPtrA.msb

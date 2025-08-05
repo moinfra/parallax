@@ -63,7 +63,7 @@ object DemoCPUGen extends App {
   }
 
   val spinalConfig = SpinalConfig(
-    defaultClockDomainFrequency = FixedFrequency(100 MHz),
+    defaultClockDomainFrequency = FixedFrequency(150000000 Hz),
     targetDirectory = "rtl/parallax/demo"
   )
 

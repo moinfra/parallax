@@ -284,7 +284,7 @@ class IssueToAluAndLsuTestBench(val pCfg: PipelineConfig, val isIO: Boolean = fa
       new BypassPlugin[BypassMessage](payloadType = HardType(BypassMessage(pCfg))),
       new CommitPlugin(pCfg),
       new BpuPipelinePlugin(pCfg),
-      new LoadQueuePlugin(pCfg, lsuConfig, dCacheParams, lsuConfig.lqDepth, mmioConfig),
+      new LoadRingBufferPlugin(pCfg, lsuConfig, dCacheParams, lsuConfig.lqDepth, mmioConfig),
       new StoreBufferPlugin(pCfg, lsuConfig, dCacheParams, lsuConfig.sqDepth, mmioConfig),
       new AguPlugin(lsuConfig, supportPcRel = true),
       new DataCachePlugin(dCacheConfig),

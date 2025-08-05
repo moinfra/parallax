@@ -547,3 +547,7 @@ object Verification {
     )
   }
 }
+
+object MuxGen {
+  def apply[T](cond: Boolean, blockT: => T, blockF: => T): T = if (cond) blockT else  blockF
+}

@@ -9,7 +9,7 @@ import spinal.lib.bus.amba4.axi._
 import spinal.lib.fsm._
 
 // 这个BlackBox精确匹配官方 uart_wrapper.v 的IO接口
-class UartWrapperBlackbox(clk_freq: BigInt = 100000000L, uart_baud: Int = 9600) extends BlackBox {
+class UartWrapperBlackbox(clk_freq: BigInt = 150000000L, uart_baud: Int = 9600) extends BlackBox {
   // 设置Verilog模块名和参数
   setBlackBoxName("uart_wrapper")
   addGeneric("clk_freq", clk_freq)
@@ -114,7 +114,7 @@ case class UartAxiControllerConfig(
 }
 
 class UartAxiController(val config: UartAxiControllerConfig) extends Component {
-  val enableLog = true
+  val enableLog = false
   val io = new Bundle {
     // AXI4-Lite Slave接口，SpinalHDL会自动处理信号的拆分和命名
     val axi = slave(Axi4(config.axiConfig))

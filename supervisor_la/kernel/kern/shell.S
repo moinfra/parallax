@@ -20,19 +20,19 @@ uregs:
      *  用户空间寄存器：$r2-$r31依次保存在0x807F0000连续120字节
      *  用户程序入口临时存储：0x807F0078
      */
-SHELL:
+SHELL: // 800021e0
     la.global    t0,READSERIAL           // 读操作符
-    jirl        ra,t0,0x0
+    jirl        ra,t0,0x0            // 21e8
 
-    sub.w       a0,a0,zero
-    ori         t0,zero,SH_OP_R
-    beq         a0,t0,.OP_R
-    ori         t0,zero,SH_OP_D
-    beq         a0,t0,.OP_D
-    ori         t0,zero,SH_OP_A
-    beq         a0,t0,.OP_A
-    ori         t0,zero,SH_OP_G
-    beq         a0,t0,.OP_G
+    sub.w       a0,a0,zero           // 21ec
+    ori         t0,zero,SH_OP_R      // 21f0
+    beq         a0,t0,.OP_R          // 21f4
+    ori         t0,zero,SH_OP_D       // 21f8
+    beq         a0,t0,.OP_D            // 21fc
+    ori         t0,zero,SH_OP_A       // 2200
+    beq         a0,t0,.OP_A           // 2204
+    ori         t0,zero,SH_OP_G       // 2208
+    beq         a0,t0,.OP_G            // 220c
     b           .DONE                   // 错误的操作符，默认忽略
 
 
@@ -81,21 +81,21 @@ SHELL:
     addi.w      sp,sp,0x8
     b           .DONE
 
-.OP_A:                                  // 操作 - 写入内存num字节，num为4的倍数
-    addi.w      sp,sp,-8                // 保存s0,s1
-    st.w        s0,sp,0x0
-    st.w        s1,sp,0x4
+.OP_A:                                  // 22b0 操作 - 写入内存num字节，num为4的倍数
+    addi.w      sp,sp,-8                // 22b4 保存s0,s1
+    st.w        s0,sp,0x0               // 22b8
+    st.w        s1,sp,0x4               // 22bc
 
-    la.global    t0,READSERIALWORD
-    jirl        ra,t0,0x0
-    or          s0,a0,zero              // 获得addr
-    la.global    t0,READSERIALWORD
-    jirl        ra,t0,0x0
-    or          s1,a0,zero              // 获得num
-    srli.w      s1,s1,2                 // num除4，获得字数
+    la.global    t0,READSERIALWORD      // 22c0 22c4
+    jirl        ra,t0,0x0               // 22c8
+    or          s0,a0,zero              // 22cc 获得addr
+    la.global    t0,READSERIALWORD      // 22d0 22d4
+    jirl        ra,t0,0x0               // 22d8        
+    or          s1,a0,zero              // 22dc 获得num
+    srli.w      s1,s1,2                 // 22e0 num除4，获得字数
 .LC2:                                   // 每次写入一字
     la.global    t0,READSERIALWORD       // 从串口读入一字
-    jirl        ra,t0,0x0
+    jirl        ra,t0,0x0                              
     st.w        a0,s0,0x0               // 写内存一字
     addi.w      s1,s1,-1                // 滚动计数器
     addi.w      s0,s0,0x4               // 移动写指针
@@ -106,7 +106,7 @@ SHELL:
     addi.w      sp,sp,0x8
     b           .DONE
 
-.OP_G:
+.OP_G:                                   // 230c
     la.global    t0,READSERIALWORD       // 获取addr
     jirl        ra,t0,0x0
     or          $r21,a0,zero
@@ -191,5 +191,5 @@ SHELL:
 
     b           .DONE
 
-.DONE:
+.DONE: // 2454
     b           SHELL                   // 交互循环

@@ -81,7 +81,7 @@ case class ROBStatus[RU <: Data with Formattable with HasRobPtr](config: ROBConf
   // val pendingRetirement = Bool() 
   val genBit = Bool()
 
-  def setDefault(): this.type = {
+  def setDefault(setGenBitFalse: Boolean = false): this.type = {
     this.busy := False
     this.done := False
     this.isMispredictedBranch := False
@@ -90,7 +90,10 @@ case class ROBStatus[RU <: Data with Formattable with HasRobPtr](config: ROBConf
     this.result.assignDontCare()
     this.hasException := False
     this.exceptionCode.assignDontCare()
-    // 关键：不要在这里重置genBit，它的生命周期由指针逻辑管理。
+    // 关键：除非必要，不要在这里重置genBit，它的生命周期由指针逻辑管理。
+    if (setGenBitFalse) {
+      this.genBit := False
+    }
     this
   }
 }
@@ -196,6 +199,13 @@ case class ROBIo[RU <: Data with Formattable with HasRobPtr](config: ROBConfig[R
   }
 }
 
+class EmptyTest[RU <: Data with Formattable with HasRobPtr](config: ROBConfig[RU]) extends Component {
+  val enableLog = false
+  ParallaxLogger.log(
+    s"Creating ReorderBuffer with config: ${config.format().mkString("")}"
+  )
+  val io = slave(ROBIo(config))
+}
 class ReorderBuffer[RU <: Data with Formattable with HasRobPtr](config: ROBConfig[RU]) extends Component {
   val enableLog = false
   ParallaxLogger.log(

@@ -135,6 +135,8 @@ case class IQEntryMul(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
 
   // --- Common Fields ---
   val robPtr          = UInt(pCfg.robPtrWidth)
+  val pc              = UInt(pCfg.pcWidth)
+
   val physDest        = PhysicalRegOperand(pCfg.physGprIdxWidth)
   val physDestIsFpr   = Bool()
   val writesToPhysReg = Bool()
@@ -154,6 +156,7 @@ case class IQEntryMul(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
 
   override def setDefault(): this.type = {
     uop.setDefault() // Initialize the uop field
+    pc := 0;
     robPtr := 0; physDest.setDefault(); physDestIsFpr := False; writesToPhysReg := False
     useSrc1 := False; src1Data := B(0); src1Tag := 0; src1Ready := False; src1IsFpr := False
     useSrc2 := False; src2Data := B(0); src2Tag := 0; src2Ready := False; src2IsFpr := False
@@ -164,6 +167,7 @@ case class IQEntryMul(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
   def setDefaultForSim(): this.type = {
     import spinal.core.sim._
     uop.setDefaultForSim() // Initialize the uop field for simulation
+    pc #= 0;
     robPtr #= 0; physDest.setDefaultForSim(); physDestIsFpr #= false; writesToPhysReg #= false
     useSrc1 #= false; src1Data #= 0; src1Tag #= 0; src1Ready #= false; src1IsFpr #= false
     useSrc2 #= false; src2Data #= 0; src2Tag #= 0; src2Ready #= false; src2IsFpr #= false
@@ -176,6 +180,7 @@ case class IQEntryMul(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
     val decoded = renamedUop.decoded
     val renameInfo = renamedUop.rename
     this.robPtr := allocatedRobPtr
+    this.pc := decoded.pc
     this.physDest := renameInfo.physDest
     this.physDestIsFpr := renameInfo.physDestIsFpr
     this.writesToPhysReg := renameInfo.writesToPhysReg
@@ -201,6 +206,8 @@ case class IQEntryDiv(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
   // 结构与 IQEntryMul 完全相同，但它是一个独立的类型，用于路由到不同的IQ
   // --- Common Fields ---
   val robPtr          = UInt(pCfg.robPtrWidth)
+  val pc              = UInt(pCfg.pcWidth)
+
   val physDest        = PhysicalRegOperand(pCfg.physGprIdxWidth)
   val physDestIsFpr   = Bool()
   val writesToPhysReg = Bool()
@@ -219,6 +226,7 @@ case class IQEntryDiv(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
   val mulDivCtrl      = MulDivCtrlFlags()
 
   override def setDefault(): this.type = {
+    pc := 0;
     robPtr := 0; physDest.setDefault(); physDestIsFpr := False; writesToPhysReg := False
     useSrc1 := False; src1Data := B(0); src1Tag := 0; src1Ready := False; src1IsFpr := False
     useSrc2 := False; src2Data := B(0); src2Tag := 0; src2Ready := False; src2IsFpr := False
@@ -228,6 +236,7 @@ case class IQEntryDiv(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
 
   def setDefaultForSim(): this.type = {
     import spinal.core.sim._
+    pc #= 0;
     robPtr #= 0; physDest.setDefaultForSim(); physDestIsFpr #= false; writesToPhysReg #= false
     useSrc1 #= false; src1Data #= 0; src1Tag #= 0; src1Ready #= false; src1IsFpr #= false
     useSrc2 #= false; src2Data #= 0; src2Tag #= 0; src2Ready #= false; src2IsFpr #= false
@@ -243,6 +252,7 @@ case class IQEntryDiv(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
     val decoded = renamedUop.decoded
     val renameInfo = renamedUop.rename
     this.robPtr := allocatedRobPtr
+    this.pc := decoded.pc
     this.physDest := renameInfo.physDest
     this.physDestIsFpr := renameInfo.physDestIsFpr
     this.writesToPhysReg := renameInfo.writesToPhysReg
@@ -267,6 +277,8 @@ case class IQEntryDiv(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
 case class IQEntryLsu(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
   // --- Common Fields ---
   val robPtr          = UInt(pCfg.robPtrWidth)
+  val pc              = UInt(pCfg.pcWidth)
+
   val physDest        = PhysicalRegOperand(pCfg.physGprIdxWidth)
   val physDestIsFpr   = Bool()
   val writesToPhysReg = Bool()
@@ -291,6 +303,7 @@ case class IQEntryLsu(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
     ExeUnitType.MEM
   }
   override def setDefault(): this.type = {
+    pc := 0;
     robPtr := 0; physDest.setDefault(); physDestIsFpr := False; writesToPhysReg := False
     useSrc1 := False; src1Data := B(0); src1Tag := 0; src1Ready := False; src1IsFpr := False
     useSrc2 := False; src2Data := B(0); src2Tag := 0; src2Ready := False; src2IsFpr := False
@@ -300,6 +313,7 @@ case class IQEntryLsu(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
 
   def setDefaultForSim(): this.type = {
     import spinal.core.sim._
+    pc #= 0;
     robPtr #= 0; physDest.setDefaultForSim(); physDestIsFpr #= false; writesToPhysReg #= false
     useSrc1 #= false; src1Data #= 0; src1Tag #= 0; src1Ready #= false; src1IsFpr #= false
     useSrc2 #= false; src2Data #= 0; src2Tag #= 0; src2Ready #= false; src2IsFpr #= false
@@ -311,6 +325,7 @@ case class IQEntryLsu(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
     val decoded = renamedUop.decoded
     val renameInfo = renamedUop.rename
     this.robPtr := allocatedRobPtr
+    this.pc := decoded.pc
     this.physDest := renameInfo.physDest
     this.physDestIsFpr := renameInfo.physDestIsFpr
     this.writesToPhysReg := renameInfo.writesToPhysReg

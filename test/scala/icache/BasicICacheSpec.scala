@@ -26,7 +26,7 @@ class BasicICacheSpec extends CustomSpinalSimFunSuite {
       val cacheCfg: BasicICacheConfig,
       val memBusCfg: GenericMemoryBusConfig, // 使用 GenericMemoryBusConfig
       val simMemCfg: SimulatedMemoryConfig,
-      val dutEnableLog: Boolean = true // 控制 DUT 内部日志
+      val enableLog: Boolean = true // 控制 DUT 内部日志
   ) extends Component {
     val io = new Bundle {
       val cpuBus = slave(BasicICacheCpuBus()(cacheCfg))
@@ -34,8 +34,8 @@ class BasicICacheSpec extends CustomSpinalSimFunSuite {
     }
 
     val icache = new BasicICache()(cacheCfg, memBusCfg, false)
-    val memory = new SimulatedSplitGeneralMemory(simMemCfg, memBusCfg, /*dutEnableLog*/ false) // 使用 SplitGMB 版本
-    // val memory = new SimulatedSplitGeneralMemory(simMemCfg, memBusCfg, /*dutEnableLog*/ true) // 使用 SplitGMB 版本
+    val memory = new SimulatedSplitGeneralMemory(simMemCfg, memBusCfg, /*enableLog*/ false) // 使用 SplitGMB 版本
+    // val memory = new SimulatedSplitGeneralMemory(simMemCfg, memBusCfg, /*enableLog*/ true) // 使用 SplitGMB 版本
 
     memory.io.simPublic()
     icache.io.simPublic()
@@ -110,7 +110,7 @@ class BasicICacheSpec extends CustomSpinalSimFunSuite {
     val wordsPerLine = cacheConfig.wordsPerLine
     val internalMemDataWidthBytes = simMemConfig.internalDataWidth.value / 8
 
-    def tb = new BasicICacheTestbench(cacheConfig, memBusConfig, simMemConfig, dutEnableLog = true)
+    def tb = new BasicICacheTestbench(cacheConfig, memBusConfig, simMemConfig, enableLog = false)
 
     simConfig.compile(tb).doSim { dut =>
       dut.clockDomain.forkStimulus(period = 10)
@@ -216,7 +216,7 @@ class BasicICacheSpec extends CustomSpinalSimFunSuite {
     val wordsPerLine = cacheConfig.wordsPerLine
     val internalMemDataWidthBytes = simMemConfig.internalDataWidth.value / 8
 
-    def tb = new BasicICacheTestbench(cacheConfig, memBusConfig, simMemConfig, dutEnableLog = true)
+    def tb = new BasicICacheTestbench(cacheConfig, memBusConfig, simMemConfig, enableLog = false)
 
     simConfig.compile(tb).doSim { dut =>
       dut.clockDomain.forkStimulus(period = 10)
@@ -321,7 +321,7 @@ class BasicICacheSpec extends CustomSpinalSimFunSuite {
     val fetchWords = cacheConfig.fetchWordsPerFetchGroup // 应为 2
     val internalMemDataWidthBytes = simMemConfig.internalDataWidth.value / 8
 
-    def tb = new BasicICacheTestbench(cacheConfig, memBusConfig, simMemConfig, dutEnableLog = true)
+    def tb = new BasicICacheTestbench(cacheConfig, memBusConfig, simMemConfig, enableLog = false)
 
     simConfig.compile(tb).doSim { dut =>
       dut.clockDomain.forkStimulus(period = 10)
@@ -433,7 +433,7 @@ class BasicICacheSpec extends CustomSpinalSimFunSuite {
     val fetchGroupsPerLine = lineSizeBytes / fetchBytes // 4 fetch groups
     val internalMemDataWidthBytes = simMemConfig.internalDataWidth.value / 8
 
-    def tb = new BasicICacheTestbench(cacheConfig, memBusConfig, simMemConfig, dutEnableLog = true)
+    def tb = new BasicICacheTestbench(cacheConfig, memBusConfig, simMemConfig, enableLog = false)
 
     simConfig.compile(tb).doSim { dut =>
       dut.clockDomain.forkStimulus(period = 10)
@@ -571,7 +571,7 @@ class BasicICacheSpec extends CustomSpinalSimFunSuite {
     val wordsPerLine = cacheConfig.wordsPerLine
     val internalMemDataWidthBytes = simMemConfig.internalDataWidth.value / 8
 
-    def tb = new BasicICacheTestbench(cacheConfig, memBusConfig, simMemConfig, dutEnableLog = true)
+    def tb = new BasicICacheTestbench(cacheConfig, memBusConfig, simMemConfig, enableLog = false)
 
     simConfig.compile(tb).doSim { dut =>
       dut.clockDomain.forkStimulus(period = 10)
@@ -694,7 +694,7 @@ class BasicICacheSpec extends CustomSpinalSimFunSuite {
     val setCount = cacheConfig.setCount // 应为 2
     val internalMemDataWidthBytes = simMemConfig.internalDataWidth.value / 8
 
-    def tb = new BasicICacheTestbench(cacheConfig, memBusConfig, simMemConfig, dutEnableLog = true)
+    def tb = new BasicICacheTestbench(cacheConfig, memBusConfig, simMemConfig, enableLog = false)
 
     simConfig.compile(tb).doSim { dut =>
       dut.clockDomain.forkStimulus(period = 10)
@@ -822,7 +822,7 @@ class BasicICacheSpec extends CustomSpinalSimFunSuite {
     val wordsPerLine = cacheConfig.wordsPerLine
     val internalMemDataWidthBytes = simMemConfig.internalDataWidth.value / 8
 
-    def tb = new BasicICacheTestbench(cacheConfig, memBusConfig, simMemConfig, dutEnableLog = true)
+    def tb = new BasicICacheTestbench(cacheConfig, memBusConfig, simMemConfig, enableLog = false)
 
     simConfig.compile(tb).doSim { dut =>
       dut.clockDomain.forkStimulus(period = 10)
@@ -958,7 +958,7 @@ class BasicICacheSpec extends CustomSpinalSimFunSuite {
     val simMemConfig = SimulatedMemoryConfig(internalDataWidth = coreDataWidth, memSize = 4 KiB, initialLatency = 1)
     val internalMemDataWidthBytes = simMemConfig.internalDataWidth.value / 8
 
-    def tb = new BasicICacheTestbench(cacheConfig, memBusConfig, simMemConfig, dutEnableLog = true)
+    def tb = new BasicICacheTestbench(cacheConfig, memBusConfig, simMemConfig, enableLog = false)
 
     simConfig.compile(tb).doSim { dut =>
       dut.clockDomain.forkStimulus(period = 10)
@@ -1056,7 +1056,7 @@ class BasicICacheSpec extends CustomSpinalSimFunSuite {
     val wordsPerLine = cacheConfig.wordsPerLine
     val internalMemDataWidthBytes = simMemConfig.internalDataWidth.value / 8
 
-    def tb = new BasicICacheTestbench(cacheConfig, memBusConfig, simMemConfig, dutEnableLog = true)
+    def tb = new BasicICacheTestbench(cacheConfig, memBusConfig, simMemConfig, enableLog = false)
 
     simConfig.compile(tb).doSim { dut =>
       dut.clockDomain.forkStimulus(period = 10)
@@ -1194,7 +1194,7 @@ class BasicICacheSpec extends CustomSpinalSimFunSuite {
   //   )
   //   val internalMemDataWidthBytes = simMemConfig.internalDataWidth.value / 8
 
-  //   def tb = new BasicICacheTestbench(cacheConfig, memBusConfig, simMemConfig, dutEnableLog = true)
+  //   def tb = new BasicICacheTestbench(cacheConfig, memBusConfig, simMemConfig, enableLog = false)
 
   //   simConfig.compile(tb).doSim { dut =>
   //     dut.clockDomain.forkStimulus(period = 10)
@@ -1259,7 +1259,7 @@ class BasicICacheSpec extends CustomSpinalSimFunSuite {
     val simMemConfig = SimulatedMemoryConfig(internalDataWidth = coreDataWidth, memSize = 1 KiB, initialLatency = 1)
     val internalMemDataWidthBytes = simMemConfig.internalDataWidth.value / 8
 
-    def tb = new BasicICacheTestbench(cacheConfig, memBusConfig, simMemConfig, dutEnableLog = true)
+    def tb = new BasicICacheTestbench(cacheConfig, memBusConfig, simMemConfig, enableLog = false)
 
     simConfig.compile(tb).doSim { dut =>
       dut.clockDomain.forkStimulus(period = 10)

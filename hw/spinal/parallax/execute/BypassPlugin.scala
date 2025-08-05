@@ -25,6 +25,8 @@ trait BypassService[P <: Data] extends Service {
   def getBypassFlow(consumerName: String): Flow[P] // Changed to Flow and renamed for clarity
 }
 
+// It's better to create a new plugin or make the pipelining optional
+// to not break existing designs that might rely on the single-cycle behavior.
 class BypassPlugin[P <: Data](
     val payloadType: HardType[P] // Explicitly pass the HardType for the generic payload P
 ) extends Plugin
@@ -68,33 +70,32 @@ class BypassPlugin[P <: Data](
     mergedBypassFlow
   }
 
-  val logic = create late new Area {
+  // The logic area is where all the changes happen.
+   val logic = create late new Area {
     if (bypassSourceFlows.nonEmpty) {
       if (bypassSourceFlows.length > 1) {
-        // 1. Convert input Flows from EUs to Streams.
-        //    The .toStream adapter will drop data from the Flow if the StreamArbiter isn't ready for it in a cycle.
-        //    This ensures the EU (driving the Flow) is not blocked.
+        ParallaxLogger.log(
+          s"BypassService: Building a pipelined arbiter for ${bypassSourceFlows.length} sources using .stage()"
+        )
+
+        // 1. 将输入的 Flow 转换为 Stream
         val streamsToArbiter = bypassSourceFlows.map(_.toStream)
 
-        // 2. Arbitrate these streams.
+        // 2. 使用标准的 StreamArbiter.on() 来创建仲裁后的流。
+        //    这部分仍然是一个大的组合逻辑块。
         val arbitratedStream = StreamArbiterFactory().roundRobin.on(streamsToArbiter)
 
-        // 3. Ensure the arbitrated stream is always ready to accept data from the arbiter's output.
-        //    This prevents the arbiter from blocking its inputs if the final consumer (of the Flow) isn't "consuming".
-        // arbitratedStream.ready := True
+        // 3. 在仲裁器的输出端插入一个流水线阶段。
+        //    这会在 arbitratedStream 的 valid 和 payload 路径上各插入一个寄存器。
+        //    关键点：这有效地将长的组合逻辑路径（仲裁过程）与后续逻辑分开了。
+        val pipelinedStream = arbitratedStream.stage()
 
-        // 4. Convert the always-ready arbitrated stream to a Flow for the consumer.
-        mergedBypassFlow = arbitratedStream.toFlow
+        // 4. 将流水线化后的 Stream 转换回 Flow 提供给消费者。
+        mergedBypassFlow = pipelinedStream.toFlow
 
-        ParallaxLogger.log(
-          s"BypassService: Arbitrating ${bypassSourceFlows.length} bypass sources (Payload: ${payloadType.getClass.getSimpleName}) into one merged Flow."
-        )
       } else {
-        // Single source, no arbitration needed, directly use the Flow.
-        mergedBypassFlow = bypassSourceFlows.head
-        ParallaxLogger.log(
-          s"BypassService: Using single bypass source Flow '${bypassSourceNames.head}' (Payload: ${payloadType.getClass.getSimpleName}) as merged Flow."
-        )
+        // 单输入源的情况，同样需要增加一个周期的延迟以保持一致的Bypass延迟。
+        mergedBypassFlow = bypassSourceFlows.head.stage() 
       }
     } else {
       val emptyFlow = Flow(payloadType)
@@ -107,6 +108,6 @@ class BypassPlugin[P <: Data](
         s"BypassService: No bypass sources registered (Payload: ${payloadType.getClass.getSimpleName}). Merged Flow will be inactive."
       )
     }
-    ParallaxLogger.log(s"BypassService logic built (Payload: ${payloadType.getClass.getSimpleName}).")
+    ParallaxLogger.log(s"PipelinedBypassService logic built (Payload: ${payloadType.getClass.getSimpleName}).")
   }
 }

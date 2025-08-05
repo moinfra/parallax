@@ -284,8 +284,10 @@ Disassembly of section .data:
     2450:       50000400        b       4(0x4) # 0x2454
     2454:       53fd8fff        b       -628(0xffffd8c) # 0x21e0
         ...
+UTEST_SIMPLE
     3000:       02800484        addi.w  $r4,$r4,1(0x1)
     3004:       4c000020        jirl    $r0,$r1,0
+UTEST_STREAM
     3008:       15002004        lu12i.w $r4,-524032(0x80100)
     300c:       15008005        lu12i.w $r5,-523264(0x80400)
     3010:       14006006        lu12i.w $r6,768(0x300)
@@ -296,6 +298,7 @@ Disassembly of section .data:
     3024:       028010a5        addi.w  $r5,$r5,4(0x4)
     3028:       5ffff086        bne     $r4,$r6,-16(0x3fff0) # 0x3018
     302c:       4c000020        jirl    $r0,$r1,0
+UTEST_MATRIX
     3030:       15008004        lu12i.w $r4,-523264(0x80400)
     3034:       15008205        lu12i.w $r5,-523248(0x80410)
     3038:       15008406        lu12i.w $r6,-523232(0x80420)
@@ -329,6 +332,7 @@ Disassembly of section .data:
     30a8:       02800694        addi.w  $r20,$r20,1(0x1)
     30ac:       53ff9bff        b       -104(0xfffff98) # 0x3044
     30b0:       4c000020        jirl    $r0,$r1,0
+UTEST_CRYPTONIGHT
     30b4:       15008004        lu12i.w $r4,-523264(0x80400)
     30b8:       15bd5b65        lu12i.w $r5,-136485(0xdeadb)
     30bc:       03bbbca5        ori     $r5,$r5,0xeef
@@ -366,6 +370,7 @@ Disassembly of section .data:
     313c:       00159585        xor     $r5,$r12,$r5
     3140:       5fffb4ed        bne     $r7,$r13,-76(0x3ffb4) # 0x30f4
     3144:       4c000020        jirl    $r0,$r1,0
+
     3148:       00000000        0x00000000
     314c:       bfd003f8        0xbfd003f8
     3150:       80002028        0x80002028

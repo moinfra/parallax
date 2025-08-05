@@ -25,7 +25,8 @@ import scala.util.Random
 import parallax.components.lsu.LsuConfig
 import parallax.components.lsu.AguPlugin
 import parallax.components.lsu.StoreBufferPlugin
-import parallax.components.lsu.LoadQueuePlugin
+import parallax.components.lsu.LoadRingBufferPlugin
+import parallax.components.lsu.StoreRingBufferPlugin
 
 // =========================================================================
 //  Helper Functions for Architectural Register Verification
@@ -1513,8 +1514,8 @@ class CpuFullTestBench(val pCfg: PipelineConfig, val dCfg: DataCachePluginConfig
       new BranchEuPlugin("BranchEU", pCfg),
       new LsuEuPlugin("LsuEU", pCfg, lsuConfig = lsuConfig, dParams),
       new AguPlugin(lsuConfig, supportPcRel = true),
-      new StoreBufferPlugin(pCfg, lsuConfig, dParams, lsuConfig.sqDepth),
-      new LoadQueuePlugin(pCfg, lsuConfig, dParams, lsuConfig.lqDepth),
+      new StoreRingBufferPlugin(pCfg, lsuConfig, dParams, lsuConfig.sqDepth),
+      new LoadRingBufferPlugin(pCfg, lsuConfig, dParams, lsuConfig.lqDepth),
       // Dispatch and linking
       new LinkerPlugin(pCfg),
       new DispatchPlugin(pCfg),

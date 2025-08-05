@@ -16,7 +16,7 @@ trait SgmbService extends Service with LockedImpl {
 }
 
 // SqQuery
-case class SqQuery(lsuCfg: LsuConfig, pipelineCfg: PipelineConfig) extends Bundle with Formattable {
+case class SqQueryCmd(lsuCfg: LsuConfig, pipelineCfg: PipelineConfig) extends Bundle with Formattable {
     val robPtr      = UInt(pipelineCfg.robPtrWidth) // ESSENTIAL for ordering
     val address     = UInt(lsuCfg.pcWidth)
     val size        = MemAccessSize()
@@ -25,7 +25,7 @@ case class SqQuery(lsuCfg: LsuConfig, pipelineCfg: PipelineConfig) extends Bundl
 
     def format: Seq[Any] = {
         Seq(
-            L"SqQuery(",
+            L"SqQueryCmd(",
             L"robPtr=${robPtr},",
             L"address=${address},",
             L"isIO=${isIO},",
@@ -42,7 +42,6 @@ case class SqQueryRsp(lsuCfg: LsuConfig) extends Bundle with Formattable {
     val data        = Bits(lsuCfg.dataWidth)
 
     // 依赖相关 (Disambiguation)
-    val olderStoreHasUnknownAddress = Bool() // 是否存在一个更早的、地址未知的store
     val olderStoreDataNotReady = Bool() // 是否存在一个更早的、地址匹配但数据未就绪的store
 
     def format: Seq[Any] = {
@@ -50,7 +49,6 @@ case class SqQueryRsp(lsuCfg: LsuConfig) extends Bundle with Formattable {
             L"SqQueryRsp(",
             L"hit=${hit},",
             L"data=${data},",
-            L"olderStoreHasUnknownAddress=${olderStoreHasUnknownAddress},",
             L"olderStoreDataNotReady=${olderStoreDataNotReady}",
             L")"
         )
@@ -59,7 +57,6 @@ case class SqQueryRsp(lsuCfg: LsuConfig) extends Bundle with Formattable {
     def setDefault(): this.type = {
         hit := False
         data := 0
-        olderStoreHasUnknownAddress := False
         olderStoreDataNotReady := False
         this
     }
@@ -67,8 +64,8 @@ case class SqQueryRsp(lsuCfg: LsuConfig) extends Bundle with Formattable {
 
 // SqQueryPort
 case class SqQueryPort(lsuCfg: LsuConfig, pipelineCfg: PipelineConfig) extends Bundle with IMasterSlave {
-    val cmd = Flow(SqQuery(lsuCfg, pipelineCfg))
-    val rsp = SqQueryRsp(lsuCfg)
+    val cmd = Flow(SqQueryCmd(lsuCfg, pipelineCfg))
+    val rsp = Flow(SqQueryRsp(lsuCfg))
     override def asMaster(): Unit = { master(cmd); in(rsp) }
 }
 
@@ -304,8 +301,7 @@ class StoreBufferPlugin(
         val rob_interaction = new Area {
             // --- Flush 逻辑 (部分) ---
             val robFlushPort = robService.doRobFlush()
-            val flushInProgressOnCommit = robFlushPort.valid && robFlushPort.payload.reason === FlushReason.ROLLBACK_TO_ROB_IDX
-            val flushTargetRobPtr = robFlushPort.payload.targetRobPtr
+            val flushInProgress = robFlushPort.valid
             
             // 使用 RegNext 锁存 flush 请求，以避免组合逻辑环路
             // 确保 flush 执行与请求在不同周期
@@ -396,7 +392,7 @@ class StoreBufferPlugin(
             // SpinalHDL 会将 sbDepth (Int) 转换为与 tailPtr 位宽相同的 UInt。
             val isFull = (tailPtr === sbDepth)
 
-            val canPush = !isFull && !rob_interaction.flushInProgressOnCommit
+            val canPush = !isFull && !rob_interaction.flushInProgress
             pushPortIn.ready := canPush
 
             // pushIdx 的范围是 0 到 sbDepth-1。
@@ -606,8 +602,6 @@ class StoreBufferPlugin(
             val allRequiredBytesHit = (forwardingResult.hitMask & loadMask) === loadMask
             rsp.data := forwardingResult.data
 
-            rsp.olderStoreHasUnknownAddress := False
-
             val dataNotReadyStall = Bool()
             dataNotReadyStall := False
             val hasOlderOverlappingStore = Bool()
@@ -648,9 +642,9 @@ class StoreBufferPlugin(
             // 3. There are no older stores with unknown addresses (simplified to false).
             // 4. There are no older, overlapping stores whose data is still undetermined/not ready,
             //    OR if the available older stores do not fully cover the load.
-            rsp.hit  := query.valid && allRequiredBytesHit && !rsp.olderStoreHasUnknownAddress && !rsp.olderStoreDataNotReady
+            rsp.hit  := query.valid && allRequiredBytesHit && !rsp.olderStoreDataNotReady
 
-            if(enableLog) report(L"[SQ-Fwd] Forwarding? hit=${rsp.hit}, because query.valid=${query.valid}, allRequiredBytesHit=${allRequiredBytesHit}, olderStoreHasUnknownAddress=${rsp.olderStoreHasUnknownAddress}, olderStoreDataNotReady=${rsp.olderStoreDataNotReady}")
+            if(enableLog) report(L"[SQ-Fwd] Forwarding? hit=${rsp.hit}, because query.valid=${query.valid}, allRequiredBytesHit=${allRequiredBytesHit}, olderStoreDataNotReady=${rsp.olderStoreDataNotReady}")
             
             when(query.valid) {
                 report(L"[SQ-Fwd] Query: ${query.payload.format}")

@@ -11,7 +11,7 @@ import scala.util.Random
 
 class IntAluSpec extends CustomSpinalSimFunSuite {
 
-  val config = PipelineConfig(xlen = 32, robDepth = 32, memOpIdWidth = 8 bits)
+  val config = PipelineConfig(xlen = 32, robDepth = 32, busIdWidth = 8 bits)
   val MAX_U32 = BigInt("FFFFFFFF", 16)
   val NEG_ONE = MAX_U32
 

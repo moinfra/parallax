@@ -194,7 +194,6 @@ abstract class EuBasePlugin(
 
     ParallaxLogger.log(s"EUBase ($euName): Setup 阶段完成。")
 
-    // val busyTableClearPort = busyTableService.newClearPort()
   }
 
   // Logic 阶段：连接 EU 特定逻辑，然后是通用的写回/旁路/ROB 逻辑
@@ -222,7 +221,9 @@ abstract class EuBasePlugin(
 
         (genA === genB && idxA >= idxB) || (genA =/= genB && idxA < idxB)
     }
-
+    when(euResult.valid) {
+      report(L"uop executed robPtr=${euResult.uop.robPtr}");
+    }
     // 2. 将 "结果契约" (euResult) 连接到所有输出服务
     val uopAtWb = euResult.uop
     

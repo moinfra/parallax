@@ -33,7 +33,7 @@ object InteractiveUartSimApp extends App {
   // --- Step 2: Configure and compile the simulation ---
 
   val spinalConfig = SpinalConfig(
-    defaultClockDomainFrequency = FixedFrequency(100 MHz)
+    defaultClockDomainFrequency = FixedFrequency(150000000 Hz)
   )
 
   val compiled = SimConfig
@@ -46,7 +46,7 @@ object InteractiveUartSimApp extends App {
 
   compiled.doSim { dut =>
     val cd = dut.clockDomain.get
-    cd.forkStimulus(frequency = 100 MHz)
+    cd.forkStimulus(frequency = 150000000 Hz)
 
     println("--- Starting Interactive Simulation Session ---")
     println(s"--- CPU booted with program of size ${instructions.length} words. ---")

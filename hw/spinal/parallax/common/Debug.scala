@@ -51,7 +51,7 @@ class DebugDisplayPlugin extends Plugin with DebugDisplayService {
   }
   val logic = create late new Area {
     val displayArea = new Area {
-      val divider = new FrequencyDivider(100000000, 1) // 100MHz -> 1Hz
+      val divider = new FrequencyDivider(150000000, 1) // 100MHz -> 1Hz
       val updateTick = divider.io.tick
 
       val dpToggle = Reg(Bool()) init (False)

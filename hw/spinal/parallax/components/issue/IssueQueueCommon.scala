@@ -45,6 +45,7 @@ case class IssueQueueConfig[T_IQEntry <: Data with IQEntryLike](
 trait IQEntryLike extends Bundle {
   // --- Common Identifiers & Status ---
   val robPtr: UInt
+  val pc: UInt
 
   // --- Destination Info (Potentially common, or can be specific if needed by select logic) ---
   val physDest: PhysicalRegOperand // Physical destination register

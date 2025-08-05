@@ -26,7 +26,7 @@ case class IftSlot(pCfg: PipelineConfig, iCfg: ICacheConfig) extends Bundle {
   val valid = Bool()
   val pc = UInt(pCfg.pcWidth)
   val rawPc = UInt(pCfg.pcWidth)
-  val tid = UInt(8 bits) // 假设TID为8位
+  val tid = UInt(pCfg.transactionIdWidth bits)
   val done = Bool()
   val rspData = Vec(Bits(32 bits), iCfg.lineWords)
 
@@ -74,7 +74,7 @@ class FetchSequencer(pCfg: PipelineConfig, iCfg: ICacheConfig) extends Component
   // --- 内部状态和数据结构 ---
   val slots = Vec(RegInit((IftSlot(pCfg, iCfg).setDefault())), 2)
   val oldIndex = Reg(UInt(1 bit)) init (0)
-  val nextTid = Reg(UInt(8 bit)) init (0)
+  val nextTid = Reg(UInt(pCfg.transactionIdWidth bits)) init (0)
 
   // --- 初始化和硬冲刷逻辑 ---
   when(io.flush) {

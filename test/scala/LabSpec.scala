@@ -16,6 +16,7 @@ import parallax.components.uart.UartAxiController
 import parallax.components.uart.UartAxiControllerConfig
 import java.nio.{ByteBuffer, ByteOrder}
 import scala.collection.mutable
+import spinal.lib.sim.Phase.context
 
 /** Testbench for LabSpec.
   * This component wraps the CoreNSCSCC DUT and connects it to two SimulatedSRAM instances,
@@ -105,7 +106,7 @@ class LabTestBench(
   dSram.io.ram.we_n := !dut.io.dsram_we
   dSram.io.ram.be_n := ~dut.io.dsram_wmask
 
-    // --- Connect CoreNSCSCC's UART AXI Master to LabUartSim's AXI Slave ---
+  // --- Connect CoreNSCSCC's UART AXI Master to LabUartSim's AXI Slave ---
   // AR Channel (dut -> uartCtrl)
   // dut的Bits需要转换为uartCtrl的UInt
   uartCtrl.io.axi.ar.valid          := dut.io.uart_ar_valid
@@ -1078,23 +1079,22 @@ class LabSpec extends CustomSpinalSimFunSuite {
 
     val compiled = SimConfig.withFstWave
       .addSimulatorFlag("+define+SIMULATION")
-      .withConfig(SpinalConfig(defaultClockDomainFrequency = FixedFrequency(100 MHz)))
+      .withConfig(SpinalConfig(defaultClockDomainFrequency = FixedFrequency(150000000 Hz)))
       .compile(new LabTestBench(iDataWords = kernelInstructions))
 
     compiled.doSim { dut =>
       val cd = dut.clockDomain.get
-      cd.forkStimulus(frequency = 100 MHz)
+      cd.forkStimulus(frequency = 150000000 Hz)
 
       val uartDriver = new BinaryProtocolDriver(dut.io.txd, dut.io.rxd, cd)
       uartDriver.start()
 
       // 与内核同步
       uartDriver.expectString("MONITOR for Loongarch32 - initialized.", timeoutCycles = 2000000)
-      val baselineRegs = uartDriver.readRegisters()
-      println("[INFO] Baseline register state captured after kernel initialization.")
-      (0 to 31).foreach { i =>
-        println(f"[INFO] Baseline r$i = 0x${baselineRegs(i-2)}%08x")
-      }
+      // val baselineRegs = uartDriver.readRegisters()
+      // println("[DRIVER] [INFO] Baseline register state captured after kernel initialization.")
+      // uartDriver.printRegisters(baselineRegs)
+      uartDriver.drainInvalidRsp("After initial readRegisters.")
       def createUserProgram(): Array[Byte] = {
         import _root_.test.scala.LA32RInstrBuilder._
         val instructions = mutable.ArrayBuffer[BigInt]()
@@ -1110,36 +1110,42 @@ class LabSpec extends CustomSpinalSimFunSuite {
         byteBuffer.array()
       }
 
-      val userProgram = createUserProgram()
-      val userProgramLoadAddr = 0x80100000L
+      // val userProgram = createUserProgram()
+      // val userProgramLoadAddr = 0x80100000L
+      val userProgramLoadAddr = 0x80003000L // UTEST_SIMPLE
 
-      println("\n--- Test Phase: Load and Run User Program ---")
+      println("\n--- [DRIVER t2]Test Phase: Load and Run User Program ---")
 
-      uartDriver.writeMemory(userProgramLoadAddr, userProgram)
-      cd.waitSampling(1000) 
-      
+      // println("[DRIVER][TEST] Clearing any stale bytes from UART RX buffer...")
+      // uartDriver.writeMemory(userProgramLoadAddr, userProgram)
+      // uartDriver.drainInvalidRsp("After write program to memory.")
+
+      // cd.waitSampling(10000)
       // 现在可以安全地调用完整的go()函数，因为它会正常结束
       val userUartOutput = uartDriver.go(userProgramLoadAddr)
-      
+      uartDriver.drainInvalidRsp("After execute go.")
+
       assert(userUartOutput.isEmpty, s"User program produced unexpected UART output: $userUartOutput")
-      println("[PASS] User program executed and returned control to kernel.")
+      println("[DRIVER] [PASS] User program executed and returned control to kernel.")
 
       cd.waitSampling(100)
 
-      println("\n--- Test Phase: Verify Execution Result ---")
+      println("\n--- [DRIVER] Test Phase: Verify Execution Result ---")
       
       val finalRegs = uartDriver.readRegisters()
+      uartDriver.printRegisters(finalRegs)
+      uartDriver.drainInvalidRsp("After final readRegisters.")
 
-      val r4_index = 4 - 2 
+      val r4_index = 4 - 2
       val r5_index = 5 - 2
 
       assert(finalRegs(r4_index) == 0x12345678, f"Verification failed: Register r4 should be 0x12345678, but was 0x${finalRegs(r4_index)}%x")
-      println(f"[PASS] Register r4 correctly set to 0x12345678.")
+      println(f"[DRIVER][PASS] Register r4 correctly set to 0x12345678.")
       
       assert(finalRegs(r5_index) == 0xABCDEF01, f"Verification failed: Register r5 should be 0xABCDEF01, but was 0x${finalRegs(r5_index)}%x")
-      println(f"[PASS] Register r5 correctly set to 0xABCDEF01.")
+      println(f"[DRIVER][PASS] Register r5 correctly set to 0xABCDEF01.")
 
-      println("\n[SUCCESS] Full test case completed successfully!")
+      println("\n[DRIVER][SUCCESS] Full test case completed successfully!")
       cd.waitSampling(1000)
     }
   }

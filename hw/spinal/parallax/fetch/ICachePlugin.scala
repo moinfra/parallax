@@ -286,6 +286,7 @@ class ICachePlugin(
           axi.ar.valid := True
           axi.ar.payload.addr := refillCmdReg.address
           axi.ar.payload.id := refillCmdReg.transactionId.resized
+          require(refillCmdReg.transactionId.getWidth <= axi.ar.payload.id.getWidth, "Transaction ID too large for AXI ID field!")
           axi.ar.payload.len := iCacheCfg.lineWords - 1
           axi.ar.payload.size := log2Up(32 / 8)
           axi.ar.payload.burst := Axi4.burst.INCR

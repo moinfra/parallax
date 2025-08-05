@@ -249,8 +249,9 @@ class CoreMemSysPlugin(axiConfig: Axi4Config, mmioConfig: GenericMemoryBusConfig
       enableLog = false
     )
 
-    val numMasters = 7 // DCache + SGMB bridges + Injector
-    val sramAxi4Cfg = axiConfig.copy(idWidth = axiConfig.idWidth + log2Up(numMasters))
+    val maxMasters = 4 // readBridge(0) + writeBridge(1) + ICache(2) + Optional DCache(3) or Injector(not used)
+    val masterDistinctWidth = log2Up(maxMasters)
+    val sramAxi4Cfg = axiConfig.copy(idWidth = axiConfig.idWidth + masterDistinctWidth)
 
     // BaseRAM和ExtRAM使用相同的控制器 // FIXME: 避免二者互斥访问，提高并行
     val baseramCtrl = new SRAMController(sramAxi4Cfg, baseramCfg)
@@ -263,6 +264,9 @@ class CoreMemSysPlugin(axiConfig: Axi4Config, mmioConfig: GenericMemoryBusConfig
     // 创建SGMB桥接器
     val readBridges = readPorts.map(_ => new SplitGmbToAxi4Bridge(sgmbConfig, axiConfig))
     val writeBridges = writePorts.map(_ => new SplitGmbToAxi4Bridge(sgmbConfig, axiConfig))
+    // LQ+SQ
+    assert(readBridges.size == 1)
+    assert(writeBridges.size == 1)
 
     // 连接SGMB端口到桥接器
     for ((port, bridge) <- readPorts.zip(readBridges)) {
@@ -279,12 +283,12 @@ class CoreMemSysPlugin(axiConfig: Axi4Config, mmioConfig: GenericMemoryBusConfig
     }
 
     // 收集所有AXI master
-    val dcacheMasters = getServiceOption[DataCachePlugin].map(_.getDCacheMaster).toList
-    val roMasters = getServicesOf[AxiReadOnlyMasterService].map(_.getAxi4ReadOnlyMaster().toAxi4())
+    val dcacheMasters = getServiceOption[DataCachePlugin].map(_.getDCacheMaster).toList // DCache, not used for now
+    val roMasters = getServicesOf[AxiReadOnlyMasterService].map(_.getAxi4ReadOnlyMaster().toAxi4()) // ICache
     val internalSramMasters =
-      writeBridges.map(_.io.axiOut) ++ readBridges.map(_.io.axiOut) ++ dcacheMasters ++ roMasters
+      readBridges.map(_.io.axiOut) ++ writeBridges.map(_.io.axiOut)  ++ dcacheMasters ++ roMasters
     val sramMasters = internalSramMasters ++ externalMasters // +++ 合并内部和外部 Masters
-    require(sramMasters.size <= hw.numMasters, "Too many masters for SRAM controller")
+    require(sramMasters.size <= hw.maxMasters, "Too many masters for SRAM controller")
 
     // 创建Crossbar，实现新的内存映射
     val crossbar = Axi4CrossbarFactory()
@@ -302,6 +306,7 @@ class CoreMemSysPlugin(axiConfig: Axi4Config, mmioConfig: GenericMemoryBusConfig
     def connectUartAxiAndBuild(uartAxi: Axi4): Unit = {
       // UART MMIO: 0xbfd00000～0xbfd003FF (1KB UART registers)
       crossbar.addSlave(uartAxi, SizeMapping(0xbfd00000L, BigInt("400", 16)))
+      require(uartAxi.config.idWidth == hw.sramAxi4Cfg.idWidth, "UART AXI ID width does not match SRAM ID width")
 
       // 为所有masters添加到所有slaves的连接（包括SRAM和UART）
       for (master <- sramMasters) {
@@ -330,18 +335,17 @@ class CoreNSCSCC(simDebug: Boolean = false, injectAxi: Boolean = false) extends 
     xlen = 32,
     physGprCount = 64,
     archGprCount = 32,
-    robDepth = 8,
+    robDepth = 16,
     commitWidth = 1,
     resetVector = BigInt("80000000", 16), // 新的启动地址
-    transactionIdWidth = 4,
-    memOpIdWidth = 4 bits,
+    transactionIdWidth = 6, // + 2 bits for 4 master
     defaultIsIO = true
   )
 
   def createAxi4Config(pCfg: PipelineConfig): Axi4Config = Axi4Config(
     addressWidth = pCfg.xlen,
     dataWidth = pCfg.xlen,
-    idWidth = pCfg.memOpIdWidth.value,
+    idWidth = pCfg.transactionIdWidth,
     useLock = false,
     useCache = false,
     useProt = false,
@@ -360,7 +364,7 @@ class CoreNSCSCC(simDebug: Boolean = false, injectAxi: Boolean = false) extends 
   )
   val uartCtrlConfig = UartAxiControllerConfig(
       axiConfig = uartAxiConfig, // <--- 使用修正后的配置
-      clk_freq = 100 * 1000 * 1000,
+      clk_freq = 150000000,
       uart_baud = 9600
   )
 
@@ -417,8 +421,8 @@ class CoreNSCSCC(simDebug: Boolean = false, injectAxi: Boolean = false) extends 
   )
 
   val lsuConfig = LsuConfig(
-    lqDepth = 4,
-    sqDepth = 4,
+    lqDepth = 32,
+    sqDepth = 16,
     robPtrWidth = pCfg.robPtrWidth,
     pcWidth = pCfg.pcWidth,
     dataWidth = pCfg.dataWidth,
@@ -436,7 +440,7 @@ class CoreNSCSCC(simDebug: Boolean = false, injectAxi: Boolean = false) extends 
       addressWidth = 32 bits,
       dataWidth = 32 bits,
       useId = true,
-      idWidth = pCfg.memOpIdWidth
+      idWidth = pCfg.transactionIdWidth bits,
     )
   )
 
@@ -447,7 +451,7 @@ class CoreNSCSCC(simDebug: Boolean = false, injectAxi: Boolean = false) extends 
   )
 
   val iCfg = ICacheConfig(
-    totalSize = 4 * 1024,
+    totalSize = 2 * 1024,
     ways = 2,
     bytesPerLine = 16, // 16 bytes = 4 instructions
     fetchWidth = pCfg.fetchWidth,
@@ -615,10 +619,11 @@ class CoreNSCSCC(simDebug: Boolean = false, injectAxi: Boolean = false) extends 
   extRamIo.data.read := io.dsram_dout
 
   // 创建UART AXI接口 - 使用与SRAM控制器相同的ID宽度配置
-  val uartAxi = Axi4(axiConfig.copy(idWidth = axiConfig.idWidth + log2Up(6)))
+  val uartAxi = Axi4(axiConfig.copy(idWidth = axiConfig.idWidth + log2Up(4))) // 6 + 2 = 8
 
   // 连接UART AXI (映射到MMIO范围)
   io.uart_ar_bits_id := uartAxi.ar.id.asBits.resized
+  require(io.uart_ar_bits_id.getWidth >= uartAxi.ar.id.getWidth, "Cannot assign id to smaller width")
   io.uart_ar_bits_addr := uartAxi.ar.addr.asBits
   io.uart_ar_bits_len := uartAxi.ar.len.asBits.resized
   io.uart_ar_bits_size := uartAxi.ar.size.asBits.resized
@@ -627,6 +632,7 @@ class CoreNSCSCC(simDebug: Boolean = false, injectAxi: Boolean = false) extends 
   uartAxi.ar.ready := io.uart_ar_ready
 
   uartAxi.r.id := io.uart_r_bits_id.asUInt.resized
+  require(uartAxi.r.id.getWidth >= io.uart_r_bits_id.getWidth, "UART AXI ID width does not match SRAM ID width")
   uartAxi.r.resp := io.uart_r_bits_resp.asBits
   uartAxi.r.data := io.uart_r_bits_data
   uartAxi.r.last := io.uart_r_bits_last
@@ -634,6 +640,7 @@ class CoreNSCSCC(simDebug: Boolean = false, injectAxi: Boolean = false) extends 
   io.uart_r_ready := uartAxi.r.ready
 
   io.uart_aw_bits_id := uartAxi.aw.id.asBits.resized
+  require(io.uart_aw_bits_id.getWidth >= uartAxi.aw.id.getWidth, "UART AXI ID width does not match SRAM ID width")
   io.uart_aw_bits_addr := uartAxi.aw.addr.asBits
   io.uart_aw_bits_len := uartAxi.aw.len.asBits.resized
   io.uart_aw_bits_size := uartAxi.aw.size.asBits.resized
@@ -648,6 +655,7 @@ class CoreNSCSCC(simDebug: Boolean = false, injectAxi: Boolean = false) extends 
   uartAxi.w.ready := io.uart_w_ready
 
   uartAxi.b.id := io.uart_b_bits_id.asUInt.resized
+  require(uartAxi.b.id.getWidth >= io.uart_b_bits_id.getWidth, "UART AXI ID width does not match SRAM ID width")
   uartAxi.b.resp := io.uart_b_bits_resp.asBits
   uartAxi.b.valid := io.uart_b_valid
   io.uart_b_ready := uartAxi.b.ready
@@ -697,7 +705,7 @@ class CoreNSCSCC(simDebug: Boolean = false, injectAxi: Boolean = false) extends 
 object CoreNSCSCCGen extends App {
   val spinalConfig = SpinalConfig(
     defaultConfigForClockDomains = ClockDomainConfig(resetKind = SYNC),
-    defaultClockDomainFrequency = FixedFrequency(100 MHz),
+    defaultClockDomainFrequency = FixedFrequency(150000000 Hz),
     targetDirectory = "soc"
   )
   spinalConfig.addTransformationPhase(new EnforceSyncRamPhase)

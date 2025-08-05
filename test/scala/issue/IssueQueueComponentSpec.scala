@@ -88,7 +88,7 @@ class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
     archGprCount = 32,
     uopUniqueIdWidth = 8 bits,
     exceptionCodeWidth = 8 bits,
-    memOpIdWidth = 8 bits,
+    busIdWidth = 8 bits,
     fetchWidth = 2,
     dispatchWidth = 2,
     commitWidth = 2,

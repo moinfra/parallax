@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : 49a99dae7b6ed938ae50042417514f24dcaeaaa8
 // Component : UartAxiController
-// Git hash  : 87d3fae701bed4f855cd869eaa5cc8644feef746
+// Git hash  : 2a79815d708a673dc24f06803a3159fe1fd4b8d3
 
 `timescale 1ns/1ps
 
@@ -80,16 +80,10 @@ module UartAxiController (
   wire                writeReady;
   wire                when_UartAxiController_l281;
   wire                when_UartAxiController_l286;
-  wire       [3:0]    _zz_1;
-  wire                when_UartAxiController_l328;
-  wire                when_UartAxiController_l332;
-  wire                when_UartAxiController_l336;
-  wire       [7:0]    _zz_2;
-  wire                when_UartAxiController_l352;
 
   assign _zz__zz_r_data = rxFifo_io_occupancy;
   async_receiver #(
-    .ClkFrequency (100000000),
+    .ClkFrequency (150000000),
     .Baud         (9600     )
   ) uartRx (
     .clk            (clk                  ), //i
@@ -99,7 +93,7 @@ module UartAxiController (
     .RxD_data       (uartRx_RxD_data[7:0] )  //o
   );
   async_transmitter #(
-    .ClkFrequency (100000000),
+    .ClkFrequency (150000000),
     .Baud         (9600     )
   ) uartTx (
     .clk       (clk            ), //i
@@ -187,12 +181,6 @@ module UartAxiController (
   assign writeReady = ((! b_valid) && (! uartTx_TxD_busy));
   assign when_UartAxiController_l281 = (! b_valid);
   assign when_UartAxiController_l286 = (aw_fire && w_fire);
-  assign _zz_1 = (rxFifo_io_occupancy + 4'b0001);
-  assign when_UartAxiController_l328 = (isDataAddrRead && ar_fire);
-  assign when_UartAxiController_l332 = (isStatusAddrRead && ar_fire);
-  assign when_UartAxiController_l336 = (io_axi_r_fire && r_valid);
-  assign _zz_2 = io_axi_w_payload_data[7 : 0];
-  assign when_UartAxiController_l352 = (io_axi_b_fire && b_valid);
   always @(posedge clk) begin
     if(reset) begin
       rxStarted <= 1'b0;
@@ -275,116 +263,6 @@ module UartAxiController (
             if(!(io_axi_aw_payload_len == 8'h0)) begin
               $display("FAILURE UartAxiController received a burst write request (AWLEN != 0), which is not supported!"); // UartAxiController.scala:L310
               $finish;
-            end
-          `endif
-        `endif
-      end
-      if(uartRx_RxD_data_ready) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // UartAxiController.scala:L317
-          `else
-            if(!1'b0) begin
-              $display("NOTE(UartAxiController.scala:317):  UART_CTRL: async_receiver data ready! Data: 0x%x", uartRx_RxD_data); // UartAxiController.scala:L317
-            end
-          `endif
-        `endif
-      end
-      if(io_push_fire) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // UartAxiController.scala:L321
-          `else
-            if(!1'b0) begin
-              $display("NOTE(UartAxiController.scala:321):  UART_CTRL: rxFifo PUSH fired! Occupancy is now: %x", _zz_1); // UartAxiController.scala:L321
-            end
-          `endif
-        `endif
-      end
-      if(ar_fire) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // UartAxiController.scala:L325
-          `else
-            if(!1'b0) begin
-              $display("NOTE(UartAxiController.scala:325):  UART_CTRL: AXI Read Request (AR) fired! Addr: 0x%x", io_axi_ar_payload_addr); // UartAxiController.scala:L325
-            end
-          `endif
-        `endif
-      end
-      if(when_UartAxiController_l328) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // UartAxiController.scala:L329
-          `else
-            if(!1'b0) begin
-              $display("NOTE(UartAxiController.scala:329):  UART_CTRL: Reading from DATA register. FIFO valid=%x", rxFifo_io_pop_valid); // UartAxiController.scala:L329
-            end
-          `endif
-        `endif
-      end
-      if(when_UartAxiController_l332) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // UartAxiController.scala:L333
-          `else
-            if(!1'b0) begin
-              $display("NOTE(UartAxiController.scala:333):  UART_CTRL: Reading from STATUS register."); // UartAxiController.scala:L333
-            end
-          `endif
-        `endif
-      end
-      if(when_UartAxiController_l336) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // UartAxiController.scala:L337
-          `else
-            if(!1'b0) begin
-              $display("NOTE(UartAxiController.scala:337):  UART_CTRL: AXI Read Response (R) fired! Data: 0x%x", io_axi_r_payload_data); // UartAxiController.scala:L337
-            end
-          `endif
-        `endif
-      end
-      if(aw_fire) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // UartAxiController.scala:L341
-          `else
-            if(!1'b0) begin
-              $display("NOTE(UartAxiController.scala:341):  UART_CTRL: AXI Write Address (AW) fired! Addr: 0x%x", io_axi_aw_payload_addr); // UartAxiController.scala:L341
-            end
-          `endif
-        `endif
-      end
-      if(w_fire) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // UartAxiController.scala:L345
-          `else
-            if(!1'b0) begin
-              $display("NOTE(UartAxiController.scala:345):  UART_CTRL: AXI Write Data (W) fired! Data: 0x%x, Strobe: %x", _zz_2, io_axi_w_payload_strb); // UartAxiController.scala:L345
-            end
-          `endif
-        `endif
-      end
-      if(txStart) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // UartAxiController.scala:L349
-          `else
-            if(!1'b0) begin
-              $display("NOTE(UartAxiController.scala:349):  UART_CTRL: txStart pulse generated! Sending 0x%x to async_transmitter.", txData); // UartAxiController.scala:L349
-            end
-          `endif
-        `endif
-      end
-      if(when_UartAxiController_l352) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // UartAxiController.scala:L353
-          `else
-            if(!1'b0) begin
-              $display("NOTE(UartAxiController.scala:353):  UART_CTRL: AXI Write Response (B) fired!"); // UartAxiController.scala:L353
             end
           `endif
         `endif

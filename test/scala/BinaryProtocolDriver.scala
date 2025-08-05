@@ -59,20 +59,73 @@ class BinaryProtocolDriver(txd: Bool, rxd: Bool, cd: ClockDomain) {
   def readRegisters(): Array[Int] = {
     println("[DRIVER] Sending 'Read Registers' (R) command...")
     sendBytes('R'.toByte)
+    
     val rawBytes = receiveBytes(120)
 
-    // *** ByteBuffer 登场！***
-    // 1. 将接收到的字节数组包装进 ByteBuffer
-    // 2. 设置其字节序为小端
     val buffer = ByteBuffer.wrap(rawBytes).order(ByteOrder.LITTLE_ENDIAN)
 
-    // 3. 像读文件一样，循环读取30个整数
     val regs = Array.fill(30)(buffer.getInt())
 
-    println(s"[DRIVER] Received ${regs.length} registers.")
+    println(s"[DRIVER] Received ${regs.length} registers (r0-r31).")
     regs
   }
+  def drainInvalidRsp(context: String = "", cycles: Int = 200): Unit = {
+    cd.waitSampling(cycles) // 等待一小段时间，确保所有传输都已完成
+    val staleBytes = mutable.ArrayBuffer[Byte]()
+    while (!rxByteQueue.isEmpty) {
+      staleBytes += rxByteQueue.poll()
+    }
 
+    if (staleBytes.nonEmpty) {
+      val hexString = staleBytes.map(b => f"0x$b%02x").mkString(" ")
+      println(
+        s"[DRIVER][WARNING] At '$context': Expected RX buffer to be empty, but found ${staleBytes.size} stale bytes: $hexString"
+      )
+    } else {
+      println(s"[DRIVER][ASSERT] At '$context': RX buffer is clean as expected.")
+    }
+  }
+
+  def assertAndClearRxBuffer(context: String, cycles: Int = 200): Unit = {
+    cd.waitSampling(cycles) // 等待一小段时间，确保所有传输都已完成
+    val staleBytes = mutable.ArrayBuffer[Byte]()
+    while (!rxByteQueue.isEmpty) {
+      staleBytes += rxByteQueue.poll()
+    }
+
+    if (staleBytes.nonEmpty) {
+      val hexString = staleBytes.map(b => f"0x$b%02x").mkString(" ")
+      simFailure(
+        s"[DRIVER][ASSERTION FAILED] At '$context': Expected RX buffer to be empty, but found ${staleBytes.size} stale bytes: $hexString"
+      )
+    } else {
+      println(s"[DRIVER][ASSERT] At '$context': RX buffer is clean as expected.")
+    }
+  }
+
+  def printRegisters(regs: Array[Int]): Unit = {
+    // LoongArch ABI 寄存器名称 (r0-r31)
+    val abiNames = Array(
+      "zero", "ra", "tp", "sp", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7",
+      "t0", "t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "x",
+      "fp", "s0", "s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8"
+    )
+    
+    println("+------+----------+------------+")
+    println("| Reg  | ABI Name |   Value    |")
+    println("+------+----------+------------+")
+    
+    // *** 修复点：确保regs.length是32 ***
+    for (i <- regs.indices) {
+      val regNum = i
+      val regName = f"$$r$regNum%-2s"
+      val abiName = f"${abiNames(i + 2)}%-8s"
+      val regValue = f"0x${regs(i)}%08x"
+      println(f"| $regName | $abiName | $regValue |")
+    }
+    
+    println("+------+----------+------------+")
+  }
   /** 'D' - 读内存。
     * @param addr 起始地址。
     * @param numBytes 要读取的字节数 (必须是4的倍数)。
@@ -80,11 +133,11 @@ class BinaryProtocolDriver(txd: Bool, rxd: Bool, cd: ClockDomain) {
     */
   def dumpMemory(addr: Long, numBytes: Int): Array[Byte] = {
     println(f"[DRIVER] Sending 'Dump Memory' (D) command: addr=0x$addr%x, size=$numBytes")
-    
+
     // *** ByteBuffer 登场！***
     // 1. 分配一个 8 字节的缓冲区来存放地址和长度
     val headerBuffer = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN)
-    
+
     // 2. 将地址和长度放入缓冲区
     //    注意：协议需要32位地址和长度，但我们的addr是Long(64位)，需要转换
     headerBuffer.putInt(addr.toInt)
@@ -103,19 +156,18 @@ class BinaryProtocolDriver(txd: Bool, rxd: Bool, cd: ClockDomain) {
     * @param addr 起始地址。
     * @param data 要写入的数据。
     */
- def writeMemory(addr: Long, data: Array[Byte]): Unit = {
+  def writeMemory(addr: Long, data: Array[Byte]): Unit = {
     val numBytes = data.length
     println(f"[DRIVER] Sending 'Write Memory' (A) command: addr=0x$addr%x, size=$numBytes")
 
-    // *** ByteBuffer 登场！***
     val headerBuffer = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN)
     headerBuffer.putInt(addr.toInt)
     headerBuffer.putInt(numBytes)
-    
+
     sendBytes('A'.toByte)
     sendBytes(headerBuffer.array(): _*)
     sendBytes(data: _*) // 发送实际数据
-    
+
     println("[DRIVER] Write memory command sent.")
   }
 
@@ -125,34 +177,69 @@ class BinaryProtocolDriver(txd: Bool, rxd: Bool, cd: ClockDomain) {
     */
   def go(addr: Long): String = {
     println(f"[DRIVER] Sending 'Go' (G) command: addr=0x$addr%x")
-    
-    // *** ByteBuffer 登场！***
+    sendBytes('G'.toByte)
     val addrBuffer = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN)
     addrBuffer.putInt(addr.toInt)
-    
-    sendBytes('G'.toByte)
     sendBytes(addrBuffer.array(): _*)
 
-    // 1. 等待启动信号 ACK (0x06)
-    val ack = receiveBytes(1)
-    if (ack.head != 0x06) {
-      simFailure(f"[DRIVER] 'Go' command failed: Expected ACK (0x06) but got 0x${ack.head}%02x")
-    }
-    println("[DRIVER] Received ACK, user program is running...")
+    println("[DRIVER] Waiting for ACK (0x06)...")
+    // 1. 等待启动信号 ACK (0x06)，重复尝试直到收到 ACK 或连续失败3次
+    var ackAttempts = 0
+    var receivedAck = false
+    var lastReceivedByte: Byte = 0x00 // 用于记录最后收到的字节
+    val maxAckAttempts = 3 // 连续非ACK的最大尝试次数
 
-    // 2. 接收用户程序输出，直到收到结束信号 BEL (0x07)
-    val userOutput = new mutable.ArrayBuffer[Byte]()
-    var finished = false
-    while (!finished) {
-      val byte = receiveBytes(1).head
-      if (byte == 0x07) {
-        finished = true
-        println("\n[DRIVER] Received BEL, user program finished.")
+    while (!receivedAck && ackAttempts < maxAckAttempts) {
+      val receivedBytes = receiveBytes(1) // 尝试接收一个字节
+      if (receivedBytes.nonEmpty) {
+        val byte = receivedBytes.head
+        if (byte == 0x06) {
+          receivedAck = true
+          println("[DRIVER] Received ACK, user program is running...")
+        } else {
+          ackAttempts += 1
+          lastReceivedByte = byte // 记录非ACK的字节
+          println(
+            f"[DRIVER] WARNING: Expected ACK (0x06) but received 0x$byte%02x. Retrying... (Attempt $ackAttempts/$maxAckAttempts)"
+          )
+        }
       } else {
-        userOutput += byte
-        print(byte.toChar) // 实时打印用户输出
+        cd.waitSampling()
       }
     }
+
+    if (!receivedAck) {
+      simFailure(
+        f"[DRIVER] 'Go' command failed: Did not receive ACK (0x06) after $maxAckAttempts continuous attempts. Last received: 0x$lastReceivedByte%02x."
+      )
+    }
+
+    // 2. 接收所有字节，直到收到结束信号 BEL (0x07)
+    val userOutput = new mutable.ArrayBuffer[Byte]()
+    var finished = false
+    var timeout = 2000000 // 加一个大的超时，防止无限等待
+    while (!finished && timeout > 0) {
+      // 尝试非阻塞地获取一个字节
+      if (!rxByteQueue.isEmpty) {
+        val byte = rxByteQueue.poll()
+        if (byte == 0x07) {
+          finished = true
+          println("\n[DRIVER] Received BEL, user program finished.")
+        } else {
+          userOutput += byte
+          // 实时打印用户输出，只在收到非BEL字节时打印
+          print(byte.toChar)
+        }
+      } else {
+        cd.waitSampling()
+        timeout -= 1
+      }
+    }
+
+    if (!finished) {
+      simFailure(s"Timeout: Did not receive BEL (0x07) after 'Go' command.")
+    }
+
     new String(userOutput.toArray, "UTF-8")
   }
 
@@ -196,9 +283,8 @@ class BinaryProtocolDriver(txd: Bool, rxd: Bool, cd: ClockDomain) {
 
   /** 启动后台的发送和接收线程。
     */
- /**
-   * 启动后台的发送和接收线程 (适配SIMULATION模式)。
-   */
+  /** 启动后台的发送和接收线程 (适配SIMULATION模式)。
+    */
   def start(): Unit = {
     // --- TX FORK (从DUT接收数据) ---
     fork {
@@ -227,7 +313,9 @@ class BinaryProtocolDriver(txd: Bool, rxd: Bool, cd: ClockDomain) {
             if (currentTxd) { // 停止位必须是1
               rxByteQueue.add(currentRxByte.toByte)
             } else {
-              println(s"[DRIVER-RX-ERROR] Framing error: Expected stop bit (1) but got 0. Discarding byte 0x${currentRxByte.toHexString}.")
+              println(
+                s"[DRIVER-RX-ERROR] Framing error: Expected stop bit (1) but got 0. Discarding byte 0x${currentRxByte.toHexString}."
+              )
             }
             receiving = false
           }
@@ -238,24 +326,33 @@ class BinaryProtocolDriver(txd: Bool, rxd: Bool, cd: ClockDomain) {
 
     // --- RX FORK (向DUT发送数据) ---
     fork {
+      // 持续将rxd驱动为高电平，除非有数据要发送
+      rxd #= true
+
       while (true) {
+        // 阻塞地等待队列非空
+        // waituntil(txByteQueue.nonEmpty) 是一种思路，但可能与并发队列不兼容
+        // 一个更简单的方法是轮询
         if (!txByteQueue.isEmpty) {
           val byteToSend = txByteQueue.poll()
           if (byteToSend != null) {
-            // SIMULATION模式：每个比特持续一个时钟周期
+            // 发送数据时，临时接管 rxd 的驱动权
             rxd #= false // Start bit
             cd.waitSampling(1)
 
-            (0 until 8).foreach { i => 
+            (0 until 8).foreach { i =>
               rxd #= ((byteToSend >> i) & 1) != 0
               cd.waitSampling(1)
             }
 
             rxd #= true // Stop bit
             cd.waitSampling(1)
+
+            // 发送完成后，再次将 rxd 驱动为高电平
+            rxd #= true
           }
         } else {
-          rxd #= true // Idle
+          // 如果队列为空，什么也不做，继续循环，rxd 保持高电平
           cd.waitSampling(1)
         }
       }

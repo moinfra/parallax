@@ -29,7 +29,8 @@ class ROBPlugin[RU <: Data with Formattable with HasRobPtr](
   // 实例化 ReorderBuffer 组件 在 early 创建以便其用户可以连接到它的 io 端口
   val robComponent = create early {
     ParallaxLogger.log(s"ROBPlugin: Creating ReorderBuffer component with config: $robConfig")
-    new ReorderBuffer[RU](robConfig)
+    // new ReorderBuffer[RU](robConfig)
+    new ReorderBufferPipeline[RU](robConfig)
   }
 
   // 用于分配物理 ROB 写回端口的计数器

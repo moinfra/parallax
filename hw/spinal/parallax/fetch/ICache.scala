@@ -60,7 +60,7 @@ package object icache {
   case class ICacheCmd(pcWidth: Int) extends Bundle with Formattable {
     val address = UInt(pcWidth bits)
     // transactionId helps in tracing and asserting request-response matching.
-    val transactionId = UInt(8 bits)
+    val transactionId = UInt(6 bits)
 
     override def format: Seq[Any] = {
       Seq(
@@ -76,7 +76,7 @@ package object icache {
     * @param iCfg The ICache configuration.
     */
   case class ICacheRsp(iCfg: ICacheConfig) extends Bundle with Formattable {
-    val transactionId = UInt(8 bits)
+    val transactionId = UInt(6 bits)
     // The ICache always returns a full line of data.
     val instructions = Vec(Bits(32 bits), iCfg.lineWords)
     val wasHit = Bool()
