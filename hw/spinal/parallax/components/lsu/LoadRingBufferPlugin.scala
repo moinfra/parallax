@@ -198,21 +198,28 @@ class LoadRingBufferPlugin(
     // === 队头处理微流水线 (Head Processing Mini-Pipeline) ===
     // =========================================================================
     val head_proc_pipe = new Area {
-        // --- 流水线第二级 (S2) 的状态寄存器 ---
+        // --- S1 -> S2 的流水线寄存器 ---
+        // 这一级负责锁存从LQ队头读取的、发起查询所需的全部信息。
+        val s2_pipe = new Area {
+            val validReg     = Reg(Bool()).init(False)
+            val indexReg     = Reg(UInt(addressWidth bits))
+            val robPtrReg    = Reg(UInt(lsuConfig.robPtrWidth))
+            val addressReg   = Reg(UInt(lsuConfig.pcWidth)) // **关键：锁存地址**
+            val sizeReg      = Reg(MemAccessSize())
+            val isCoherentReg = Reg(Bool())
+            val isIoReg       = Reg(Bool())
+        }
 
-        /** S2 是否有效 (即 S1 在上一拍成功发起了查询) */
-        val valid = Reg(Bool()).init(False)
-
-        /** S2 需要操作的目标槽位索引 (由 S1 在上一拍锁存) */
-        val index = Reg(UInt(addressWidth bits))
-
-        /** S2 需要应用的、从SQ查询并锁存的结果 */
-        val latchedSbHit   = Reg(Bool())
-        val latchedSbData  = Reg(Bits(pipelineConfig.dataWidth))
-        val latchedSbStall = Reg(Bool())
-
-        /** S2 需要透传的身份信息，用于验证 */
-        val latchedRobPtr = Reg(UInt(lsuConfig.robPtrWidth))
+        // --- S2 -> S3 的流水线寄存器 ---
+        // 这一级负责锁存SQ查询的完整结果。
+        val s3_pipe = new Area {
+            val validReg     = Reg(Bool()).init(False)
+            val indexReg     = Reg(UInt(addressWidth bits))
+            val robPtrReg    = Reg(UInt(lsuConfig.robPtrWidth)) // 用于验证
+            val latchedSbHitReg   = Reg(Bool())
+            val latchedSbDataReg  = Reg(Bits(pipelineConfig.dataWidth))
+            val latchedSbStallReg = Reg(Bool())
+        }
     }
 
 
@@ -473,110 +480,130 @@ class LoadRingBufferPlugin(
       val headSlotNext = slotsNext(storage.freePtrReg)
       val canProcessHead = !storage.isEmpty && headSlot.valid && !doFlush_rob && !flush_pipeline.isApplying
 
-      // --- 默认行为：清空S2流水线，它只在S1成功时才被置位 ---
-      head_proc_pipe.valid := False
+      // --- 流水线默认控制 ---
+      // 默认情况下，S2和S3的valid信号在下一拍会变为False，除非被S1或S2的逻辑置位。
+      head_proc_pipe.s2_pipe.validReg := False
+      head_proc_pipe.s3_pipe.validReg := False
 
       // =================================================================
-      // === 微流水线 阶段1 (S1): 发起查询并送入管道 (组合逻辑) ===
+      // === 微流水线 阶段1 (S1): 地址准备 & 送入管道 (组合逻辑) ===
       // =================================================================
       
-      // S1 的启动条件：是队头，且尚未开始任何检查流程
+      // S1的启动条件：是队头，且未进入任何后续处理流程
       val canStartCheck = canProcessHead && !headSlot.isBusyChecking && !headSlot.isStalledBySB && 
                           !headSlot.isReadyForMem && !headSlot.isWaitingForMemRsp && !headSlot.isLoaded &&
                           !headSlot.hasEarlyException
 
-      // 1.A 发送查询命令给SQ
-      hw.sbQueryPort.cmd.valid := canStartCheck
-      hw.sbQueryPort.cmd.payload.address := headSlot.address
-      hw.sbQueryPort.cmd.payload.size := headSlot.size
-      hw.sbQueryPort.cmd.payload.robPtr := headSlot.robPtr
-      hw.sbQueryPort.cmd.payload.isCoherent := headSlot.isCoherent
-      hw.sbQueryPort.cmd.payload.isIO := headSlot.isIO
-
-      // 1.B 接收SQ的组合逻辑响应
-      val sbRsp = hw.sbQueryPort.rsp
-
-      // 1.C 如果查询可以发起，则将所有信息送到 S2 寄存器的输入端
+      // 当S1启动时，计算下一拍S2寄存器的值
       when(canStartCheck) {
-          // 标记该槽位已进入检查流程，防止下一拍重复发起
+          // 标记该槽位已进入处理流程，防止重复发起
           headSlotNext.isBusyChecking := True
           
-          // 告诉 S2 下一拍要干活了
-          head_proc_pipe.valid := True 
+          // S2将在下一拍有效
+          head_proc_pipe.s2_pipe.validReg := True 
           
-          // 锁存目标信息
-          head_proc_pipe.index     := storage.freePtrReg
-          head_proc_pipe.latchedRobPtr := headSlot.robPtr // 用于验证
-
-          // 无条件地将SQ的响应送到锁存寄存器的D端
-          head_proc_pipe.latchedSbHit   := sbRsp.hit
-          head_proc_pipe.latchedSbStall := sbRsp.olderStoreDataNotReady || sbRsp.olderStoreHasUnknownAddress
-          head_proc_pipe.latchedSbData  := sbRsp.data
+          // 将S1的所有信息送到S2寄存器的输入端
+          head_proc_pipe.s2_pipe.indexReg     := storage.freePtrReg
+          head_proc_pipe.s2_pipe.robPtrReg    := headSlot.robPtr
+          head_proc_pipe.s2_pipe.addressReg   := headSlot.address
+          head_proc_pipe.s2_pipe.sizeReg      := headSlot.size
+          head_proc_pipe.s2_pipe.isCoherentReg:= headSlot.isCoherent
+          head_proc_pipe.s2_pipe.isIoReg      := headSlot.isIO
           
-          if (enableLog) debug(L"[LQ-HEAD-S1] Firing Query for robPtr=${headSlot.robPtr} at index ${storage.freePtrReg}. Latching SB Rsp (hit=${sbRsp.hit}, stall=${sbRsp.olderStoreDataNotReady}).")
+          if (enableLog) debug(L"[LQ-HEAD-S1] Address Prep for robPtr=${headSlot.robPtr} at index ${storage.freePtrReg}. Addr=0x${headSlot.address}")
       }
 
       // =================================================================
-      // === 微流水线 阶段2 (S2): 应用锁存的结果 (时序逻辑) ===
+      // === 微流水线 阶段2 (S2): 发起查询 & 锁存结果 (时序->组合->时序) ===
       // =================================================================
       
-      // S2 的执行条件：S2 寄存器有效
-      when(head_proc_pipe.valid) {
-        val targetIndex = head_proc_pipe.index
+      // 2.A: 从S2寄存器读取稳定的查询参数
+      val s2_valid    = head_proc_pipe.s2_pipe.validReg
+      val s2_address  = head_proc_pipe.s2_pipe.addressReg
+      val s2_robPtr   = head_proc_pipe.s2_pipe.robPtrReg
+      // ... (读取其他 s2_*Reg)
+
+      // 2.B: 使用S2寄存器的稳定输出，向SQ发起组合逻辑查询
+      hw.sbQueryPort.cmd.valid         := s2_valid
+      hw.sbQueryPort.cmd.payload.address  := s2_address
+      hw.sbQueryPort.cmd.payload.robPtr   := s2_robPtr
+      hw.sbQueryPort.cmd.payload.size       := head_proc_pipe.s2_pipe.sizeReg
+      hw.sbQueryPort.cmd.payload.isCoherent := head_proc_pipe.s2_pipe.isCoherentReg
+      hw.sbQueryPort.cmd.payload.isIO       := head_proc_pipe.s2_pipe.isIoReg
+
+      // 2.C: 接收SQ的组合逻辑响应
+      val sbRsp = hw.sbQueryPort.rsp
+      
+      // 2.D: 当S2有效时，将SQ的响应送到S3寄存器的输入端
+      when(s2_valid) {
+          // S3将在下一拍有效
+          head_proc_pipe.s3_pipe.validReg := True
+          
+          // 透传身份信息
+          head_proc_pipe.s3_pipe.indexReg   := head_proc_pipe.s2_pipe.indexReg
+          head_proc_pipe.s3_pipe.robPtrReg  := s2_robPtr
+          
+          // 锁存SQ的响应
+          head_proc_pipe.s3_pipe.latchedSbHitReg   := sbRsp.hit
+          head_proc_pipe.s3_pipe.latchedSbStallReg := sbRsp.olderStoreDataNotReady || sbRsp.olderStoreHasUnknownAddress
+          head_proc_pipe.s3_pipe.latchedSbDataReg  := sbRsp.data
+          
+          if (enableLog) debug(L"[LQ-HEAD-S2] Firing Query for robPtr=${s2_robPtr} at index ${head_proc_pipe.s2_pipe.indexReg}. Latching Rsp (hit=${sbRsp.hit}, stall=${sbRsp.olderStoreDataNotReady}).")
+      }
+
+      // =================================================================
+      // === 微流水线 阶段3 (S3): 应用锁存的结果 (时序逻辑) ===
+      // =================================================================
+      
+      // S3 的执行条件：S3 寄存器有效
+      when(head_proc_pipe.s3_pipe.validReg) {
+        val targetIndex = head_proc_pipe.s3_pipe.indexReg
         val targetSlotNext = slotsNext(targetIndex)
-        val currentTargetSlot = storage.slotsReg(targetIndex) // 读取当前状态用于验证
+        val currentTargetSlot = storage.slotsReg(targetIndex)
 
-        // **鲁棒性验证**：确保我们操作的槽位仍然是当初送入S1的那个指令
+        // **鲁棒性验证**
         val isValidTarget = currentTargetSlot.valid && 
-                            currentTargetSlot.isBusyChecking && // 必须处于“检查中”状态
-                            currentTargetSlot.robPtr === head_proc_pipe.latchedRobPtr // 身份必须匹配
+                            currentTargetSlot.isBusyChecking &&
+                            currentTargetSlot.robPtr === head_proc_pipe.s3_pipe.robPtrReg
 
-        if (enableLog) debug(L"[LQ-HEAD-S2] Applying Latched Rsp for index ${targetIndex}. Valid Target: ${isValidTarget}")
+        if (enableLog) debug(L"[LQ-HEAD-S3] Applying Rsp for robPtr=${head_proc_pipe.s3_pipe.robPtrReg} at index ${targetIndex}. Valid Target: ${isValidTarget}")
         
         when(isValidTarget) {
             // 安全地应用结果
-            targetSlotNext.isBusyChecking := False // 退出检查流程
+            targetSlotNext.isBusyChecking := False // 流程结束，槽位可以进入下一状态
 
-            when(head_proc_pipe.latchedSbStall) {
-              // 需要暂停 -> 进入 Stall 状态
+            when(head_proc_pipe.s3_pipe.latchedSbStallReg) {
               targetSlotNext.isStalledBySB := True
               if (enableLog) debug(L"  -> Decision: STALL")
-
-            }.elsewhen(head_proc_pipe.latchedSbHit) {
-              // 命中 -> 加载完成，数据来自转发
+            }.elsewhen(head_proc_pipe.s3_pipe.latchedSbHitReg) {
               targetSlotNext.isLoaded := True
-              targetSlotNext.data := head_proc_pipe.latchedSbData
+              targetSlotNext.data := head_proc_pipe.s3_pipe.latchedSbDataReg
               targetSlotNext.hasFault := False
               if (enableLog) debug(L"  -> Decision: FORWARDED")
-              
             } otherwise {
-              // 未命中 -> 可以安全地访问内存
               targetSlotNext.isReadyForMem := True
               if (enableLog) debug(L"  -> Decision: READY FOR MEMORY")
             }
         } otherwise {
-            // 如果验证失败（例如，指令在S1和S2之间被冲刷），则简单地丢弃结果。
-            // S2的valid信号在下一拍会自动变回False。
-            if (enableLog) notice(L"[LQ-HEAD-S2] Discarding stale latched result for index ${targetIndex} (current robPtr=${currentTargetSlot.robPtr}, expected=${head_proc_pipe.latchedRobPtr})")
+            if (enableLog) notice(L"[LQ-HEAD-S3] Discarding stale latched result for index ${targetIndex} (current robPtr=${currentTargetSlot.robPtr}, expected=${head_proc_pipe.s3_pipe.robPtrReg})")
         }
       }
-
-      // --- 处理 Stall 恢复的逻辑 ---
-      // 这个逻辑现在很简单：如果一个指令被标记为Stall，下一拍就清除Stall标志。
-      // 清除后，它将不再是isStalledBySB，也不再是isBusyChecking，因此会自动满足canStartCheck的条件，从而重试。
+      
+      // --- 辅助逻辑: Stall 恢复和 Early Exception ---
+      // 这部分逻辑与微流水线并行工作，处理进入/退出流水线的特殊情况
+      
+      // Stall 恢复
       when(canProcessHead && headSlot.isStalledBySB) {
         headSlotNext.isStalledBySB := False
-        if (enableLog) debug(L"[LQ-HEAD-RECOVER] robPtr=${headSlot.robPtr} recovering from SB stall, will retry.")
+        // 清除Stall后，下一拍 canStartCheck 将自动满足，从而重试
       }
       
-      // --- 处理 Early Exception 的逻辑 ---
-      // 这个逻辑在 canStartCheck 中被检查，如果异常存在，就不会进入微流水线。
-      // 我们需要一个单独的路径来处理它。
+      // Early Exception
+      // 条件：是队头，有异常，且尚未进入微流水线
       when(canProcessHead && headSlot.hasEarlyException && !headSlot.isBusyChecking) {
           headSlotNext.isLoaded := True
           headSlotNext.hasFault := True
           headSlotNext.exceptionCode := headSlot.earlyExceptionCode
-          if (enableLog) debug(L"[LQ-HEAD-EARLY-EX] robPtr=${headSlot.robPtr} has early exception.")
       }
     }
 
